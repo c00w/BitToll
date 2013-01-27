@@ -1,0 +1,60 @@
+/request
+-------------------------
+{
+    "username":_
+    "amount":_
+    "time":_
+    "sign":_
+}
+
+response
+{
+    "code": string|None
+    "error":None
+}
+
+/register
+-------------------------
+request
+{
+}
+response
+{
+    "username":_
+    "secret":_
+}
+
+/pay
+request
+{
+    "username":_
+    "payment":_
+    "sign":_
+}
+response
+{
+    "error":_
+}
+
+/balance
+{
+    "username":_
+    "time":_
+    "sign":_
+}
+response
+{
+    "balance"
+    "error"
+}
+
+/deposit
+{
+    "username":_
+    "time":_
+    "sign":_
+}
+{
+    "address":_
+    "error":_
+}

@@ -58,3 +58,13 @@ response
     "address":_
     "error":_
 }
+
+/mine
+{
+    "username"_
+    "time"_
+    "sign"_
+} 
+{
+What we need to mine...
+}

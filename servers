@@ -1,0 +1,8 @@
+Webfrontend
+    -Handles api hits
+Redis
+    -Stores accounts, password, payments, balances
+Miner Pools
+    -Proxies miner work
+Bitcoin Managers
+    -Deals with sending and recieving bitcoins

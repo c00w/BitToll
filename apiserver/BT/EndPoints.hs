@@ -1,5 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
-module BT.EndPoints where
+module BT.EndPoints(register, helloworld) where
 import Data.ByteString.Lazy.Char8 (pack)
 import qualified Data.ByteString.Char8 as BC
 import qualified Data.ByteString.Lazy as BL

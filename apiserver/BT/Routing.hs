@@ -1,5 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
-module BT.Routing where
+module BT.Routing(route) where
 
 import Data.Map
 import BT.EndPoints

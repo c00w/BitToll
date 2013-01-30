@@ -24,5 +24,5 @@ application redis info = do
         responseLBS status200 [("Content-Type", "text/plain")] response
 
 main = do
-    conn <- connect defaultConnectInfo{connectMaxConnections=255}
+    conn <- connect defaultConnectInfo{connectPort = UnixSocket "/tmp/redis.sock", connectMaxConnections=500}
     run 3000 $ application conn

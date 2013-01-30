@@ -1,5 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
-module BT.EndPoints(register, helloworld) where
+module BT.EndPoints(register, ) where
 import Data.ByteString.Lazy.Char8 (pack)
 import qualified Data.ByteString.Char8 as BC
 import qualified Data.ByteString as B
@@ -10,29 +10,26 @@ import Numeric (showHex)
 import System.Random (getStdRandom, random)
 import Text.JSON
 import System.IO
+import BT.Global
 
-helloworld :: Request -> Connection -> IO BL.ByteString
-helloworld info _ = do
-    return $ BL.fromChunks ["Hello", "World"]
 
-randomInt :: IO B.ByteString
-randomInt = do
+randomInt :: PersistentConns -> IO B.ByteString
+randomInt conns = do
     fd <- openBinaryFile "/dev/urandom" ReadMode
     randata <- hGetContents fd
+    hClose fd
     return $ BC.pack $ take 256 randata
-
-data RegisterResp = RegisterResp { username :: String, secret:: String }
 
 hex = foldr showHex "" . B.unpack
 
-register :: Request -> Connection -> IO BL.ByteString
+register :: Request -> PersistentConns -> IO BL.ByteString
 register info conn = do
-    usernum <- randomInt 
-    saltnum <- randomInt 
+    usernum <- randomInt conn
+    saltnum <- randomInt conn
     let user = hex usernum
     let salt = hex usernum
-    ok <- runRedis conn $ do
-        setnx (BC.pack user) (BC.pack salt)
+    ok <- runRedis (redis conn) $ do
+        setnx (BC.pack $"user_" ++ user) (BC.pack salt)
     
     case ok of
         Right True -> return $ pack $ encode $ toJSObject [("username"::String, user), ("salt", salt)]

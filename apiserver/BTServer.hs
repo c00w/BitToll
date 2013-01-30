@@ -7,6 +7,7 @@ import qualified Data.ByteString as B
 import Data.ByteString.Char8 (split)
 import Control.Monad.IO.Class (liftIO)
 import BT.Routing
+import BT.Global
 import Database.Redis 
 
 getPathCheck :: B.ByteString -> B.ByteString
@@ -16,13 +17,13 @@ getPathCheck path = let splitpath = split '/' path
                         1 -> ""
                         _ -> (splitpath !! 1)
 
-application :: Connection -> Application
-application redis info = do
+application :: PersistentConns -> Application
+application conns info = do
     let path = rawPathInfo info
-    response <- liftIO $ BT.Routing.route path info redis
+    response <- liftIO $ BT.Routing.route path info conns
     return $
         responseLBS status200 [("Content-Type", "text/plain")] response
 
 main = do
-    conn <- connect defaultConnectInfo{connectPort = UnixSocket "/tmp/redis.sock", connectMaxConnections=500}
-    run 3000 $ application conn
+    handles <- makeCons
+    run 3000 $ application handles

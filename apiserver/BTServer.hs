@@ -24,5 +24,5 @@ application redis info = do
         responseLBS status200 [("Content-Type", "text/plain")] response
 
 main = do
-    conn <- connect defaultConnectInfo
+    conn <- connect defaultConnectInfo{connectMaxConnections=255}
     run 3000 $ application conn

@@ -1,5 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
-module BT.EndPoints(register) where
+module BT.EndPoints(register, deposit) where
 import Data.ByteString.Lazy.Char8 (pack)
 import qualified Data.ByteString.Char8 as BC
 import qualified Data.ByteString as B
@@ -10,6 +10,7 @@ import Numeric (showHex)
 import Text.JSON
 import BT.Global
 import System.Entropy
+import qualified System.ZMQ3 as ZMQ
 
 hex = foldr showHex "" . B.unpack
 
@@ -25,3 +26,14 @@ register info conn = do
     case ok of
         Right True -> return $ pack $ encode $ toJSObject [("username"::String, user), ("salt", salt)]
         _ -> register info conn
+
+deposit :: Request -> PersistentConns-> IO BL.ByteString
+deposit info conn = do
+    let connectTo = "ipc:///tmp/bcbackend.sock" 
+    ZMQ.withContext $ \c ->
+        ZMQ.withSocket c ZMQ.Req $ \s -> do
+            ZMQ.connect s connectTo
+            ZMQ.send s [] "REQUEST"
+            resp <- ZMQ.receive s
+            ZMQ.close s
+            return $ BL.fromChunks [resp]

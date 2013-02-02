@@ -10,7 +10,8 @@ import Database.Redis (Connection)
 import BT.Global
 
 router = Data.Map.fromList $ [
-        ("/register", BT.EndPoints.register)]
+        ("/register", BT.EndPoints.register),
+        ("/deposit", BT.EndPoints.deposit)]
 
 route :: B.ByteString -> Request -> PersistentConns -> IO BL.ByteString
 route path info redis = case Data.Map.lookup path router of

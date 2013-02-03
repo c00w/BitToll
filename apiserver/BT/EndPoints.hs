@@ -11,6 +11,7 @@ import Text.JSON
 import BT.Global
 import System.Entropy
 import qualified System.ZMQ3 as ZMQ
+import Data.Pool
 
 hex = foldr showHex "" . B.unpack
 
@@ -29,11 +30,8 @@ register info conn = do
 
 deposit :: Request -> PersistentConns-> IO BL.ByteString
 deposit info conn = do
-    let connectTo = "ipc:///tmp/bcbackend.sock" 
-    ZMQ.withContext $ \c ->
-        ZMQ.withSocket c ZMQ.Req $ \s -> do
-            ZMQ.connect s connectTo
-            ZMQ.send s [] "REQUEST"
-            resp <- ZMQ.receive s
-            ZMQ.close s
-            return $ BL.fromChunks [resp]
+    resp <- withResource (pool conn) (\s -> do
+        ZMQ.send s [] "REQUEST"
+        resp <- ZMQ.receive s
+        return resp)
+    return $ BL.fromChunks [resp]

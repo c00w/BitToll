@@ -7,11 +7,10 @@ import Control.Concurrent
 import Control.Monad
 
 main = do
-    let bindTo = "ipc:///tmp/bcbackend.sock"
+    let bindTo = "tcp://*:3333"
     ZMQ.withContext $ \c ->
         ZMQ.withSocket c ZMQ.Rep $ \s -> do
             ZMQ.bind s bindTo
             forever $ do
                 request <- ZMQ.receive s
-                Data.ByteString.Char8.putStrLn request
                 ZMQ.send s [] "PONG"

@@ -1,2 +1,2 @@
-BTServer: BT/*.hs
-	ghc -O2 BTServer.hs -threaded -prof
+APIServer: BT/*.hs
+	ghc -O2 APIServer.hs -threaded -prof

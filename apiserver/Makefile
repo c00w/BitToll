@@ -1,2 +1,2 @@
 BTServer: BT/*.hs
-	ghc -O2 BTServer.hs -threaded
+	ghc -O2 BTServer.hs -threaded -prof

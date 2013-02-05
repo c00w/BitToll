@@ -8,22 +8,9 @@ import qualified System.ZMQ3 as ZMQ
 import Control.Concurrent
 import Control.Monad
 import Network.Bitcoin as BTC
-import Data.Text.Encoding (encodeUtf8)
+import Data.Text.Encoding (encodeUtf8, decodeUtf8)
 
 bcd = BTC.Auth "http://127.0.0.1:8332" "FGHJUYTUJKNMBVCCDFSTRdfyhydsaoiuyaustdyutyoiurewri" "jakhdkjahslkjdhlkjfhdskjlhflkjHJITYUIOTRRRRYII"
-
-router = Data.Map.fromList $ [
-    ("address", getaddress bcd)]
-
-route :: ByteString -> IO ByteString
-route request = case Data.Map.lookup (take 7 request) router of
-    Nothing -> return "Error"
-    Just a -> a (drop 7 request)
-
-getaddress :: BTC.Auth -> ByteString -> IO ByteString
-getaddress auth req = do
-    addr <- BTC.getNewAddress auth Nothing
-    return $ encodeUtf8 addr
 
 main = do
     let bindTo = "tcp://*:3333"
@@ -34,3 +21,22 @@ main = do
                 request <- ZMQ.receive s
                 resp <- route request
                 ZMQ.send s [] $ resp
+
+router = Data.Map.fromList $ [
+    ("recieved", getrecieved bcd),
+    ("address", getaddress bcd)]
+
+route :: ByteString -> IO ByteString
+route request = case Data.Map.lookup (take 7 request) router of
+    Nothing -> return "Error"
+    Just a -> a (drop 7 request)
+
+getrecieved :: BTC.Auth -> ByteString -> IO ByteString
+getrecieved auth req = do
+    recv <- BTC.getReceivedByAddress' auth (decodeUtf8 req) 6
+    return $ pack $ show recv
+
+getaddress :: BTC.Auth -> ByteString -> IO ByteString
+getaddress auth req = do
+    addr <- BTC.getNewAddress auth Nothing
+    return $ encodeUtf8 addr

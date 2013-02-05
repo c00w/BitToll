@@ -9,18 +9,21 @@ import Network.Wai (Request)
 import Numeric (showHex)
 import Text.JSON
 import BT.Global
-import System.Entropy
+import System.Random (randomIO)
 import qualified System.ZMQ3 as ZMQ
 import Data.Pool
+import Data.Word
 
-hex = foldr showHex "" . B.unpack
+
+randomNum :: IO Word64
+randomNum = randomIO
 
 register :: Request -> PersistentConns-> IO BL.ByteString
 register info conn = do
-    usernum <- getEntropy 256
-    saltnum <- getEntropy 256
-    let user = hex usernum
-    let salt = hex usernum
+    usernum <- randomNum
+    saltnum <- randomNum
+    let user = showHex usernum ""
+    let salt = showHex usernum ""
     ok <- runRedis (redis conn) $ do
         setnx (BC.pack $"user_" ++ user) (BC.pack salt)
     

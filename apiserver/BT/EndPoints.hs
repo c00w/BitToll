@@ -2,9 +2,8 @@
 module BT.EndPoints(register, deposit) where
 import Data.ByteString.Lazy.Char8 (pack)
 import qualified Data.ByteString.Char8 as BC
-import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL
-import Database.Redis
+import Database.Redis(runRedis, setnx)
 import Network.Wai (Request)
 import Numeric (showHex)
 import Text.JSON

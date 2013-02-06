@@ -1,7 +1,6 @@
 module BT.Global(PersistentConns, makeCons, redis, pool) where
 
 import Database.Redis as RD
-import System.IO
 import System.ZMQ3 as ZMQ
 import Data.Pool
 

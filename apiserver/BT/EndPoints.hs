@@ -11,19 +11,30 @@ import Text.JSON
 import BT.Global
 import System.Random (randomIO)
 import qualified System.ZMQ3 as ZMQ
-import Data.Pool
-import Data.Word
+import Data.Pool (withResource)
+import Data.Word (Word64)
 
 
 randomNum :: IO Word64
 randomNum = randomIO
 
+randomString :: IO String
+randomString = do
+    a <- randomNum
+    return $ showHex a ""
+
+random256String :: IO String
+random256String = do
+    a <- randomString
+    b <- randomString
+    c <- randomString
+    d <- randomString
+    return $ a ++ b ++ c ++ d
+
 register :: Request -> PersistentConns-> IO BL.ByteString
 register info conn = do
-    usernum <- randomNum
-    saltnum <- randomNum
-    let user = showHex usernum ""
-    let salt = showHex usernum ""
+    user <- random256String
+    salt <- random256String
     ok <- runRedis (redis conn) $ do
         setnx (BC.pack $"user_" ++ user) (BC.pack salt)
     

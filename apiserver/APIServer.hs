@@ -31,6 +31,7 @@ application conns info = do
     return $
         responseLBS status200 [("Content-Type", "text/plain")] response
 
+main :: IO ()
 main = do
     handles <- makeCons
     run 3000 $ application handles

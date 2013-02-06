@@ -5,11 +5,11 @@ import Data.ByteString (ByteString, drop, take)
 import Data.Map
 
 import qualified System.ZMQ3 as ZMQ
-import Control.Concurrent
 import Control.Monad
 import Network.Bitcoin as BTC
 import Data.Text.Encoding (encodeUtf8, decodeUtf8)
 
+bcd :: Auth
 bcd = BTC.Auth "http://127.0.0.1:8332" "FGHJUYTUJKNMBVCCDFSTRdfyhydsaoiuyaustdyutyoiurewri" "jakhdkjahslkjdhlkjfhdskjlhflkjHJITYUIOTRRRRYII"
 
 main = do
@@ -22,6 +22,7 @@ main = do
                 resp <- route request
                 ZMQ.send s [] $ resp
 
+router :: Map ByteString (ByteString -> IO ByteString)
 router = Data.Map.fromList $ [
     ("recieved", getrecieved bcd),
     ("address", getaddress bcd)]

@@ -39,6 +39,6 @@ getrecieved auth req = do
     return $ pack $ show recv
 
 getaddress :: BTC.Auth -> ByteString -> IO ByteString
-getaddress auth req = do
+getaddress auth _ = do
     addr <- BTC.getNewAddress auth Nothing
     return $ encodeUtf8 addr

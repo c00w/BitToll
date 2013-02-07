@@ -12,6 +12,7 @@ import Data.Text.Encoding (encodeUtf8, decodeUtf8)
 bcd :: Auth
 bcd = BTC.Auth "http://127.0.0.1:8332" "FGHJUYTUJKNMBVCCDFSTRdfyhydsaoiuyaustdyutyoiurewri" "jakhdkjahslkjdhlkjfhdskjlhflkjHJITYUIOTRRRRYII"
 
+main :: IO ()
 main = do
     let bindTo = "tcp://*:3333"
     ZMQ.withContext $ \c ->

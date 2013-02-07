@@ -13,7 +13,7 @@ import System.Random (randomIO)
 import qualified System.ZMQ3 as ZMQ
 import Data.Pool (withResource)
 import Data.Word (Word64)
-
+import Control.Monad.IO.Class
 
 randomNum :: IO Word64
 randomNum = randomIO
@@ -53,34 +53,33 @@ satoshi_add a b = case (BC.readInt a, BC.readInt b) of
 
 update_stored_balance :: B.ByteString -> PersistentConns -> IO ()
 update_stored_balance bitcoinid conn = do
-    actual_recv <- withResource (pool conn) (\s -> do
-        ZMQ.send s [] $ B.append "recieved" bitcoinid
-        resp <- ZMQ.receive s
-        return resp)
-    stored_recv <- runRedis(redis conn) $ do
+    runRedis (redis conn) $ do
+        actual_recv <- liftIO $ withResource (pool conn) (\s -> do
+            liftIO $ ZMQ.send s [] $ B.append "recieved" bitcoinid
+            resp <-liftIO $ ZMQ.receive s
+            return resp)
         watch $ [ B.append "address_recieved_" bitcoinid ]
-        get $ B.append "address_recieved_" bitcoinid
-    stored_balance <- runRedis(redis conn) $ do
+        stored_recv <- get $ B.append "address_recieved_" bitcoinid
         watch $ [ B.append "balance_" bitcoinid ]
-        get $ B.append "balance_" bitcoinid
-    case (stored_recv, stored_balance) of
-        (Right (Just stored), Right (Just st_balance)) -> do
-            if stored == actual_recv
-            then return ()
-            else do
-                let diff = satoshi_sub actual_recv stored
-                runRedis (redis conn) $ do
+        stored_balance <- get $ B.append "balance_" bitcoinid
+        case (stored_recv, stored_balance) of
+            (Right (Just stored), Right (Just st_balance)) -> do
+                if stored == actual_recv
+                then return ()
+                else do
+                    let diff = satoshi_sub actual_recv stored
                     multiExec $ do
                         set (B.append "address_recieved_" bitcoinid) stored
                         set (B.append "balance_" bitcoinid) (satoshi_add st_balance diff)
+                    return ()
+            (Right stored, Left _) -> do
+                multiExec $ do
+                    set (B.append "address_recieved_" bitcoinid) actual_recv
+                    set (B.append "balance_" bitcoinid) actual_recv
                 return ()
-        (Right stored, Left _) -> runRedis (redis conn) $ do
-            multiExec $ do
-                set (B.append "address_recieved_" bitcoinid) actual_recv
-                set (B.append "balance_" bitcoinid) actual_recv
-            return ()
 
-        (_, _) -> return ()
+            (_, _) -> return ()
+    return ()
 balance :: Request -> PersistentConns-> IO BL.ByteString
 balance info conn = do
     let username = "bob"

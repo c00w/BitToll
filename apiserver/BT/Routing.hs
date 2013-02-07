@@ -10,6 +10,7 @@ import BT.Global (PersistentConns)
 
 router = Data.Map.fromList $ [
         ("/register", BT.EndPoints.register),
+        ("/balance", BT.EndPoints.balance),
         ("/deposit", BT.EndPoints.deposit)]
 
 route :: B.ByteString -> Request -> PersistentConns -> IO BL.ByteString

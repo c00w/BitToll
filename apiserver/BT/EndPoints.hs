@@ -1,10 +1,10 @@
 {-# LANGUAGE OverloadedStrings #-}
-module BT.EndPoints(register, deposit) where
+module BT.EndPoints(register, deposit, balance) where
 import Data.ByteString.Lazy.Char8 (pack)
 import qualified Data.ByteString.Char8 as BC
 import qualified Data.ByteString.Lazy as BL
 import qualified Data.ByteString as B
-import Database.Redis(runRedis, setnx, get, set)
+import Database.Redis(runRedis, setnx, get, set, watch, multiExec)
 import Network.Wai (Request)
 import Numeric (showHex)
 import Text.JSON
@@ -58,8 +58,10 @@ update_stored_balance bitcoinid conn = do
         resp <- ZMQ.receive s
         return resp)
     stored_recv <- runRedis(redis conn) $ do
+        watch $ [ B.append "address_recieved_" bitcoinid ]
         get $ B.append "address_recieved_" bitcoinid
     stored_balance <- runRedis(redis conn) $ do
+        watch $ [ B.append "balance_" bitcoinid ]
         get $ B.append "balance_" bitcoinid
     case (stored_recv, stored_balance) of
         (Right (Just stored), Right (Just st_balance)) -> do
@@ -68,16 +70,17 @@ update_stored_balance bitcoinid conn = do
             else do
                 let diff = satoshi_sub actual_recv stored
                 runRedis (redis conn) $ do
-                    set (B.append "address_recieved_" bitcoinid) stored
-                    set (B.append "balance_" bitcoinid) (satoshi_add st_balance diff)
+                    multiExec $ do
+                        set (B.append "address_recieved_" bitcoinid) stored
+                        set (B.append "balance_" bitcoinid) (satoshi_add st_balance diff)
                 return ()
         (Right stored, Left _) -> runRedis (redis conn) $ do
-            set (B.append "address_recieved_" bitcoinid) actual_recv
-            set (B.append "balance_" bitcoinid) actual_recv
+            multiExec $ do
+                set (B.append "address_recieved_" bitcoinid) actual_recv
+                set (B.append "balance_" bitcoinid) actual_recv
             return ()
+
         (_, _) -> return ()
-
-
 balance :: Request -> PersistentConns-> IO BL.ByteString
 balance info conn = do
     let username = "bob"

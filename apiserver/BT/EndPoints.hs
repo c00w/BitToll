@@ -50,7 +50,6 @@ satoshi_add :: B.ByteString -> B.ByteString -> B.ByteString
 satoshi_add a b = case (BC.readInt a, BC.readInt b) of
     (Just (c, _), Just (d, _)) -> BC.pack $ show $ c+d
 
-
 update_stored_balance :: B.ByteString -> PersistentConns -> IO ()
 update_stored_balance bitcoinid conn = do
     runRedis (redis conn) $ do
@@ -80,6 +79,7 @@ update_stored_balance bitcoinid conn = do
 
             (_, _) -> return ()
     return ()
+
 balance :: Request -> PersistentConns-> IO BL.ByteString
 balance info conn = do
     let username = "bob"
@@ -97,8 +97,18 @@ balance info conn = do
 
 deposit :: Request -> PersistentConns-> IO BL.ByteString
 deposit info conn = do
-    resp <- withResource (pool conn) (\s -> do
-        ZMQ.send s [] "address"
-        resp <- ZMQ.receive s
-        return resp)
-    return $ BL.fromChunks [resp]
+    let username = "bob"
+    addr <- runRedis (redis conn) $ do
+        get $ B.append "address_" username
+    case addr of
+        (Right (Just a)) -> return $ BL.fromChunks [a]
+        _ -> do
+            resp <- withResource (pool conn) (\s -> do
+                ZMQ.send s [] "address"
+                resp <- ZMQ.receive s
+                return resp)
+            ok <- runRedis (redis conn) $ do
+                setnx (B.append "address_" username)  resp
+            case ok of
+                Right a -> return $ BL.fromChunks [resp]
+                _ -> return ""

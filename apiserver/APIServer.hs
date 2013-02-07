@@ -2,22 +2,12 @@
 import Network.Wai
 import Network.Wai.Handler.Warp (run)
 import Network.HTTP.Types (status200)
-import Prelude hiding (pack, split)
-import Data.ByteString (ByteString, pack)
-import Data.ByteString.Char8 (split)
 import qualified Data.ByteString.Lazy as LB
 import Control.Monad.IO.Class (liftIO)
 import BT.Routing
 import BT.Global
 import Control.Exception (catch, SomeException)
 import System.IO(hPutStr, stderr)
-
-getPathCheck :: ByteString -> ByteString
-getPathCheck path = let splitpath = split '/' path
-                    in case length splitpath of
-                        0 -> ""
-                        1 -> ""
-                        _ -> (splitpath !! 1)
 
 exceptionHandler :: SomeException -> IO LB.ByteString
 exceptionHandler e = do

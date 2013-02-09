@@ -1,9 +1,8 @@
 {-# LANGUAGE OverloadedStrings #-}
-module BT.EndPoints(register, deposit, balance) where
-import Data.ByteString.Lazy.Char8 (pack)
+module BT.EndPoints(register, deposit, balance, makePayment, createPayment) where
 import qualified Data.ByteString.Char8 as BC
-import qualified Data.ByteString.Lazy as BL
 import qualified Data.ByteString as B
+import Data.List (sortBy)
 import Database.Redis(runRedis, setnx, get, set, watch, multiExec)
 import Network.Wai (Request, requestBody)
 import Numeric (showHex)
@@ -49,20 +48,14 @@ getJSONStringVal :: JSObject JSValue -> String -> String
 getJSONStringVal js key = getResult $ valFromObj key js
 
 
-data SecretRecipe = SecretRecipe {
-    usernames :: String,
-    time :: String,
-    sign :: String,
-    salt :: String
-}
-
+key_comp :: (String, String) -> (String, String) -> Ordering
+key_comp a b = compare (fst a) (fst b)
 -- concat vals of username, time in minutes(1 minute window), and salt then md5 hash
-validate_sign :: SecretRecipe -> Bool
-validate_sign sec_rec = (BC.pack $ sign sec_rec) == (hash $ BC.pack $ concat $ [usernames sec_rec, minutes, salt sec_rec])
-    where
-        minutes = show $ floor $ (read $ time sec_rec) / 60
+validate_sign :: [(String, String)] -> String -> Bool
+validate_sign sec_rec sign = BC.pack sign == (hash $ BC.pack $ concat $ map snd sort_sec_rec)
+    where sort_sec_rec = sortBy key_comp sec_rec
 
-register :: Request -> PersistentConns-> IO BL.ByteString
+register :: Request -> PersistentConns-> IO [(String, String)]
 register info conn = do
     user <- random256String
     salt <- random256String
@@ -70,20 +63,23 @@ register info conn = do
         setnx (BC.pack $"user_" ++ user) (BC.pack salt)
 
     case ok of
-        Right True -> return $ pack $ encode $ toJSObject [("username"::String, user), ("salt", salt)]
+        Right True -> return [("username"::String, user), ("salt", salt)]
         _ -> register info conn
 
 satoshi_big :: B.ByteString -> B.ByteString -> Bool 
 satoshi_big a b = case (BC.readInt a, BC.readInt b) of
     (Just (c, _), Just (d, _)) -> c > d
+    _ -> error "satoshi_comp"
 
 satoshi_sub :: B.ByteString -> B.ByteString -> B.ByteString
 satoshi_sub a b = case (BC.readInt a, BC.readInt b) of
     (Just (c, _), Just (d, _)) -> BC.pack $ show $ c-d
+    _ -> error "satoshi_comp"
 
 satoshi_add :: B.ByteString -> B.ByteString -> B.ByteString
 satoshi_add a b = case (BC.readInt a, BC.readInt b) of
     (Just (c, _), Just (d, _)) -> BC.pack $ show $ c+d
+    _ -> error "satoshi_comp"
 
 update_stored_balance :: B.ByteString -> PersistentConns -> IO ()
 update_stored_balance bitcoinid conn = do
@@ -115,7 +111,7 @@ update_stored_balance bitcoinid conn = do
             (_, _) -> return ()
     return ()
 
-balance :: Request -> PersistentConns-> IO BL.ByteString
+balance :: Request -> PersistentConns-> IO [(String, String)] 
 balance info conn = do
     js <- getRequestJSON info 
     let username = getJSONStringVal js "username"
@@ -128,10 +124,10 @@ balance info conn = do
     b_resp <- runRedis (redis conn) $ do
         get $ B.append "balance_" $ BC.pack username
     case b_resp of
-        (Right (Just a)) -> return $ BL.fromChunks [a]
-        _ -> return "FU"
+        (Right (Just a)) -> return [("balance", BC.unpack a)]
+        _ -> return []
 
-createPayment :: Request -> PersistentConns -> IO BL.ByteString
+createPayment :: Request -> PersistentConns -> IO [(String, String)]
 createPayment info conn = do
     js <- getRequestJSON info
     let username = BC.pack $ getJSONStringVal js "username"
@@ -141,16 +137,16 @@ createPayment info conn = do
         setnx (B.append "payment_" (BC.pack paymentid)) (BC.pack (show amount))
         setnx (B.append "payment_user_" (BC.pack paymentid)) username
     val <- case resp of
-        (Right True) -> return $ BL.fromChunks [BC.pack paymentid]
+        (Right True) -> return $ [("payment",paymentid)]
         (Right False) -> createPayment info conn
-        _ -> error "FU"
-    return $ val
+        _ -> error []
+    return val
 
 getRedisResult a = case a of
     (Right (Just b)) -> b
     _ -> error "BREAK"
 
-makePayment :: Request -> PersistentConns -> IO BL.ByteString
+makePayment :: Request -> PersistentConns -> IO [(String, String)]
 makePayment info conn = do
     js <- getRequestJSON info
     let username = BC.pack $ getJSONStringVal js "username"
@@ -176,16 +172,16 @@ makePayment info conn = do
             _ <- set (B.append "balance_" username) diff
             _ <- set (B.append "balance_" user) $ satoshi_add user_balance req_amount
             set (B.append "payment_done_" payment) (BC.pack "1")
-    return ""
+    return []
 
-deposit :: Request -> PersistentConns-> IO BL.ByteString
+deposit :: Request -> PersistentConns-> IO [(String, String)]
 deposit info conn = do
     js <- getRequestJSON info
     let username = BC.pack $ getJSONStringVal js "username"
     addr <- runRedis (redis conn) $ do
         get $ B.append "address_" username
     case addr of
-        (Right (Just a)) -> return $ BL.fromChunks [a]
+        (Right (Just a)) -> return $ [("address",BC.unpack a)]
         _ -> do
             resp <- withResource (pool conn) (\s -> do
                 ZMQ.send s [] "address"
@@ -194,5 +190,5 @@ deposit info conn = do
             ok <- runRedis (redis conn) $ do
                 setnx (B.append "address_" username)  resp
             case ok of
-                Right True -> return $ BL.fromChunks [resp]
-                _ -> return ""
+                Right True -> return $ [("address", BC.unpack resp)]
+                _ -> return []

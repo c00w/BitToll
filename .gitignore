@@ -2,4 +2,6 @@
 *.o
 *.prof
 dist
+apiserver/APIServer
+bcserver/BCServer
 

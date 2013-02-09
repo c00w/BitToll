@@ -8,6 +8,7 @@ import qualified Data.ByteString.Lazy as BL
 import Network.Wai (Request)
 import BT.Global (PersistentConns)
 
+router :: Map B.ByteString (Request -> PersistentConns -> IO BL.ByteString)
 router = Data.Map.fromList $ [
         ("/register", BT.EndPoints.register),
         ("/balance", BT.EndPoints.balance),

@@ -3,7 +3,7 @@ module BT.EndPoints(register, deposit, getBalance, makePayment, createPayment) w
 import qualified Data.ByteString.Char8 as BC
 import qualified Data.ByteString as B
 import Data.List (sortBy)
-import Database.Redis(runRedis, setnx, get, set, watch, multiExec)
+import Database.Redis(Redis, runRedis, setnx, get, set, watch, multiExec, TxResult(TxSuccess))
 import Network.Wai (Request, requestBody)
 import Numeric (showHex)
 import Text.JSON
@@ -41,16 +41,33 @@ getResult res = case res of
                     Ok val -> val
                     Error err -> error err
 
+getMaybe :: Maybe a -> a
+getMaybe may = case may of
+    Just a -> a
+    _ -> error "Not good."
+
 getRequestJSON :: Request -> IO (JSObject JSValue)
 getRequestJSON req = getResult <$> decode <$> BC.unpack <$> mconcat <$> runResourceT (requestBody req $$ consume)
 
-getJSONStringVal :: JSObject JSValue -> String -> String
-getJSONStringVal js key = getResult $ valFromObj key js
+unjskey :: (String, JSValue) -> (String, String)
+unjskey (a, JSString b) = (a, fromJSString b)
+unjskey _ = error "Not a js value"
 
+getRequestAL :: Request -> IO [(String, String)]
+getRequestAL req = do
+    json <- getRequestJSON req
+    let jsal = fromJSObject json
+    let al = map unjskey jsal
+    let signWrap = lookup "sign" al
+    let sign = getMaybe $ signWrap
+    let al_minus_sign = filter (\s -> not (fst s == "sign")) al
+    if not $ validate_sign al_minus_sign sign
+    then error "Invalid Sign"
+    else return al
 
 key_comp :: (String, String) -> (String, String) -> Ordering
 key_comp a b = compare (fst a) (fst b)
--- concat vals of username, time in minutes(1 minute window), and salt then md5 hash
+
 validate_sign :: [(String, String)] -> String -> Bool
 validate_sign sec_rec sign = BC.pack sign == (hash $ BC.pack $ concat $ map snd sort_sec_rec)
     where sort_sec_rec = sortBy key_comp sec_rec
@@ -81,6 +98,12 @@ satoshi_add a b = case (BC.readInt a, BC.readInt b) of
     (Just (c, _), Just (d, _)) -> BC.pack $ show $ c+d
     _ -> error "satoshi_comp"
 
+checkWatch :: (Either a b) -> Redis ()
+checkWatch a = do 
+    case a of
+        Left _ -> return $ error "watch"
+        _ -> return ()
+
 update_stored_balance :: B.ByteString -> PersistentConns -> IO ()
 update_stored_balance bitcoinid conn = do
     runRedis (redis conn) $ do
@@ -88,9 +111,11 @@ update_stored_balance bitcoinid conn = do
             liftIO $ ZMQ.send s [] $ B.append "recieved" bitcoinid
             resp <-liftIO $ ZMQ.receive s
             return resp)
-        watch $ [ B.append "address_recieved_" bitcoinid ]
+        s <- watch $ [ B.append "address_recieved_" bitcoinid ]
+        checkWatch s
         stored_recv <- get $ B.append "address_recieved_" bitcoinid
-        watch $ [ B.append "balance_" bitcoinid ]
+        bw <- watch $ [ B.append "balance_" bitcoinid ]
+        checkWatch bw
         stored_balance <- get $ B.append "balance_" bitcoinid
         case (stored_recv, stored_balance) of
             (Right (Just stored), Right (Just st_balance)) -> do
@@ -98,14 +123,20 @@ update_stored_balance bitcoinid conn = do
                 then return ()
                 else do
                     let diff = satoshi_sub actual_recv stored
-                    multiExec $ do
-                        set (B.append "address_recieved_" bitcoinid) stored
+                    cm <- multiExec $ do
+                        _ <- set (B.append "address_recieved_" bitcoinid) stored
                         set (B.append "balance_" bitcoinid) (satoshi_add st_balance diff)
-                    return ()
-            (Right stored, Left _) -> do
-                multiExec $ do
-                    set (B.append "address_recieved_" bitcoinid) actual_recv
+                    case cm of
+                        TxSuccess _ -> return ()
+                        _ -> liftIO $ update_stored_balance bitcoinid conn
+            (Right (Just _), _) -> do
+                cm <- multiExec $ do
+                    _ <- set (B.append "address_recieved_" bitcoinid) actual_recv
                     set (B.append "balance_" bitcoinid) actual_recv
+                case cm of
+                        TxSuccess _ -> return ()
+                        _ -> liftIO $ update_stored_balance bitcoinid conn
+
                 return ()
 
             (_, _) -> return ()
@@ -113,8 +144,8 @@ update_stored_balance bitcoinid conn = do
 
 getBalance :: Request -> PersistentConns-> IO [(String, String)] 
 getBalance info conn = do
-    js <- getRequestJSON info 
-    let username = getJSONStringVal js "username"
+    requestal <- getRequestAL info
+    let username = getMaybe $ lookup "username" requestal
     bitcoinid_wrap <- runRedis (redis conn) $ do
         get $ B.append "address_" $ BC.pack username
     case bitcoinid_wrap of
@@ -129,13 +160,15 @@ getBalance info conn = do
 
 createPayment :: Request -> PersistentConns -> IO [(String, String)]
 createPayment info conn = do
-    js <- getRequestJSON info
-    let username = BC.pack $ getJSONStringVal js "username"
-    let amount = BC.pack $ getJSONStringVal js "amount"
+    al <- getRequestAL info
+    let username = BC.pack$ getMaybe $ lookup "username" al
+    let amount = BC.pack $ getMaybe $ lookup "amount" al
     paymentid <- random256String
     resp <- runRedis (redis conn) $ do
-        setnx (B.append "payment_" (BC.pack paymentid)) (BC.pack (show amount))
-        setnx (B.append "payment_user_" (BC.pack paymentid)) username
+        ok <- setnx (B.append "payment_" (BC.pack paymentid)) amount
+        case ok of
+            (Right True) -> setnx (B.append "payment_user_" (BC.pack paymentid)) username
+            a -> return a
     val <- case resp of
         (Right True) -> return $ [("payment",paymentid)]
         (Right False) -> createPayment info conn
@@ -149,11 +182,12 @@ getRedisResult a = case a of
 
 makePayment :: Request -> PersistentConns -> IO [(String, String)]
 makePayment info conn = do
-    js <- getRequestJSON info
-    let username = BC.pack $ getJSONStringVal js "username"
-    let payment = BC.pack $ getJSONStringVal js "payment"
-    runRedis (redis conn) $ do
-        watch $ [B.append "balance_" username]
+    al <- getRequestAL info
+    let username = BC.pack $ getMaybe $ lookup "username" al
+    let payment = BC.pack $ getMaybe $ lookup "payment" al
+    resp <- runRedis (redis conn) $ do
+        s <- watch $ [B.append "balance_" username]
+        checkWatch s
         balance_wrap <- get $B.append "balance_" username
         let balance = getRedisResult balance_wrap
         req_amount_wrap <- get $ B.append "payment_" payment
@@ -162,23 +196,26 @@ makePayment info conn = do
         let diff = satoshi_sub balance req_amount
         case satoshi_big diff "0" of
             False -> error "FU"
-            _ -> return ""
+            _ -> return ()
 
         user_wrap <- get $ B.append "payment_user_" payment
         let user = getRedisResult user_wrap
-        watch $ [B.append "balance_" user]
+        sw <- watch $ [B.append "balance_" user]
+        checkWatch sw
         user_balance_wrap <- get $ B.append "balance_" user
         let user_balance = getRedisResult user_balance_wrap
         multiExec $ do
             _ <- set (B.append "balance_" username) diff
             _ <- set (B.append "balance_" user) $ satoshi_add user_balance req_amount
             set (B.append "payment_done_" payment) (BC.pack "1")
-    return []
+    case resp of 
+        TxSuccess _ -> return []
+        _ -> return [("Error", "Payment Failure")]
 
 deposit :: Request -> PersistentConns-> IO [(String, String)]
 deposit info conn = do
-    js <- getRequestJSON info
-    let username = BC.pack $ getJSONStringVal js "username"
+    al <- getRequestAL info
+    let username = BC.pack $ getMaybe $ lookup "username" al
     addr <- runRedis (redis conn) $ do
         get $ B.append "address_" username
     case addr of

@@ -14,6 +14,11 @@ import qualified System.ZMQ3 as ZMQ
 import Data.Pool (withResource)
 import Data.Word (Word64)
 import Control.Monad.IO.Class
+import Data.Conduit
+import Data.Conduit.List (consume)
+import Data.Monoid(mconcat)
+import Control.Applicative
+import Crypto.Hash.MD5 (hash)
 
 randomNum :: IO Word64
 randomNum = randomIO
@@ -31,13 +36,39 @@ random256String = do
     d <- randomString
     return $ a ++ b ++ c ++ d
 
+
+getResult :: Result a -> a
+getResult res = case res of
+                    Ok val -> val
+                    Error err -> error err
+
+getRequestJSON :: Request -> IO (JSObject JSValue)
+getRequestJSON req = getResult <$> decode <$> BC.unpack <$> mconcat <$> runResourceT (requestBody req $$ consume)
+
+getJSONStringVal :: JSObject JSValue -> String -> String
+getJSONStringVal js key = getResult $ valFromObj key js
+
+
+data SecretRecipe = SecretRecipe {
+    user :: String,
+    time :: String,
+    sign :: String,
+    salt :: String
+}
+
+-- concat vals of username, time in minutes(1 minute window), and salt then md5 hash
+validate_sign :: SecretRecipe -> Bool
+validate_sign sec_rec = (BC.pack $ sign sec_rec) == (hash $ BC.pack $ concat $ [user sec_rec, minutes, salt sec_rec])
+    where
+        minutes = show $ floor $ (read $ time sec_rec) / 60
+
 register :: Request -> PersistentConns-> IO BL.ByteString
 register info conn = do
     user <- random256String
     salt <- random256String
     ok <- runRedis (redis conn) $ do
         setnx (BC.pack $"user_" ++ user) (BC.pack salt)
-    
+
     case ok of
         Right True -> return $ pack $ encode $ toJSObject [("username"::String, user), ("salt", salt)]
         _ -> register info conn
@@ -79,6 +110,24 @@ update_stored_balance bitcoinid conn = do
 
             (_, _) -> return ()
     return ()
+
+bs_balance :: Request -> PersistentConns-> IO BL.ByteString
+bs_balance req conn = do
+    js <- getRequestJSON  req
+    u <- return $ getJSONStringVal js "user"
+    t <- return $ getJSONStringVal js "time"
+    s <- return $ getJSONStringVal js "sign"
+    st <- redisGet conn $ BC.pack $ "user_" ++ u
+    sr <- return $ validate_sign $ SecretRecipe {user=u, time=t, sign=s, salt=st}
+    bal <- redisGet conn $ BC.pack $ "balance_user_" ++ u
+    return $ pack $ encode $ toJSObject [("username",u),("balance",bal)]
+    where
+        redisGet conn key = do
+                                ok <- runRedis (redis conn) $ get key
+                                --retry the server, thats what I assummed from your code above
+                                case ok of
+                                    Right (Just a) -> return $ BC.unpack a
+                                    _ -> redisGet conn key
 
 balance :: Request -> PersistentConns-> IO BL.ByteString
 balance info conn = do

@@ -13,7 +13,7 @@ import Text.JSON (toJSObject, encode)
 router :: Map B.ByteString (Request -> PersistentConns -> IO [(String, String)])
 router = Data.Map.fromList $ [
         ("/register", BT.EndPoints.register),
-        ("/balance", BT.EndPoints.balance),
+        ("/balance", BT.EndPoints.getBalance),
         ("/deposit", BT.EndPoints.deposit),
         ("/request", BT.EndPoints.createPayment),
         ("/pay", BT.EndPoints.makePayment)]

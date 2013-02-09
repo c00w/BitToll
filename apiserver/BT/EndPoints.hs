@@ -1,5 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
-module BT.EndPoints(register, deposit, balance, makePayment, createPayment) where
+module BT.EndPoints(register, deposit, getBalance, makePayment, createPayment) where
 import qualified Data.ByteString.Char8 as BC
 import qualified Data.ByteString as B
 import Data.List (sortBy)
@@ -111,14 +111,14 @@ update_stored_balance bitcoinid conn = do
             (_, _) -> return ()
     return ()
 
-balance :: Request -> PersistentConns-> IO [(String, String)] 
-balance info conn = do
+getBalance :: Request -> PersistentConns-> IO [(String, String)] 
+getBalance info conn = do
     js <- getRequestJSON info 
     let username = getJSONStringVal js "username"
-    bitcoinid <- runRedis (redis conn) $ do
+    bitcoinid_wrap <- runRedis (redis conn) $ do
         get $ B.append "address_" $ BC.pack username
-    case bitcoinid of
-        Right (Just id) -> update_stored_balance id conn
+    case bitcoinid_wrap of
+        Right (Just bitcoinid) -> update_stored_balance bitcoinid conn
         _ -> return ()
 
     b_resp <- runRedis (redis conn) $ do
@@ -142,6 +142,7 @@ createPayment info conn = do
         _ -> error []
     return val
 
+getRedisResult :: Either t (Maybe a) -> a
 getRedisResult a = case a of
     (Right (Just b)) -> b
     _ -> error "BREAK"

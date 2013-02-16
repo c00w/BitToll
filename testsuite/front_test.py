@@ -13,5 +13,5 @@ def test_login():
     info = json.loads(r.text)
     assert 'username' in info
     assert 'secret' in info
-    assert (info.keys()) == 2
+    assert len(info.keys()) == 2
 

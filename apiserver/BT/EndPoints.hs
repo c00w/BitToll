@@ -80,7 +80,7 @@ register info conn = do
         setnx (BC.pack $"user_" ++ user) (BC.pack salt)
 
     case ok of
-        Right True -> return [("username"::String, user), ("salt", salt)]
+        Right True -> return [("username"::String, user), ("secret", salt)]
         _ -> register info conn
 
 satoshi_big :: B.ByteString -> B.ByteString -> Bool 

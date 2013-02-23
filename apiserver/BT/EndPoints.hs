@@ -12,6 +12,7 @@ import System.Random (randomIO)
 import qualified System.ZMQ3 as ZMQ
 import Data.Pool (withResource)
 import Data.Word (Word64)
+import Data.Char (toUpper)
 import Control.Monad.IO.Class
 import Data.Conduit
 import Data.Conduit.List (consume)
@@ -70,7 +71,7 @@ key_comp :: (String, String) -> (String, String) -> Ordering
 key_comp a b = compare (fst a) (fst b)
 
 validate_sign :: [(String, String)] -> String -> Bool
-validate_sign sec_rec sign = (BC.pack sign) == (hex $ hash $ BC.pack $ concat $ map snd sort_sec_rec)
+validate_sign sec_rec sign = (BC.pack $ map toUpper sign) == (hex $ hash $ BC.pack $ concat $ map snd sort_sec_rec)
     where sort_sec_rec = sortBy key_comp sec_rec
 
 register :: Request -> PersistentConns-> IO [(String, String)]

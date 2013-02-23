@@ -23,7 +23,8 @@ executable APIServer
                     http-types,
                     warp,
                     conduit,
-                    cryptohash
+                    cryptohash,
+                    hex
     main-is:        APIServer.hs
     hs-source-dirs: apiserver
     ghc-options:     -Wall -O2

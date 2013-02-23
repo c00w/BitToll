@@ -18,6 +18,7 @@ import Data.Conduit.List (consume)
 import Data.Monoid(mconcat)
 import Control.Applicative
 import Crypto.Hash.MD5 (hash)
+import Data.Hex (hex)
 
 randomNum :: IO Word64
 randomNum = randomIO
@@ -69,7 +70,7 @@ key_comp :: (String, String) -> (String, String) -> Ordering
 key_comp a b = compare (fst a) (fst b)
 
 validate_sign :: [(String, String)] -> String -> Bool
-validate_sign sec_rec sign = BC.pack sign == (hash $ BC.pack $ concat $ map snd sort_sec_rec)
+validate_sign sec_rec sign = (BC.pack sign) == (hex $ hash $ BC.pack $ concat $ map snd sort_sec_rec)
     where sort_sec_rec = sortBy key_comp sec_rec
 
 register :: Request -> PersistentConns-> IO [(String, String)]

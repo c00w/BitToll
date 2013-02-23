@@ -35,7 +35,7 @@ route request = case Data.Map.lookup (take 7 request) router of
 
 getrecieved :: BTC.Auth -> ByteString -> IO ByteString
 getrecieved auth req = do
-    recv <- BTC.getReceivedByAddress' auth (decodeUtf8 req) 6
+    recv <- BTC.getReceivedByAddress' auth (decodeUtf8 req) 0
     return $ pack $ show recv
 
 getaddress :: BTC.Auth -> ByteString -> IO ByteString

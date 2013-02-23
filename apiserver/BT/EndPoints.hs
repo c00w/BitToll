@@ -152,7 +152,7 @@ getBalance info conn = do
         get $ B.append "address_" $ BC.pack username
     case bitcoinid_wrap of
         Right (Just bitcoinid) -> update_stored_balance bitcoinid conn
-        _ -> return []
+        _ -> return ()
 
     b_resp <- runRedis (redis conn) $ do
         get $ B.append "balance_" $ BC.pack username

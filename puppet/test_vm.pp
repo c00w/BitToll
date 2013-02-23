@@ -9,6 +9,7 @@ $test_packages = [
     "g++",
     "make",
     "redis-server",
+    "bitcoind",
 ]
 
 package { $test_packages:

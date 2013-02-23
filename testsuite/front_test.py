@@ -39,8 +39,19 @@ def test_balance(login):
     body['time'] = str(time.time())
     body['sign'] = secret(body, login['secret'])
     r = requests.post(url + '/balance', data=json.dumps(body))
-    print r.text
     assert r.status_code == 200
     info = json.loads(r.text)
     assert 'balance' in info
+
+def test_deposit(login):
+    body = {}
+    body['username'] = login['username']
+    body['time'] = str(time.time())
+    body['sign'] = secret(body, login['secret'])
+    r = requests.post(url + '/deposit', data=json.dumps(body), timeout=1)
+    assert r.status_code == 200
+    info = json.loads(r.text)
+    assert 'address' in info
+    r2 = requests.post(url + '/deposit', data=json.dumps(body), timeout=1)
+    assert r2.text == r.text
 

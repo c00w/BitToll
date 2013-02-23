@@ -8,6 +8,7 @@ $test_packages = [
     "alex",
     "g++",
     "make",
+    "redis-server",
 ]
 
 package { $test_packages:

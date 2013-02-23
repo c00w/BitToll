@@ -55,3 +55,18 @@ def test_deposit(login):
     r2 = requests.post(url + '/deposit', data=json.dumps(body), timeout=1)
     assert r2.text == r.text
 
+    print
+    print 'Please send some bitcoins to %s' % info['address']
+    print 'Then Hit Enter'
+    raw_input()
+
+    body = {}
+    body['username'] = login['username']
+    body['time'] = str(time.time())
+    body['sign'] = secret(body, login['secret'])
+
+    r2 = requests.post(url + '/balance', data=json.dumps(body))
+    assert r2.status_code == 200
+    print r2.text
+    info = json.loads(r2.text)
+    assert info['balance'] != "0"

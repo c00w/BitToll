@@ -32,7 +32,7 @@ def pytest_funcarg__login(request):
     assert 'username' in info
     assert 'secret' in info
     return info
-   
+
 def test_balance(login):
     body = {}
     body['username'] = login['username']
@@ -42,6 +42,19 @@ def test_balance(login):
     assert r.status_code == 200
     info = json.loads(r.text)
     assert 'balance' in info
+
+def test_request(login):
+    body = {}
+    body['username'] = login['username']
+    body['time'] = str(time.time())
+    body['amount'] = "110"
+    body['sign'] = secret(body, login['secret'])
+    r = requests.post(url + '/request', data=json.dumps(body))
+    assert r.status_code == 200
+    print r.text
+    info = json.loads(r.text)
+    assert 'payment' in info
+
 
 def test_deposit(login):
     body = {}

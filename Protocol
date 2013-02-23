@@ -9,7 +9,7 @@
 
 response
 {
-    "code": string|None
+    "payment": string|None
     "error":None
 }
 

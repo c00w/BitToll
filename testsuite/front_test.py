@@ -25,12 +25,18 @@ def test_login(login):
     assert 'secret' in info
     assert len(info.keys()) == 2
 
+login = None
+
 def pytest_funcarg__login(request):
+    global login
+    if login is not None:
+        return login
     r = requests.get(url + '/register')
     assert r.status_code == 200
     info = json.loads(r.text)
     assert 'username' in info
     assert 'secret' in info
+    login = info
     return info
 
 def test_balance(login):
@@ -51,12 +57,10 @@ def test_request(login):
     body['sign'] = secret(body, login['secret'])
     r = requests.post(url + '/request', data=json.dumps(body))
     assert r.status_code == 200
-    print r.text
     info = json.loads(r.text)
     assert 'payment' in info
 
-
-def test_deposit(login):
+def pytest_funcarg__paidlogin(request, login):
     body = {}
     body['username'] = login['username']
     body['time'] = str(time.time())
@@ -72,14 +76,40 @@ def test_deposit(login):
     print 'Please send some bitcoins to %s' % info['address']
     print 'Then Hit Enter'
     raw_input()
+    return login
 
+
+def test_deposit(paidlogin):
     body = {}
-    body['username'] = login['username']
+    body['username'] = paidlogin['username']
     body['time'] = str(time.time())
-    body['sign'] = secret(body, login['secret'])
+    body['sign'] = secret(body, paidlogin['secret'])
 
     r2 = requests.post(url + '/balance', data=json.dumps(body))
     assert r2.status_code == 200
-    print r2.text
+
     info = json.loads(r2.text)
     assert info['balance'] != "0"
+
+def test_payment(paidlogin):
+    login = paidlogin
+    body = {}
+    body['username'] = login['username']
+    body['time'] = str(time.time())
+    body['amount'] = "0.1"
+    body['sign'] = secret(body, login['secret'])
+    r = requests.post(url + '/request', data=json.dumps(body))
+    assert r.status_code == 200
+    info = json.loads(r.text)
+    assert 'payment' in info
+
+    paymentid = info['payment']
+    body = {}
+    body['username'] = login['username']
+    body['payment'] = paymentid
+    body['sign'] = secret(body, login['secret'])
+   
+    r = requests.post(url + '/pay', data=json.dumps(body))
+    assert r.status_code == 200
+    info = json.loads(r.text)
+    print info

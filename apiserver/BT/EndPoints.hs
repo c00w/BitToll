@@ -232,7 +232,7 @@ makePayment info conn = do
             _ <- set (B.append "balance_" user) $ satoshi_add user_balance req_amount
             set (B.append "payment_done_" payment) (BC.pack "1")
     case resp of 
-        TxSuccess _ -> return []
+        TxSuccess _ -> return [("code", "hi")]
         _ -> return [("Error", "Payment Failure")]
 
 deposit :: Request -> PersistentConns-> IO [(String, String)]

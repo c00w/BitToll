@@ -9,7 +9,6 @@ import Data.ByteString.Lazy.Char8 (pack)
 import Network.Wai (Request)
 import BT.Global (PersistentConns)
 import Text.JSON (toJSObject, encode)
-import Control.Monad.IO.Class (liftIO)
 
 router :: Map B.ByteString (Request -> PersistentConns -> IO [(String, String)])
 router = Data.Map.fromList $ [

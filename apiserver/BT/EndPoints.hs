@@ -119,6 +119,7 @@ update_stored_balance bitcoinid conn = do
         bw <- watch $ [ B.append "balance_" bitcoinid ]
         checkWatch bw
         stored_balance <- get $ B.append "balance_" bitcoinid
+        _ <- liftIO $ BC.putStrLn  actual_recv
         case (stored_recv, stored_balance) of
             (Right (Just stored), Right (Just st_balance)) -> do
                 if stored == actual_recv

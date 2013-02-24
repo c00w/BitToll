@@ -106,6 +106,11 @@ checkWatch a = do
         Left _ -> return $ error "watch"
         _ -> return ()
 
+checkInt :: (B.ByteString) -> Maybe B.ByteString
+checkInt input = case BC.readInt input of
+    (Just _) -> Just input
+    _ -> Nothing
+
 update_stored_balance :: B.ByteString -> PersistentConns -> IO ()
 update_stored_balance bitcoinid conn = do
     runRedis (redis conn) $ do
@@ -113,6 +118,9 @@ update_stored_balance bitcoinid conn = do
             liftIO $ ZMQ.send s [] $ B.append "recieved" bitcoinid
             resp <-liftIO $ ZMQ.receive s
             return resp)
+        case checkInt actual_recv of
+            Nothing -> error "Cannot talk to bc server"
+            Just a -> return ()
         s <- watch $ [ B.append "address_recieved_" bitcoinid ]
         checkWatch s
         stored_recv <- get $ B.append "address_recieved_" bitcoinid

@@ -30,8 +30,10 @@ router = Data.Map.fromList $ [
 
 route :: ByteString -> IO ByteString
 route request = case Data.Map.lookup (take 7 request) router of
-    Nothing -> return "Error"
     Just a -> a (drop 7 request)
+    Nothing -> case Data.Map.lookup (take 8 request) router of
+        Just a -> a (drop 8 request)
+        Nothing -> return "Error"
 
 getrecieved :: BTC.Auth -> ByteString -> IO ByteString
 getrecieved auth req = do

@@ -9,6 +9,7 @@ import Data.ByteString.Lazy.Char8 (pack)
 import Network.Wai (Request)
 import BT.Global (PersistentConns)
 import Text.JSON (toJSObject, encode)
+import Control.Monad.IO.Class (liftIO)
 
 router :: Map B.ByteString (Request -> PersistentConns -> IO [(String, String)])
 router = Data.Map.fromList $ [
@@ -23,4 +24,5 @@ route path info conns = case Data.Map.lookup path router of
                 Nothing -> return "404"
                 Just a -> do
                     resp <- a info conns
-                    return $ pack $ encode $ toJSObject resp
+                    let enc_io = pack $ encode $ toJSObject resp
+                    return enc_io

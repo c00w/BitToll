@@ -114,13 +114,14 @@ checkInt input = case BC.readInt input of
 update_stored_balance :: B.ByteString -> PersistentConns -> IO ()
 update_stored_balance bitcoinid conn = do
     runRedis (redis conn) $ do
+        liftIO $ putStrLn "Updating balance"
         actual_recv <- liftIO $ withResource (pool conn) (\s -> do
             liftIO $ ZMQ.send s [] $ B.append "recieved" bitcoinid
             resp <-liftIO $ ZMQ.receive s
             return resp)
         case checkInt actual_recv of
             Nothing -> error "Cannot talk to bc server"
-            Just a -> return ()
+            Just _ -> return ()
         s <- watch $ [ B.append "address_recieved_" bitcoinid ]
         checkWatch s
         stored_recv <- get $ B.append "address_recieved_" bitcoinid
@@ -133,6 +134,7 @@ update_stored_balance bitcoinid conn = do
                 if stored == actual_recv
                 then return ()
                 else do
+                    liftIO $ BC.putStrLn "Main path"
                     let diff = satoshi_sub actual_recv stored
                     cm <- multiExec $ do
                         _ <- set (B.append "address_recieved_" bitcoinid) stored
@@ -140,7 +142,18 @@ update_stored_balance bitcoinid conn = do
                     case cm of
                         TxSuccess _ -> return ()
                         _ -> liftIO $ update_stored_balance bitcoinid conn
-            (Right (Just _), _) -> do
+
+            (_, Right (Just balance)) -> do
+                liftIO $ BC.putStrLn "stored balance, no stored recv"
+                cm <- multiExec $ do
+                    _ <- set (B.append "address_recieved_" bitcoinid) actual_recv
+                    set (B.append "balance_" bitcoinid) (satoshi_add actual_recv balance)
+                case cm of
+                        TxSuccess _ -> return ()
+                        _ -> liftIO $ update_stored_balance bitcoinid conn
+
+            (_, _) -> do
+                liftIO $ BC.putStrLn "No stored balance, no stored recieved"
                 cm <- multiExec $ do
                     _ <- set (B.append "address_recieved_" bitcoinid) actual_recv
                     set (B.append "balance_" bitcoinid) actual_recv
@@ -148,9 +161,6 @@ update_stored_balance bitcoinid conn = do
                         TxSuccess _ -> return ()
                         _ -> liftIO $ update_stored_balance bitcoinid conn
 
-                return ()
-
-            (_, _) -> return ()
     return ()
 
 getBalance :: Request -> PersistentConns-> IO [(String, String)] 

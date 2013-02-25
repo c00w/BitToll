@@ -55,5 +55,11 @@ def test_payment(paidlogin):
     assert 'payment' in info
     paymentid = info['payment']
 
+    info = balance(paidlogin['username'], paidlogin['secret'])
+    orig_b = info['balance']
+
     info = pay(paidlogin['username'], paidlogin['secret'], paymentid)
     assert 'code' in info
+
+    info = balance(paidlogin['username'], paidlogin['secret'])
+    assert orig_b == info['balance']

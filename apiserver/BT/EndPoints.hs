@@ -87,7 +87,7 @@ register info conn = do
 
 satoshi_big :: B.ByteString -> B.ByteString -> Bool 
 satoshi_big a b = case (BC.readInt a, BC.readInt b) of
-    (Just (c, _), Just (d, _)) -> c > d
+    (Just (c, _), Just (d, _)) -> c >= d
     _ -> error "satoshi_comp"
 
 satoshi_sub :: B.ByteString -> B.ByteString -> B.ByteString
@@ -227,10 +227,13 @@ makePayment info conn = do
         checkWatch sw
         user_balance_wrap <- get $ B.append "balance_" user
         let user_balance = getRedisResult user_balance_wrap "Failure getting user_balance 229"
-        multiExec $ do
-            _ <- set (B.append "balance_" username) diff
-            _ <- set (B.append "balance_" user) $ satoshi_add user_balance req_amount
-            set (B.append "payment_done_" payment) (BC.pack "1")
+        case username== user of
+            True -> multiExec $ do
+                set (B.append "payment_done_" payment) (BC.pack "1")
+            _ -> multiExec $ do
+                _ <- set (B.append "balance_" username) diff
+                _ <- set (B.append "balance_" user) $ satoshi_add user_balance req_amount
+                set (B.append "payment_done_" payment) (BC.pack "1")
     case resp of 
         TxSuccess _ -> return [("code", "hi")]
         _ -> return [("Error", "Payment Failure")]

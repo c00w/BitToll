@@ -25,12 +25,7 @@ def test_login(login):
     assert 'secret' in info
     assert len(info.keys()) == 2
 
-login = None
-
 def pytest_funcarg__login(request):
-    global login
-    if login is not None:
-        return login
     r = requests.get(url + '/register')
     assert r.status_code == 200
     info = json.loads(r.text)
@@ -59,6 +54,21 @@ def test_request(login):
     assert r.status_code == 200
     info = json.loads(r.text)
     assert 'payment' in info
+
+def test_mine(login):
+    body = {}
+    body['username'] = login['username']
+    body['time'] = str(time.time())
+    body['sign'] = secret(body, login['secret'])
+    r = requests.post(url + '/mine', data=json.dumps(body))
+    assert r.status_code == 200
+    info = json.loads(r.text)
+
+    r = requests.post(url + '/balance', data=json.dumps(body))
+    assert r.status_code == 200
+    info = json.loads(r.text)
+    assert info['balance'] != u"0"
+
 
 def pytest_funcarg__paidlogin(request, login):
     body = {}

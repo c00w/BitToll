@@ -271,4 +271,4 @@ mine info conn = do
 
     case result of
         TxSuccess _ -> return [("Success", "yay")]
-        _ -> return [("error", "Failure to mine")]
+        _ -> mine info conn

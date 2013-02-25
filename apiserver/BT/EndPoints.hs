@@ -265,9 +265,9 @@ mine info conn = do
         amount <- case user_balance_wrap of
             (Right (Just a)) -> return $ satoshi_add a ( BC.pack "1")
             (Right (Nothing)) -> return $ BC.pack "1"
-            _ -> return $ BC.pack ""
+            _ -> error "Failed to talk to box 271"
         multiExec $ do
-            set (B.append "balance" username) amount
+            set (B.append "balance_" username) amount
 
     case result of
         TxSuccess _ -> return [("Success", "yay")]

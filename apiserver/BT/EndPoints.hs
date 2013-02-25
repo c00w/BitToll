@@ -1,5 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
-module BT.EndPoints(register, deposit, getBalance, makePayment, createPayment) where
+module BT.EndPoints(register, deposit, getBalance, makePayment, createPayment, mine) where
 import qualified Data.ByteString.Char8 as BC
 import qualified Data.ByteString as B
 import Data.List (sortBy)
@@ -253,3 +253,22 @@ deposit info conn = do
             case ok of
                 Right True -> return $ [("address", BC.unpack resp)]
                 _ -> return []
+
+mine :: Request -> PersistentConns -> IO [(String, String)]
+mine info conn = do
+    al <- getRequestAL info
+    let username = BC.pack $ getMaybe $ lookup "username" al
+    result <- runRedis (redis conn) $ do
+        sw <- watch $ [B.append "balance_" username]
+        checkWatch sw
+        user_balance_wrap <- get $ B.append "balance_" username
+        amount <- case user_balance_wrap of
+            (Right (Just a)) -> return $ satoshi_add a ( BC.pack "1")
+            (Right (Nothing)) -> return $ BC.pack "1"
+            _ -> return $ BC.pack ""
+        multiExec $ do
+            set (B.append "balance" username) amount
+
+    case result of
+        TxSuccess _ -> return [("Success", "yay")]
+        _ -> return [("error", "Failure to mine")]

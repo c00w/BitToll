@@ -16,6 +16,7 @@ router = Data.Map.fromList $ [
         ("/balance", BT.EndPoints.getBalance),
         ("/deposit", BT.EndPoints.deposit),
         ("/request", BT.EndPoints.createPayment),
+        ("/mine", BT.EndPoints.mine),
         ("/pay", BT.EndPoints.makePayment)]
 
 route :: B.ByteString -> Request -> PersistentConns -> IO BL.ByteString

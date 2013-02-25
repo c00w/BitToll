@@ -198,10 +198,10 @@ createPayment info conn = do
         _ -> error []
     return val
 
-getRedisResult :: Either t (Maybe a) -> a
-getRedisResult a = case a of
+getRedisResult :: Either t (Maybe a) -> String -> a
+getRedisResult a m = case a of
     (Right (Just b)) -> b
-    _ -> error "BREAK"
+    _ -> error m
 
 makePayment :: Request -> PersistentConns -> IO [(String, String)]
 makePayment info conn = do
@@ -212,9 +212,9 @@ makePayment info conn = do
         s <- watch $ [B.append "balance_" username]
         checkWatch s
         balance_wrap <- get $B.append "balance_" username
-        let balance = getRedisResult balance_wrap
+        let balance = getRedisResult balance_wrap "Failure Getting Balance 215"
         req_amount_wrap <- get $ B.append "payment_" payment
-        let req_amount = getRedisResult req_amount_wrap
+        let req_amount = getRedisResult req_amount_wrap "Failure Getting Request 217"
 
         let diff = satoshi_sub balance req_amount
         case satoshi_big diff "0" of
@@ -222,11 +222,11 @@ makePayment info conn = do
             _ -> return ()
 
         user_wrap <- get $ B.append "payment_user_" payment
-        let user = getRedisResult user_wrap
+        let user = getRedisResult user_wrap "Failure getting payment user 225"
         sw <- watch $ [B.append "balance_" user]
         checkWatch sw
         user_balance_wrap <- get $ B.append "balance_" user
-        let user_balance = getRedisResult user_balance_wrap
+        let user_balance = getRedisResult user_balance_wrap "Failure getting user_balance 229"
         multiExec $ do
             _ <- set (B.append "balance_" username) diff
             _ <- set (B.append "balance_" user) $ satoshi_add user_balance req_amount

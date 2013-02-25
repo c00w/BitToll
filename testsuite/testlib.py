@@ -8,13 +8,16 @@ port = "3000"
 url = ''.join(['http://', ip_address, ':', port])
 
 def _secret(params, secret):
-    keys = params.keys()
+    keys = list(params.keys())
     keys.sort()
     hash_str = ""
     for key in keys:
         hash_str += (params[key])
         md5 = hashlib.md5()
-        md5.update(hash_str)
+        try:
+            md5.update(hash_str)
+        except:
+            md5.update(hash_str.encode('utf-8'))
     return md5.hexdigest()
 
 def register():

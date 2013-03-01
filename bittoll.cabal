@@ -24,7 +24,8 @@ executable APIServer
                     warp,
                     conduit,
                     cryptohash,
-                    hex
+                    hex,
+                    network-bitcoin
     main-is:        APIServer.hs
     hs-source-dirs: apiserver
     ghc-options:     -Wall -O2

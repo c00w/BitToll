@@ -5,6 +5,7 @@ import qualified Data.ByteString as B
 import Data.List (sortBy)
 import Database.Redis(Redis, runRedis, setnx, get, set, watch, multiExec, TxResult(TxSuccess))
 import Network.Wai (Request, requestBody)
+import Network.Bitcoin (BTC)
 import Numeric (showHex)
 import Text.JSON
 import BT.Global
@@ -86,19 +87,22 @@ register info conn = do
         _ -> register info conn
 
 satoshi_big :: B.ByteString -> B.ByteString -> Bool 
-satoshi_big a b = case (BC.readInt a, BC.readInt b) of
-    (Just (c, _), Just (d, _)) -> c >= d
-    _ -> error "satoshi_comp"
+satoshi_big a b = aBTC >= bBTC
+    where
+        aBTC = (read . BC.unpack) a :: BTC
+        bBTC = (read . BC.unpack) b :: BTC
 
 satoshi_sub :: B.ByteString -> B.ByteString -> B.ByteString
-satoshi_sub a b = case (BC.readInt a, BC.readInt b) of
-    (Just (c, _), Just (d, _)) -> BC.pack $ show $ c-d
-    _ -> error "satoshi_comp"
+satoshi_sub a b = BC.pack . show $ aBTC - bBTC
+    where
+        aBTC = (read . BC.unpack) a :: BTC
+        bBTC = (read . BC.unpack) b :: BTC
 
 satoshi_add :: B.ByteString -> B.ByteString -> B.ByteString
-satoshi_add a b = case (BC.readInt a, BC.readInt b) of
-    (Just (c, _), Just (d, _)) -> BC.pack $ show $ c+d
-    _ -> error "satoshi_comp"
+satoshi_add a b = BC.pack . show $ aBTC + bBTC
+    where
+        aBTC = (read . BC.unpack) a :: BTC
+        bBTC = (read . BC.unpack) b :: BTC
 
 checkWatch :: (Either a b) -> Redis ()
 checkWatch a = do 
@@ -266,8 +270,8 @@ mine info conn = do
         checkWatch sw
         user_balance_wrap <- get $ B.append "balance_" username
         amount <- case user_balance_wrap of
-            (Right (Just a)) -> return $ satoshi_add a ( BC.pack "1")
-            (Right (Nothing)) -> return $ BC.pack "1"
+            (Right (Just a)) -> return $ satoshi_add a ( BC.pack "0.1")
+            (Right (Nothing)) -> return $ BC.pack "0.1"
             _ -> error "Failed to talk to box 271"
         multiExec $ do
             set (B.append "balance_" username) amount

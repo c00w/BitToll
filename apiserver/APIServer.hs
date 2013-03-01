@@ -9,18 +9,21 @@ import BT.Routing
 import BT.Global
 import Control.Exception (catch, SomeException)
 import System.IO(hPutStr, stderr)
+import System.Timeout (timeout)
 
-exceptionHandler :: SomeException -> IO LB.ByteString
+exceptionHandler :: SomeException -> IO (Maybe LB.ByteString)
 exceptionHandler e = do
     hPutStr stderr $ show e
-    return "Server Error"
+    return $ Just "Server Error"
 
 application :: PersistentConns -> Application
 application conns info = do
     let path = rawPathInfo info
-    response <- liftIO $ catch ( BT.Routing.route path info conns ) exceptionHandler
-    return $
-        responseLBS status200 [("Content-Type", "text/plain")] response
+    responsew <- liftIO $ catch (timeout 30000000 ( BT.Routing.route path info conns )) exceptionHandler
+    case responsew of
+        Just response -> return $
+            responseLBS status200 [("Content-Type", "text/plain")] response
+        Nothing -> return $ responseLBS status200 [] "error"
 
 main :: IO ()
 main = do

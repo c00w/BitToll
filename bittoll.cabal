@@ -31,15 +31,15 @@ executable APIServer
     ghc-options:     -Wall -O2
     default-language: Haskell2010
 
-executable BCServer
+executable PoolServer
     build-depends:  network-bitcoin,
                     text,
                     base,
                     zeromq3-haskell,
                     containers,
                     bytestring
-    main-is:        BCServer.hs
-    hs-source-dirs: bcserver
+    main-is:        PoolServer.hs
+    hs-source-dirs: poolserver
     ghc-options:     -Wall -O2
     default-language: Haskell2010
 

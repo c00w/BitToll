@@ -1,6 +1,5 @@
 
 $test_packages = [
-    "redis-server",
     "python-software-properties",
 ]
 
@@ -25,6 +24,19 @@ exec { "/usr/bin/apt-add-repository ppa:chris-lea/zeromq && /usr/bin/apt-get upd
     creates => "/etc/apt/sources.list.d/chris-lea-zeromq-precise.list",
 }
 
+exec { "/usr/bin/apt-add-repository ppa:chris-lea/redis-server && /usr/bin/apt-get update":
+    alias   => "ppa_redis",
+    require => Package["python-software-properties"],
+    creates => "/etc/apt/sources.list.d/chris-lea-redis-server-precise.list",
+}
+
+package {"redis-server":
+    require => [
+        Exec["ppa_redis"],
+    ],
+    ensure => latest,
+}
+
 
 package {"bitcoind":
     require => Exec["ppa_bitcoin"],
@@ -37,8 +49,13 @@ package {"libzmq1":
     alias => "zeromq",
 }
 
+
+
 service {"redis-server":
-    require => Package["redis-server"],
+    require => [
+        Package["redis-server"],
+        File["/etc/redis/redis.conf"],
+    ],
     ensure => running,
     enable => true,
     hasstatus => true,
@@ -59,6 +76,15 @@ user {
         home => "/home/bcserver";
     "poolserver":
         home => "/home/poolserver";
+}
+
+file {"/etc/redis/redis.conf":
+    alias => "redis.conf",
+    ensure => present,
+    mode => 0644,
+    owner => root,
+    source => "/configs/redis.conf",
+    notify => Service["redis-server"],
 }
 
 file {"/home/bitcoind/.bitcoin":

@@ -31,6 +31,8 @@ service {"redis-server":
     require => Package["redis-server"],
     ensure => running,
     enable => true,
+    hasstatus => true,
+    hasrestart => true,
 }
 
 user {"bitcoind":

@@ -95,6 +95,14 @@ file {"/home/bitcoind/.bitcoin":
     owner => "bitcoind",
 }
 
+file {"/home/vagrant/.bitcoin":
+    require => File["bitcoin_folder"],
+    ensure => link,
+    target => "/home/bitcoind/.bitcoin",
+    mode => 0644,
+    owner => "vagrant",
+}
+
 file {"/home/bitcoind/.bitcoin/bitcoin.conf":
     require => File["bitcoin_folder"],
     ensure => present,

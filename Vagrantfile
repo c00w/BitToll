@@ -20,7 +20,7 @@ Vagrant.configure("2") do |config|
 
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.
-  # config.vm.network :private_network, ip: "192.168.33.10"
+  config.vm.network :private_network, ip: "192.168.56.2"
 
   # Create a public network, which generally matched to bridged network.
   # Bridged networks make the machine appear as another physical device on
@@ -31,19 +31,20 @@ Vagrant.configure("2") do |config|
   # the path on the host to the actual folder. The second argument is
   # the path on the guest to mount the folder. And the optional third
   # argument is a set of non-required options.
-  config.vm.synced_folder "../configs", "/configs"
-  config.vm.synced_folder "../dist/build", "/binaries"
+  config.vm.synced_folder "configs", "/configs"
+  config.vm.synced_folder "dist/build", "/binaries"
 
   # Provider-specific configuration so you can fine-tune various
   # backing providers for Vagrant. These expose provider-specific options.
   # Example for VirtualBox:
   #
-  # config.vm.provider :virtualbox do |vb|
   #   # Don't boot with headless mode
   #   vb.gui = true
   #
   #   # Use VBoxManage to customize the VM. For example to change memory:
-  #   vb.customize ["modifyvm", :id, "--memory", "1024"]
+  config.vm.provider :virtualbox do |vb|
+      vb.customize ["modifyvm", :id, "--memory", "1024"]
+  end
   # end
   #
   # View the documentation for the provider you're using for more
@@ -68,7 +69,7 @@ Vagrant.configure("2") do |config|
   # # }
   #
   config.vm.provision :puppet do |puppet|
-     puppet.manifests_path = "manifests"
+     puppet.manifests_path = "puppet"
      puppet.manifest_file  = "base.pp"
      puppet.options        = "--verbose"
   end

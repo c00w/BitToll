@@ -49,6 +49,7 @@ executable PoolServer
                     base,
                     zeromq3-haskell,
                     containers,
+                    aeson,
                     bytestring
     main-is:        PoolServer.hs
     hs-source-dirs: haskell

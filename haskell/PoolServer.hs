@@ -2,12 +2,15 @@
 import Prelude hiding (take, drop)
 import Data.ByteString.Char8 (pack)
 import Data.ByteString (ByteString, drop, take)
+import Data.ByteString.Lazy (toStrict)
 import Data.Map
 
 import qualified System.ZMQ3 as ZMQ
 import Control.Monad
 import Network.Bitcoin as BTC
 import Data.Text.Encoding (encodeUtf8, decodeUtf8)
+
+import Data.Aeson
 
 bcdmine :: Auth
 bcdmine = BTC.Auth "http://127.0.0.1:9332" "x" "x"
@@ -25,7 +28,9 @@ main = do
 
 router :: Map ByteString (ByteString -> IO ByteString)
 router = Data.Map.fromList $ [
-    ("getwork", getwork bcdmine)]
+    ("getwork", getwork bcdmine),
+    ("recvwork", recvwork bcdmine)
+    ]
 
 route :: ByteString -> IO ByteString
 route request = case Data.Map.lookup (take 7 request) router of
@@ -34,8 +39,13 @@ route request = case Data.Map.lookup (take 7 request) router of
         Just a -> a (drop 8 request)
         Nothing -> return "Error"
 
-getwork:: BTC.Auth -> ByteString -> IO ByteString
+getwork :: BTC.Auth -> ByteString -> IO ByteString
 getwork auth req = do
     recv <- BTC.getWork auth
-    return $ pack $ show recv
+    return . toStrict . encode $ recv
+
+recvwork :: BTC.Auth -> ByteString -> IO ByteString
+recvwork auth req = do
+    resp <- BTC.solveBlock auth req
+    return . toStrict . encode $ resp
 

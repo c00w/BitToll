@@ -8,7 +8,7 @@ import Network.Wai (Request, requestBody)
 import Network.Bitcoin (BTC)
 import Numeric (showHex)
 import Text.JSON
-import BT.Global
+import BT.Types
 import System.Random (randomIO)
 import qualified System.ZMQ3 as ZMQ
 import Data.Pool (withResource)

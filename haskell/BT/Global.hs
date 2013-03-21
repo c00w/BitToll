@@ -1,14 +1,10 @@
-module BT.Global(PersistentConns, makeCons, redis, pool) where
+module BT.Global(makeCons) where
 
 import Database.Redis as RD
 import System.ZMQ3 as ZMQ
 import Data.Pool
+import BT.Types
 
-
-data PersistentConns = PersistentConns {
-        redis :: RD.Connection,
-        pool :: Data.Pool.Pool (ZMQ.Socket ZMQ.Req)
-        }
 
 makeZMQSocket :: ZMQ.Context -> IO (ZMQ.Socket ZMQ.Req)
 makeZMQSocket ctx = do

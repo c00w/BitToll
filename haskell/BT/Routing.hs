@@ -7,7 +7,7 @@ import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL
 import Data.ByteString.Lazy.Char8 (pack)
 import Network.Wai (Request)
-import BT.Global (PersistentConns)
+import BT.Types (PersistentConns)
 import Text.JSON (toJSObject, encode)
 
 router :: Map B.ByteString (Request -> PersistentConns -> IO [(String, String)])

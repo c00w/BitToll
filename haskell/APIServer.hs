@@ -6,6 +6,7 @@ import qualified Data.ByteString.Lazy as LB
 import Control.Monad.IO.Class (liftIO)
 import BT.Routing
 import BT.Global
+import BT.Types
 import Control.Exception (catch, SomeException)
 import System.IO(hPutStr, stderr)
 import System.Timeout (timeout)

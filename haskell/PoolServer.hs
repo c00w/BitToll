@@ -9,8 +9,8 @@ import Control.Monad
 import Network.Bitcoin as BTC
 import Data.Text.Encoding (encodeUtf8, decodeUtf8)
 
-bcd :: Auth
-bcd = BTC.Auth "http://127.0.0.1:9332" "x" "x"
+bcdmine :: Auth
+bcdmine = BTC.Auth "http://127.0.0.1:9332" "x" "x"
 
 main :: IO ()
 main = do
@@ -25,7 +25,7 @@ main = do
 
 router :: Map ByteString (ByteString -> IO ByteString)
 router = Data.Map.fromList $ [
-    ("getwork", getwork bcd)]
+    ("getwork", getwork bcdmine)]
 
 route :: ByteString -> IO ByteString
 route request = case Data.Map.lookup (take 7 request) router of

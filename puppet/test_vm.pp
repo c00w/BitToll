@@ -1,6 +1,9 @@
-
 $test_packages = [
     "python-software-properties",
+    "python-zope.interface",
+    "python-twisted",
+    "python-twisted-web",
+    "git",
 ]
 
 package { $test_packages:
@@ -49,7 +52,13 @@ package {"libzmq1":
     alias => "zeromq",
 }
 
-
+vcsrepo {"/home/p2pool/p2pool":
+    source   => "git://github.com/forrestv/p2pool.git",
+    require  => User["p2pool"],
+    user     => "p2pool",
+    ensure   => latest,
+    provider => git,
+}
 
 service {"redis-server":
     require => [
@@ -76,6 +85,8 @@ user {
         home => "/home/bcserver";
     "poolserver":
         home => "/home/poolserver";
+    "p2pool":
+        home => "/home/p2pool";
 }
 
 file {"/etc/redis/redis.conf":
@@ -97,6 +108,17 @@ file {"/home/bitcoind/.bitcoin":
 
 file {"/home/vagrant/.bitcoin":
     require => File["bitcoin_folder"],
+    ensure => link,
+    target => "/home/bitcoind/.bitcoin",
+    mode => 0644,
+    owner => "vagrant",
+}
+
+file {"/home/p2pool/.bitcoin":
+    require => [
+        File["bitcoin_folder"],
+        User["p2pool"],
+    ],
     ensure => link,
     target => "/home/bitcoind/.bitcoin",
     mode => 0644,

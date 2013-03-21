@@ -3,7 +3,8 @@
 *.prof
 *.pyc
 dist
-apiserver/APIServer
-bcserver/BCServer
+haskell/APIServer
+haskell/BCServer
+haskell/PoolServer
 __pycache__
-
+.vagrant

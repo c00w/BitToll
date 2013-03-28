@@ -1,6 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
 import Prelude hiding (take, drop)
-import Data.ByteString.Char8 (pack)
 import Data.ByteString (ByteString, drop, take)
 import Data.ByteString.Lazy (toStrict)
 import Data.Map
@@ -8,7 +7,7 @@ import Data.Map
 import qualified System.ZMQ3 as ZMQ
 import Control.Monad
 import Network.Bitcoin as BTC
-import Data.Text.Encoding (encodeUtf8, decodeUtf8)
+import Data.Text.Encoding (decodeUtf8)
 
 import Data.Aeson
 
@@ -46,6 +45,6 @@ getwork auth req = do
 
 recvwork :: BTC.Auth -> ByteString -> IO ByteString
 recvwork auth req = do
-    resp <- BTC.solveBlock auth req
+    resp <- BTC.solveBlock auth (decodeUtf8 req)
     return . toStrict . encode $ resp
 

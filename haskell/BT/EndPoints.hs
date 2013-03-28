@@ -6,13 +6,11 @@ import Data.List (sortBy)
 import Database.Redis(Redis, runRedis, setnx, get, set, watch, multiExec, TxResult(TxSuccess))
 import Network.Wai (Request, requestBody)
 import Network.Bitcoin (BTC)
-import Numeric (showHex)
 import Text.JSON
 import BT.Types
-import System.Random (randomIO)
+import BT.Util
 import qualified System.ZMQ3 as ZMQ
 import Data.Pool (withResource)
-import Data.Word (Word64)
 import Data.Char (toUpper)
 import Control.Monad.IO.Class
 import Data.Conduit
@@ -21,23 +19,6 @@ import Data.Monoid(mconcat)
 import Control.Applicative
 import Crypto.Hash.MD5 (hash)
 import Data.Hex (hex)
-
-randomNum :: IO Word64
-randomNum = randomIO
-
-randomString :: IO String
-randomString = do
-    a <- randomNum
-    return $ showHex a ""
-
-random256String :: IO String
-random256String = do
-    a <- randomString
-    b <- randomString
-    c <- randomString
-    d <- randomString
-    return $ a ++ b ++ c ++ d
-
 
 getResult :: Result a -> a
 getResult res = case res of

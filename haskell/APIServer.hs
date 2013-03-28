@@ -3,18 +3,23 @@ import Network.Wai
 import Network.Wai.Handler.Warp (run)
 import Network.HTTP.Types (status200)
 import qualified Data.ByteString.Lazy as LB
+import qualified Data.ByteString.Lazy.Char8 as LBC
 import Control.Monad.IO.Class (liftIO)
 import BT.Routing
 import BT.Global
 import BT.Types
-import Control.Exception (catch, SomeException)
+import Control.Exception (catch)
 import System.IO(hPutStr, stderr)
 import System.Timeout (timeout)
 
-exceptionHandler :: SomeException -> IO (Maybe LB.ByteString)
+exceptionHandler :: MyException -> IO (Maybe LB.ByteString)
 exceptionHandler e = do
     hPutStr stderr $ show e
-    return $ Just "Server Error"
+    case e of
+        RedisException -> return $ Just "{\"error\":\"Server Error\"}"
+        BackendException -> return $ Just "{\"error\":\"Server Error\"}"
+        UserException a -> return $ Just $ LBC.pack $ "{\"error\":\"" ++ a ++ "\"}"
+        _ -> return $ Just "ServerError"
 
 application :: PersistentConns -> Application
 application conns info = do
@@ -23,7 +28,7 @@ application conns info = do
     case responsew of
         Just response -> return $
             responseLBS status200 [("Content-Type", "text/plain")] response
-        Nothing -> return $ responseLBS status200 [] "error"
+        Nothing -> return $ responseLBS status200 [] "{\"error\":\"Server Error\"}"
 
 main :: IO ()
 main = do

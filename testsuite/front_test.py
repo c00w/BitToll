@@ -1,9 +1,14 @@
 #!/usr/bin/env python2
-from testlib import register, balance, mine, request, deposit, pay
+from testlib import register, balance, mine, request, deposit, pay, apicall
 
 ip_address = "vm"
 port = "3000"
 url = ''.join(['http://', ip_address, ':', port])
+
+def test_page_error():
+    r = apicall("nonexistant", "hi")
+    assert "error" in r
+    assert r["error"] != ""
 
 def test_login(login):
     info = login

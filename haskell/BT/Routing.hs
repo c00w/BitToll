@@ -21,7 +21,7 @@ router = Data.Map.fromList $ [
 
 route :: B.ByteString -> Request -> PersistentConns -> IO BL.ByteString
 route path info conns = case Data.Map.lookup path router of
-                Nothing -> return "404"
+                Nothing -> return "{\"error\":\"No Such Method\"}"
                 Just a -> do
                     resp <- a info conns
                     let enc_io = pack $ encode $ toJSObject resp

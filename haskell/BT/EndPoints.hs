@@ -19,16 +19,17 @@ import Data.Monoid(mconcat)
 import Control.Applicative
 import Crypto.Hash.MD5 (hash)
 import Data.Hex (hex)
+import Control.Exception (throw)
 
 getResult :: Result a -> a
 getResult res = case res of
                     Ok val -> val
                     Error err -> error err
 
-getMaybe :: Maybe a -> a
-getMaybe may = case may of
+getMaybe :: MyException -> Maybe a -> a
+getMaybe b may = case may of
     Just a -> a
-    _ -> error "Not good."
+    _ -> throw b
 
 getRequestJSON :: Request -> IO (JSObject JSValue)
 getRequestJSON req = getResult <$> decode <$> BC.unpack <$> mconcat <$> runResourceT (requestBody req $$ consume)
@@ -43,10 +44,10 @@ getRequestAL req = do
     let jsal = fromJSObject json
     let al = map unjskey jsal
     let signWrap = lookup "sign" al
-    let sign = getMaybe $ signWrap
+    let sign = getMaybe (UserException "no sign") signWrap
     let al_minus_sign = filter (\s -> not (fst s == "sign")) al
     if not $ validate_sign al_minus_sign sign
-    then error "Invalid Sign"
+    then throw $ UserException "Invalid Sign"
     else return al
 
 key_comp :: (String, String) -> (String, String) -> Ordering
@@ -152,7 +153,7 @@ update_stored_balance bitcoinid userid conn = do
 getBalance :: Request -> PersistentConns-> IO [(String, String)] 
 getBalance info conn = do
     requestal <- getRequestAL info
-    let username = getMaybe $ lookup "username" requestal
+    let username = getMaybe (UserException "Missing username field") $ lookup "username" requestal
     bitcoinid_wrap <- runRedis (redis conn) $ do
         get $ B.append "address_" $ BC.pack username
     case bitcoinid_wrap of
@@ -169,8 +170,8 @@ getBalance info conn = do
 createPayment :: Request -> PersistentConns -> IO [(String, String)]
 createPayment info conn = do
     al <- getRequestAL info
-    let username = BC.pack$ getMaybe $ lookup "username" al
-    let amount = BC.pack $ getMaybe $ lookup "amount" al
+    let username = BC.pack$ getMaybe (UserException "Missing username") $ lookup "username" al
+    let amount = BC.pack $ getMaybe (UserException "Missing amount") $ lookup "amount" al
     paymentid <- random256String
     resp <- runRedis (redis conn) $ do
         ok <- setnx (B.append "payment_" (BC.pack paymentid)) amount
@@ -191,8 +192,8 @@ getRedisResult a m = case a of
 makePayment :: Request -> PersistentConns -> IO [(String, String)]
 makePayment info conn = do
     al <- getRequestAL info
-    let username = BC.pack $ getMaybe $ lookup "username" al
-    let payment = BC.pack $ getMaybe $ lookup "payment" al
+    let username = BC.pack $ getMaybe (UserException "Missing username") $ lookup "username" al
+    let payment = BC.pack $ getMaybe (UserException "Missing payment") $ lookup "payment" al
     resp <- runRedis (redis conn) $ do
         s <- watch $ [B.append "balance_" username]
         checkWatch s
@@ -226,7 +227,7 @@ makePayment info conn = do
 deposit :: Request -> PersistentConns-> IO [(String, String)]
 deposit info conn = do
     al <- getRequestAL info
-    let username = BC.pack $ getMaybe $ lookup "username" al
+    let username = BC.pack $ getMaybe (UserException "Missing username") $ lookup "username" al
     addr <- runRedis (redis conn) $ do
         get $ B.append "address_" username
     case addr of
@@ -245,7 +246,7 @@ deposit info conn = do
 mine :: Request -> PersistentConns -> IO [(String, String)]
 mine info conn = do
     al <- getRequestAL info
-    let username = BC.pack $ getMaybe $ lookup "username" al
+    let username = BC.pack $ getMaybe (UserException "Missing username") $ lookup "username" al
     result <- runRedis (redis conn) $ do
         sw <- watch $ [B.append "balance_" username]
         checkWatch sw

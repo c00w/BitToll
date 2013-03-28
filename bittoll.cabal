@@ -25,7 +25,8 @@ executable APIServer
                     conduit,
                     cryptohash,
                     hex,
-                    network-bitcoin
+                    network-bitcoin,
+                    aeson
     main-is:        APIServer.hs
     hs-source-dirs: haskell
     ghc-options:     -Wall -O2 -fllvm

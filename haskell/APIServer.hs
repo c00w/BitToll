@@ -16,7 +16,7 @@ exceptionHandler :: MyException -> IO (Maybe LB.ByteString)
 exceptionHandler e = do
     hPutStr stderr $ show e
     case e of
-        RedisException -> return $ Just "{\"error\":\"Server Error\"}"
+        RedisException _ -> return $ Just "{\"error\":\"Server Error\"}"
         BackendException _ -> return $ Just "{\"error\":\"Server Error\"}"
         UserException a -> return $ Just $ LBC.pack $ "{\"error\":\"" ++ a ++ "\"}"
         _ -> return $ Just "ServerError"

@@ -12,7 +12,7 @@ data PersistentConns = PersistentConns {
     pool :: Data.Pool.Pool (ZMQ.Socket ZMQ.Req)
 }
 
-data MyException = RedisException | BackendException String | UserException String | SomeException
+data MyException = RedisException String | BackendException String | UserException String | SomeException
     deriving (Show, Typeable)
 
 instance Exception MyException

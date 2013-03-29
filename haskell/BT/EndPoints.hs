@@ -20,16 +20,7 @@ import Control.Applicative
 import Crypto.Hash.MD5 (hash)
 import Data.Hex (hex)
 import Control.Exception (throw)
-
-getResult :: Result a -> a
-getResult res = case res of
-                    Ok val -> val
-                    Error err -> error err
-
-getMaybe :: MyException -> Maybe a -> a
-getMaybe b may = case may of
-    Just a -> a
-    _ -> throw b
+import System.Timeout (timeout)
 
 getRequestJSON :: Request -> IO (JSObject JSValue)
 getRequestJSON req = getResult <$> decode <$> BC.unpack <$> mconcat <$> runResourceT (requestBody req $$ consume)
@@ -100,16 +91,15 @@ checkInt input = case BC.readInt input of
 update_stored_balance :: B.ByteString -> B.ByteString -> PersistentConns -> IO ()
 update_stored_balance bitcoinid userid conn = do
     runRedis (redis conn) $ do
+        s <- watch $ [ B.append "address_recieved_" bitcoinid ]
+        checkWatch s
         liftIO $ putStrLn "Updating balance"
-        actual_recv <- liftIO $ withResource (pool conn) (\s -> do
+        ractual_recv <- liftIO $ timeout 3000000 $ withResource (pool conn) (\s -> do
             liftIO $ ZMQ.send s [] $ B.append "recieved" bitcoinid
             resp <-liftIO $ ZMQ.receive s
             return resp)
-        case checkInt actual_recv of
-            Nothing -> error "Cannot talk to bc server"
-            Just _ -> return ()
-        s <- watch $ [ B.append "address_recieved_" bitcoinid ]
-        checkWatch s
+        let actual_recv = getMaybe (BackendException "Cannot talk to bc server") ractual_recv
+
         stored_recv <- get $ B.append "address_recieved_" bitcoinid
         bw <- watch $ [ B.append "balance_" userid]
         checkWatch bw

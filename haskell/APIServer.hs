@@ -17,7 +17,7 @@ exceptionHandler e = do
     hPutStr stderr $ show e
     case e of
         RedisException -> return $ Just "{\"error\":\"Server Error\"}"
-        BackendException -> return $ Just "{\"error\":\"Server Error\"}"
+        BackendException _ -> return $ Just "{\"error\":\"Server Error\"}"
         UserException a -> return $ Just $ LBC.pack $ "{\"error\":\"" ++ a ++ "\"}"
         _ -> return $ Just "ServerError"
 

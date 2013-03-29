@@ -37,4 +37,3 @@ getRight exc i = case i of
     Right a -> a
     Left b -> throw (exc b)
 
-

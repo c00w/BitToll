@@ -1,10 +1,14 @@
-module BT.Util(random256String, getRight, getMaybe, getResult) where
+module BT.Util(random256String, getRight, getMaybe, getResult, satoshi_big, satoshi_sub, satoshi_add, checkWatch) where
 import System.Random (randomIO)
 import Numeric (showHex)
 import Data.Word (Word64)
 import BT.Types
 import Control.Exception(throw)
 import Text.JSON (Result(Ok, Error))
+import qualified Data.ByteString as B
+import qualified Data.ByteString.Char8 as BC
+import Network.Bitcoin (BTC)
+import Database.Redis (Redis)
 
 randomNum :: IO Word64 
 randomNum = randomIO 
@@ -36,4 +40,28 @@ getRight :: (a -> MyException) -> Either a b -> b
 getRight exc i = case i of
     Right a -> a
     Left b -> throw (exc b)
+
+checkWatch :: (Either a b) -> Redis ()
+checkWatch a = do 
+    case a of
+        Left _ -> return $ error "watch"
+        _ -> return ()
+
+satoshi_big :: B.ByteString -> B.ByteString -> Bool 
+satoshi_big a b = aBTC >= bBTC
+    where
+        aBTC = (read . BC.unpack) a :: BTC
+        bBTC = (read . BC.unpack) b :: BTC
+
+satoshi_sub :: B.ByteString -> B.ByteString -> B.ByteString
+satoshi_sub a b = BC.pack . show $ aBTC - bBTC
+    where
+        aBTC = (read . BC.unpack) a :: BTC
+        bBTC = (read . BC.unpack) b :: BTC
+
+satoshi_add :: B.ByteString -> B.ByteString -> B.ByteString
+satoshi_add a b = BC.pack . show $ aBTC + bBTC
+    where
+        aBTC = (read . BC.unpack) a :: BTC
+        bBTC = (read . BC.unpack) b :: BTC
 

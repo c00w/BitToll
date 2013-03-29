@@ -2,16 +2,14 @@
 module BT.EndPoints(register, deposit, getBalance, makePayment, createPayment, mine) where
 import qualified Data.ByteString.Char8 as BC
 import qualified Data.ByteString as B
-import Database.Redis(Redis, runRedis, setnx, get, set, watch, multiExec, TxResult(TxSuccess))
+import Database.Redis(runRedis, setnx, get, set, watch, multiExec, TxResult(TxSuccess))
 import Network.Wai (Request)
-import Network.Bitcoin (BTC)
-import Control.Monad.IO.Class (liftIO)
 import BT.Types
 import BT.Util
 import BT.JSON
+import BT.User
 import qualified System.ZMQ3 as ZMQ
 import Data.Pool (withResource)
-import System.Timeout (timeout)
 
 register :: Request -> PersistentConns-> IO [(String, String)]
 register info conn = do
@@ -20,85 +18,9 @@ register info conn = do
     ok <- runRedis (redis conn) $ do
         setnx (BC.pack $"user_" ++ user) (BC.pack salt)
 
-    case ok of
-        Right True -> return [("username"::String, user), ("secret", salt)]
+    case getRight (\s -> RedisException (show s)) ok of
+        True -> return [("username"::String, user), ("secret", salt)]
         _ -> register info conn
-
-satoshi_big :: B.ByteString -> B.ByteString -> Bool 
-satoshi_big a b = aBTC >= bBTC
-    where
-        aBTC = (read . BC.unpack) a :: BTC
-        bBTC = (read . BC.unpack) b :: BTC
-
-satoshi_sub :: B.ByteString -> B.ByteString -> B.ByteString
-satoshi_sub a b = BC.pack . show $ aBTC - bBTC
-    where
-        aBTC = (read . BC.unpack) a :: BTC
-        bBTC = (read . BC.unpack) b :: BTC
-
-satoshi_add :: B.ByteString -> B.ByteString -> B.ByteString
-satoshi_add a b = BC.pack . show $ aBTC + bBTC
-    where
-        aBTC = (read . BC.unpack) a :: BTC
-        bBTC = (read . BC.unpack) b :: BTC
-
-checkWatch :: (Either a b) -> Redis ()
-checkWatch a = do 
-    case a of
-        Left _ -> return $ error "watch"
-        _ -> return ()
-
-update_stored_balance :: B.ByteString -> B.ByteString -> PersistentConns -> IO ()
-update_stored_balance bitcoinid userid conn = do
-    runRedis (redis conn) $ do
-        s <- watch $ [ B.append "address_recieved_" bitcoinid ]
-        checkWatch s
-        liftIO $ putStrLn "Updating balance"
-        ractual_recv <- liftIO $ timeout 3000000 $ withResource (pool conn) (\s -> do
-            liftIO $ ZMQ.send s [] $ B.append "recieved" bitcoinid
-            resp <-liftIO $ ZMQ.receive s
-            return resp)
-        let actual_recv = getMaybe (BackendException "Cannot talk to bc server") ractual_recv
-
-        stored_recv <- get $ B.append "address_recieved_" bitcoinid
-        bw <- watch $ [ B.append "balance_" userid]
-        checkWatch bw
-        stored_balance <- get $ B.append "balance_" userid
-        _ <- liftIO $ BC.putStrLn  actual_recv
-        case (stored_recv, stored_balance) of
-            (Right (Just stored), Right (Just st_balance)) -> do
-                if stored == actual_recv
-                then return ()
-                else do
-                    liftIO $ BC.putStrLn "Main path"
-                    let diff = satoshi_sub actual_recv stored
-                    cm <- multiExec $ do
-                        _ <- set (B.append "address_recieved_" bitcoinid) stored
-                        set (B.append "balance_" userid) (satoshi_add st_balance diff)
-                    case cm of
-                        TxSuccess _ -> return ()
-                        _ -> liftIO $ update_stored_balance bitcoinid userid conn
-
-            (Right (Nothing), Right (Just balance)) -> do
-                liftIO $ BC.putStrLn "stored balance, no stored recv"
-                cm <- multiExec $ do
-                    _ <- set (B.append "address_recieved_" bitcoinid) actual_recv
-                    set (B.append "balance_" userid) (satoshi_add actual_recv balance)
-                case cm of
-                        TxSuccess _ -> return ()
-                        _ -> liftIO $ update_stored_balance bitcoinid userid conn
-
-            (Right (Nothing), Right (Nothing)) -> do
-                liftIO $ BC.putStrLn "No stored balance, no stored recieved"
-                cm <- multiExec $ do
-                    _ <- set (B.append "address_recieved_" bitcoinid) actual_recv
-                    set (B.append "balance_" userid) actual_recv
-                case cm of
-                        TxSuccess _ -> return ()
-                        _ -> liftIO $ update_stored_balance bitcoinid userid conn
-            (_, _) -> do
-                return ()
-    return ()
 
 getBalance :: Request -> PersistentConns-> IO [(String, String)] 
 getBalance info conn = do

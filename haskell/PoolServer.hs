@@ -39,7 +39,7 @@ route request = case Data.Map.lookup (take 7 request) router of
         Nothing -> return "Error"
 
 getwork :: BTC.Auth -> ByteString -> IO ByteString
-getwork auth req = do
+getwork auth _ = do
     recv <- BTC.getWork auth
     return . toStrict . encode $ recv
 

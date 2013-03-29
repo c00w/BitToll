@@ -11,7 +11,6 @@ import BT.Util
 import BT.JSON
 import qualified System.ZMQ3 as ZMQ
 import Data.Pool (withResource)
-import Control.Exception (throw)
 import System.Timeout (timeout)
 
 register :: Request -> PersistentConns-> IO [(String, String)]
@@ -48,11 +47,6 @@ checkWatch a = do
     case a of
         Left _ -> return $ error "watch"
         _ -> return ()
-
-checkInt :: (B.ByteString) -> Maybe B.ByteString
-checkInt input = case BC.readInt input of
-    (Just _) -> Just input
-    _ -> Nothing
 
 update_stored_balance :: B.ByteString -> B.ByteString -> PersistentConns -> IO ()
 update_stored_balance bitcoinid userid conn = do

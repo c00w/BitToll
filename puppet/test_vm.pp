@@ -58,6 +58,7 @@ vcsrepo {"/home/p2pool/p2pool":
     user     => "p2pool",
     ensure   => latest,
     provider => git,
+    alias    => "p2pool",
 }
 
 service {"redis-server":
@@ -141,6 +142,23 @@ file {"/etc/init/bitcoind.conf":
     alias => "bitcoind.conf"
 }
 
+file {"/etc/init/p2pool.conf":
+    ensure => present,
+    mode => 0644,
+    source => "/configs/p2pool.conf",
+    alias => "p2pool.conf"
+}
+
+file {"/home/p2pool/p2pool.sh":
+    ensure => present,
+    mode => 0744,
+    source => "/configs/p2pool.sh",
+    alias => "p2pool.sh",
+    owner => "p2pool",
+    require => User["p2pool"],
+}
+
+
 service {"bitcoind":
     require => [
         Package["bitcoind"],
@@ -150,6 +168,18 @@ service {"bitcoind":
     ensure => running,
     enable => true,
 }
+
+service {"p2pool":
+    require => [
+        Vcsrepo["p2pool"],
+        File["p2pool.conf"],
+        File["p2pool.sh"],
+    ],
+    ensure => running,
+    enable => true,
+}
+
+
 
 file {"/usr/bin/BCServer":
     ensure => present,

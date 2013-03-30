@@ -12,7 +12,7 @@ import Data.Text.Encoding (decodeUtf8)
 import Data.Aeson
 
 bcdmine :: Auth
-bcdmine = BTC.Auth "http://127.0.0.1:9332" "x" "x"
+bcdmine = BTC.Auth "http://127.0.0.1:19332" "x" "x"
 
 main :: IO ()
 main = do

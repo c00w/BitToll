@@ -10,6 +10,8 @@ import BT.JSON
 import BT.User
 import qualified System.ZMQ3 as ZMQ
 import Data.Pool (withResource)
+import Control.Monad.IO.Class (liftIO)
+import System.Timeout (timeout)
 
 register :: Request -> PersistentConns-> IO [(String, String)]
 register info conn = do
@@ -119,17 +121,26 @@ mine :: Request -> PersistentConns -> IO [(String, String)]
 mine info conn = do
     al <- getRequestAL info
     let username = BC.pack $ getMaybe (UserException "Missing username") $ lookup "username" al
-    result <- runRedis (redis conn) $ do
-        sw <- watch $ [B.append "balance_" username]
-        checkWatch sw
-        user_balance_wrap <- get $ B.append "balance_" username
-        amount <- case user_balance_wrap of
-            (Right (Just a)) -> return $ satoshi_add a ( BC.pack "0.1")
-            (Right (Nothing)) -> return $ BC.pack "0.1"
-            _ -> error "Failed to talk to box 271"
-        multiExec $ do
-            set (B.append "balance_" username) amount
+    let getwork = getMaybe (UserException "Missing command") $ lookup "params" al
+    case length getwork of
+        0 -> do
+            resp <- liftIO $ timeout 30000000 $ withResource (mine_pool conn) (\s -> do
+                liftIO $ ZMQ.send s [] $ "getwork"
+                liftIO $ ZMQ.receive s)
+            let item = getMaybe (BackendException "Cannot talk to p2pool server") resp
+            return [("hi", BC.unpack item)]
+        _ -> do
+            result <- runRedis (redis conn) $ do
+                sw <- watch $ [B.append "balance_" username]
+                checkWatch sw
+                user_balance_wrap <- get $ B.append "balance_" username
+                amount <- case user_balance_wrap of
+                    (Right (Just a)) -> return $ satoshi_add a ( BC.pack "0.1")
+                    (Right (Nothing)) -> return $ BC.pack "0.1"
+                    _ -> error "Failed to talk to box 271"
+                multiExec $ do
+                    set (B.append "balance_" username) amount
 
-    case result of
-        TxSuccess _ -> return [("Success", "yay")]
-        _ -> mine info conn
+            case result of
+                TxSuccess _ -> return [("Success", "yay")]
+                _ -> mine info conn

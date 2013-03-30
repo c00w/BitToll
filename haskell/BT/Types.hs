@@ -9,7 +9,8 @@ import Control.Exception
 
 data PersistentConns = PersistentConns {
     redis :: RD.Connection,
-    pool :: Data.Pool.Pool (ZMQ.Socket ZMQ.Req)
+    pool :: Data.Pool.Pool (ZMQ.Socket ZMQ.Req),
+    mine_pool :: Data.Pool.Pool (ZMQ.Socket ZMQ.Req)
 }
 
 data MyException = RedisException String | BackendException String | UserException String | SomeException

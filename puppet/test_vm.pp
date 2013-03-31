@@ -123,7 +123,7 @@ file {"/home/p2pool/.bitcoin":
     ensure => link,
     target => "/home/bitcoind/.bitcoin",
     mode => 0644,
-    owner => "vagrant",
+    owner => "p2pool",
 }
 
 file {"/home/bitcoind/.bitcoin/bitcoin.conf":
@@ -149,16 +149,6 @@ file {"/etc/init/p2pool.conf":
     alias => "p2pool.conf"
 }
 
-file {"/home/p2pool/p2pool.sh":
-    ensure => present,
-    mode => 0744,
-    source => "/configs/p2pool.sh",
-    alias => "p2pool.sh",
-    owner => "p2pool",
-    require => User["p2pool"],
-}
-
-
 service {"bitcoind":
     require => [
         Package["bitcoind"],
@@ -173,7 +163,6 @@ service {"p2pool":
     require => [
         Vcsrepo["p2pool"],
         File["p2pool.conf"],
-        File["p2pool.sh"],
     ],
     ensure => running,
     enable => true,
@@ -233,6 +222,7 @@ service {"apiserver":
         User["apiserver"],
         Package["zeromq"],
         File["apiserver.conf"],
+        File["api-binary"],
     ],
 }
 
@@ -241,6 +231,7 @@ service {"bcserver":
         User["bcserver"],
         Package["zeromq"],
         File["bcserver.conf"],
+        File["bc-binary"],
     ],
 }
 
@@ -249,6 +240,7 @@ service {"poolserver":
         User["poolserver"],
         Package["zeromq"],
         File["poolserver.conf"],
+        File["pool-binary"],
     ],
 }
 

@@ -4,6 +4,8 @@ $test_packages = [
     "python-twisted",
     "python-twisted-web",
     "git",
+    "vim",
+    "htop",
 ]
 
 package { $test_packages:

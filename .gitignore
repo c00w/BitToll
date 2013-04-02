@@ -2,6 +2,7 @@
 *.o
 *.prof
 *.pyc
+*.svg
 dist
 haskell/APIServer
 haskell/BCServer

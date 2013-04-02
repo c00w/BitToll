@@ -25,7 +25,6 @@ database "Redis" {
 [HTTP Handler] --> [User Database]
 [HTTP Handler] --> [p2pool]
 [HTTP Handler] --> [bitcoind]
-[p2pool] --> [bitcoind]
 
 
 @enduml

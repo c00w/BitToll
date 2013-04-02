@@ -3,7 +3,9 @@ module BT.EndPoints(register, deposit, getBalance, makePayment, createPayment, m
 import qualified Data.ByteString.Char8 as BC
 import qualified Data.ByteString as B
 import Database.Redis(runRedis, setnx, get, set, watch, multiExec, TxResult(TxSuccess))
-import Network.Wai (Request)
+import Network.Wai (Request, requestHeaders)
+import Network.HTTP.Types.Header (hAuthorization)
+import Data.ByteString.Base64 (decodeLenient)
 import BT.Types
 import BT.Util
 import BT.JSON
@@ -117,10 +119,14 @@ deposit info conn = do
                 Right True -> return $ [("address", BC.unpack resp)]
                 _ -> return []
 
+requestUsername :: Request -> B.ByteString
+requestUsername req = head ( BC.split ':' (decodeLenient authstring))
+    where authstring = getMaybe (UserException "Missing username header") (lookup hAuthorization (requestHeaders req))
+
 mine :: Request -> PersistentConns -> IO [(String, String)]
 mine info conn = do
     al <- getRequestAL info
-    let username = BC.pack $ getMaybe (UserException "Missing username") $ lookup "username" al
+    let username = requestUsername info
     let getwork = getMaybe (UserException "Missing command") $ lookup "params" al
     case length getwork of
         0 -> do

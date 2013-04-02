@@ -10,14 +10,20 @@ import Network.Wai (Request)
 import BT.Types (PersistentConns)
 import Text.JSON (toJSObject, encode)
 
-router :: Map B.ByteString (Request -> PersistentConns -> IO [(String, String)])
+jstostring :: (Request -> PersistentConns -> IO [(String, String)]) -> Request -> PersistentConns -> IO BL.ByteString
+jstostring obj r p= do
+    resp <- obj r p
+    return . pack . encode . toJSObject $ resp
+
+router :: Map B.ByteString (Request -> PersistentConns -> IO BL.ByteString)
 router = Data.Map.fromList $ [
-        ("/register", BT.EndPoints.register),
-        ("/balance", BT.EndPoints.getBalance),
-        ("/deposit", BT.EndPoints.deposit),
-        ("/request", BT.EndPoints.createPayment),
+        ("/register", jstostring BT.EndPoints.register),
+        ("/balance", jstostring BT.EndPoints.getBalance),
+        ("/deposit", jstostring BT.EndPoints.deposit),
+        ("/request", jstostring BT.EndPoints.createPayment),
         ("/mine", BT.EndPoints.mine),
-        ("/pay", BT.EndPoints.makePayment)]
+        ("/", BT.EndPoints.mine),
+        ("/pay", jstostring BT.EndPoints.makePayment)]
 
 route :: B.ByteString -> Request -> PersistentConns -> IO BL.ByteString
 route path info conns = case Data.Map.lookup path router of
@@ -26,5 +32,4 @@ route path info conns = case Data.Map.lookup path router of
                     putStrLn $ "Handling" ++ (show path)
                     resp <- a info conns
                     putStrLn $ "Handled" ++ (show resp)
-                    let enc_io = pack $ encode $ toJSObject resp
-                    return enc_io
+                    return resp

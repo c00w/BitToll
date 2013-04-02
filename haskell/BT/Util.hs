@@ -1,4 +1,5 @@
-module BT.Util(random256String, getRight, getMaybe, getResult, satoshi_big, satoshi_sub, satoshi_add, checkWatch, getRequestBody) where
+{-# LANGUAGE OverloadedStrings #-}
+module BT.Util(jsonRPC, random256String, getRight, getMaybe, getResult, satoshi_big, satoshi_sub, satoshi_add, checkWatch, getRequestBody) where
 import System.Random (randomIO)
 import Numeric (showHex)
 import Data.Word (Word64)
@@ -74,3 +75,8 @@ satoshi_add a b = BC.pack . show $ aBTC + bBTC
 
 getRequestBody :: Request -> IO BL.ByteString
 getRequestBody req = BL.fromStrict <$> mconcat <$> runResourceT (requestBody req $$ consume)
+
+jsonRPC :: A.Value -> String -> BL.ByteString 
+jsonRPC rid mess = A.encode . A.object $ ["result" A..= mess,
+                          "error" A..= A.Null,
+                          "id" A..= rid]

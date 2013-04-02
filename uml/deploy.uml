@@ -1,0 +1,31 @@
+@startuml
+node User {
+    [Bittoll Client]
+}
+cloud "Bittoll Node" {
+
+frame "Webserver" {
+    [HTTP Handler]
+}
+
+frame "Bitcoin Server" {
+    [bitcoind]
+}
+
+frame "p2pool Server" {
+    [p2pool]
+}
+
+database "Redis" {
+    [User Database]
+}
+}
+
+[Bittoll Client] --> [HTTP Handler]
+[HTTP Handler] --> [User Database]
+[HTTP Handler] --> [p2pool]
+[HTTP Handler] --> [bitcoind]
+[p2pool] --> [bitcoind]
+
+
+@enduml

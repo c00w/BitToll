@@ -24,7 +24,7 @@ instance Exception MyException
 
 data MiningData = MiningData {
     method :: String,
-    id :: Int,
+    id :: Value,
     getwork :: [String]
 }
 

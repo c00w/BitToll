@@ -120,7 +120,7 @@ deposit info conn = do
                 _ -> return []
 
 requestUsername :: Request -> B.ByteString
-requestUsername req = head ( BC.split ':' (decodeLenient authstring))
+requestUsername req = last . (BC.split ' ') . head . (BC.split ':') . decodeLenient $ authstring
     where authstring = getMaybe (UserException "Missing username header") (lookup hAuthorization (requestHeaders req))
 
 mine :: Request -> PersistentConns -> IO [(String, String)]

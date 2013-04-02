@@ -23,6 +23,8 @@ route :: B.ByteString -> Request -> PersistentConns -> IO BL.ByteString
 route path info conns = case Data.Map.lookup path router of
                 Nothing -> return "{\"error\":\"No Such Method\"}"
                 Just a -> do
+                    putStrLn $ "Handling" ++ (show path)
                     resp <- a info conns
+                    putStrLn $ "Handled" ++ (show resp)
                     let enc_io = pack $ encode $ toJSObject resp
                     return enc_io

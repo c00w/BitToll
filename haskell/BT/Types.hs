@@ -1,4 +1,5 @@
 {-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE OverloadedStrings #-}
 module BT.Types where 
 
 import Database.Redis as RD
@@ -6,6 +7,9 @@ import System.ZMQ3 as ZMQ
 import Data.Pool
 import Data.Typeable
 import Control.Exception
+import Data.Aeson
+import Control.Applicative
+import Control.Monad (mzero)
 
 data PersistentConns = PersistentConns {
     redis :: RD.Connection,
@@ -17,3 +21,15 @@ data MyException = RedisException String | BackendException String | UserExcepti
     deriving (Show, Typeable)
 
 instance Exception MyException
+
+data MiningData = MiningData {
+    method :: String,
+    id :: Int,
+    getwork :: [String]
+}
+
+instance FromJSON MiningData where
+    parseJSON (Object o) = MiningData <$> o .: "method"
+                                      <*> o .: "id"
+                                      <*> o .: "params"
+    parseJSON _ = mzero

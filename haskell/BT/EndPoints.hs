@@ -14,6 +14,7 @@ import qualified System.ZMQ3 as ZMQ
 import Data.Pool (withResource)
 import Control.Monad.IO.Class (liftIO)
 import System.Timeout (timeout)
+import Data.Aeson (decode)
 
 register :: Request -> PersistentConns-> IO [(String, String)]
 register info conn = do
@@ -29,6 +30,7 @@ register info conn = do
 getBalance :: Request -> PersistentConns-> IO [(String, String)] 
 getBalance info conn = do
     requestal <- getRequestAL info
+    verifyAL requestal
     let username = getMaybe (UserException "Missing username field") $ lookup "username" requestal
     bitcoinid_wrap <- runRedis (redis conn) $ do
         get $ B.append "address_" $ BC.pack username
@@ -46,6 +48,7 @@ getBalance info conn = do
 createPayment :: Request -> PersistentConns -> IO [(String, String)]
 createPayment info conn = do
     al <- getRequestAL info
+    verifyAL al
     let username = BC.pack$ getMaybe (UserException "Missing username") $ lookup "username" al
     let amount = BC.pack $ getMaybe (UserException "Missing amount") $ lookup "amount" al
     paymentid <- random256String
@@ -68,6 +71,7 @@ getRedisResult a m = case a of
 makePayment :: Request -> PersistentConns -> IO [(String, String)]
 makePayment info conn = do
     al <- getRequestAL info
+    verifyAL al
     let username = BC.pack $ getMaybe (UserException "Missing username") $ lookup "username" al
     let payment = BC.pack $ getMaybe (UserException "Missing payment") $ lookup "payment" al
     resp <- runRedis (redis conn) $ do
@@ -103,6 +107,7 @@ makePayment info conn = do
 deposit :: Request -> PersistentConns-> IO [(String, String)]
 deposit info conn = do
     al <- getRequestAL info
+    verifyAL al
     let username = BC.pack $ getMaybe (UserException "Missing username") $ lookup "username" al
     addr <- runRedis (redis conn) $ do
         get $ B.append "address_" username
@@ -120,22 +125,25 @@ deposit info conn = do
                 _ -> return []
 
 requestUsername :: Request -> B.ByteString
-requestUsername req = last . (BC.split ' ') . head . (BC.split ':') . decodeLenient $ authstring
-    where authstring = getMaybe (UserException "Missing username header") (lookup hAuthorization (requestHeaders req))
+requestUsername req = head . (BC.split ':') . decodeLenient . last. (BC.split ' ') $ authstring
+    where authstring = getMaybe (UserException "Missing username header") . lookup hAuthorization . requestHeaders $ req
 
 mine :: Request -> PersistentConns -> IO [(String, String)]
 mine info conn = do
-    al <- getRequestAL info
+    body <- getRequestBody info
+    let request = getMaybe (UserException "Bad Format"). decode $ body :: MiningData
     let username = requestUsername info
-    let getwork = getMaybe (UserException "Missing command") $ lookup "params" al
-    case length getwork of
+    case length . getwork $ request of
         0 -> do
+            putStrLn "getwork length = 0"
             resp <- liftIO $ timeout 30000000 $ withResource (mine_pool conn) (\s -> do
                 liftIO $ ZMQ.send s [] $ "getwork"
                 liftIO $ ZMQ.receive s)
             let item = getMaybe (BackendException "Cannot talk to p2pool server") resp
+            putStrLn "done talking backend"
             return [("hi", BC.unpack item)]
         _ -> do
+            putStrLn "getwork length != 0"
             result <- runRedis (redis conn) $ do
                 sw <- watch $ [B.append "balance_" username]
                 checkWatch sw

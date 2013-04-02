@@ -1,4 +1,4 @@
-module BT.Util(random256String, getRight, getMaybe, getResult, satoshi_big, satoshi_sub, satoshi_add, checkWatch) where
+module BT.Util(random256String, getRight, getMaybe, getResult, satoshi_big, satoshi_sub, satoshi_add, checkWatch, getRequestBody) where
 import System.Random (randomIO)
 import Numeric (showHex)
 import Data.Word (Word64)
@@ -6,9 +6,16 @@ import BT.Types
 import Control.Exception(throw)
 import Text.JSON (Result(Ok, Error))
 import qualified Data.ByteString as B
+import qualified Data.ByteString.Lazy as BL
 import qualified Data.ByteString.Char8 as BC
 import Network.Bitcoin (BTC)
 import Database.Redis (Redis)
+import qualified Data.Aeson as A
+import Data.Conduit
+import Data.Conduit.List (consume)
+import Control.Applicative
+import Network.Wai (Request, requestBody)
+import Data.Monoid (mconcat)
 
 randomNum :: IO Word64 
 randomNum = randomIO 
@@ -65,3 +72,5 @@ satoshi_add a b = BC.pack . show $ aBTC + bBTC
         aBTC = (read . BC.unpack) a :: BTC
         bBTC = (read . BC.unpack) b :: BTC
 
+getRequestBody :: Request -> IO BL.ByteString
+getRequestBody req = BL.fromStrict <$> mconcat <$> runResourceT (requestBody req $$ consume)

@@ -1,4 +1,4 @@
-module BT.JSON (getRequestAL) where 
+module BT.JSON (getRequestAL, verifyAL) where 
 import Text.JSON
 import BT.Types
 import BT.Util
@@ -26,12 +26,16 @@ getRequestAL req = do
     json <- getRequestJSON req
     let jsal = fromJSObject json
     let al = map unjskey jsal
+    return al
+
+verifyAL :: [(String, String)] -> IO ()
+verifyAL al = do
     let signWrap = lookup "sign" al
     let sign = getMaybe (UserException "no sign") signWrap
     let al_minus_sign = filter (\s -> not (fst s == "sign")) al
     if not $ validate_sign al_minus_sign sign
     then throw $ UserException "Invalid Sign"
-    else return al
+    else return ()
 
 key_comp :: (String, String) -> (String, String) -> Ordering
 key_comp a b = compare (fst a) (fst b)

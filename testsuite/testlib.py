@@ -30,13 +30,6 @@ def balance(userid, secret):
     body['sign'] = _secret(body, secret)
     return apicall('balance', body)
 
-def mine(userid, secret):
-    body = {}
-    body['username'] = userid
-    body['time'] = str(time.time())
-    body['sign'] = _secret(body, secret)
-    return apicall('mine', body)
-
 def deposit(userid, secret):
     body = {}
     body['username'] = userid
@@ -60,8 +53,16 @@ def request(userid, secret, amount):
     body['sign'] = _secret(body, secret)
     return apicall('request', body)
 
-def apicall(name, body):
-    r = requests.post(url +'/' + name, data=json.dumps(body))
+def apicall(name, body, auth=None):
+    r = requests.post(url +'/' + name, data=json.dumps(body), auth=auth)
     assert r.status_code == 200
     info = json.loads(r.text)
     return info
+
+def mine(userid, secret):
+    body = {}
+    body['params'] = []
+    body['method'] = 'getwork'
+    body['id'] = 1
+    return apicall('mine', body, (userid, ''))
+

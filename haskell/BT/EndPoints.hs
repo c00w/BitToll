@@ -141,7 +141,7 @@ mine info conn = do
                 liftIO $ ZMQ.receive s)
             let item = getMaybe (BackendException "Cannot talk to p2pool server") resp
             putStrLn "done talking backend"
-            return [("hi", BC.unpack item)]
+            return [("result", BC.unpack item)]
         _ -> do
             putStrLn "getwork length != 0"
             result <- runRedis (redis conn) $ do

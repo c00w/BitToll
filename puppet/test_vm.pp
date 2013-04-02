@@ -107,6 +107,7 @@ file {"/home/bitcoind/.bitcoin":
     ensure => directory,
     mode => 0644,
     owner => "bitcoind",
+    notify => Service["bitcoind"],
 }
 
 file {"/home/vagrant/.bitcoin":
@@ -126,6 +127,7 @@ file {"/home/p2pool/.bitcoin":
     target => "/home/bitcoind/.bitcoin",
     mode => 0644,
     owner => "p2pool",
+    notify => Service["p2pool"],
 }
 
 file {"/home/bitcoind/.bitcoin/bitcoin.conf":
@@ -134,21 +136,24 @@ file {"/home/bitcoind/.bitcoin/bitcoin.conf":
     mode => 0644,
     source => "/configs/bitcoin.conf",
     owner => "bitcoind",
-    alias => "bitcoin.conf"
+    alias => "bitcoin.conf",
+    notify => Service["bitcoind"],
 }
 
 file {"/etc/init/bitcoind.conf":
     ensure => present,
     mode => 0644,
     source => "/configs/bitcoind.conf",
-    alias => "bitcoind.conf"
+    alias => "bitcoind.conf",
+    notify => Service["bitcoind"],
 }
 
 file {"/etc/init/p2pool.conf":
     ensure => present,
     mode => 0644,
     source => "/configs/p2pool.conf",
-    alias => "p2pool.conf"
+    alias => "p2pool.conf",
+    notify => Service["p2pool"],
 }
 
 service {"bitcoind":
@@ -177,6 +182,7 @@ file {"/usr/bin/BCServer":
     mode => 0777,
     source => "/binaries/BCServer/BCServer",
     alias => "bc-binary",
+    notify => Service["bcserver"],
 }
 
 file {"/usr/bin/APIServer":
@@ -184,6 +190,7 @@ file {"/usr/bin/APIServer":
     mode => 0777,
     source => "/binaries/APIServer/APIServer",
     alias => "api-binary",
+    notify => Service["apiserver"],
 }
 
 file {"/usr/bin/PoolServer":
@@ -191,27 +198,31 @@ file {"/usr/bin/PoolServer":
     mode => 0777,
     source => "/binaries/PoolServer/PoolServer",
     alias => "pool-binary",
+    notify => Service["poolserver"],
 }
 
 file {"/etc/init/apiserver.conf":
     ensure => present,
     mode => 0644,
     source => "/configs/apiserver.conf",
-    alias => "apiserver.conf"
+    alias => "apiserver.conf",
+    notify => Service["apiserver"],
 }
 
 file {"/etc/init/bcserver.conf":
     ensure => present,
     mode => 0644,
     source => "/configs/bcserver.conf",
-    alias => "bcserver.conf"
+    alias => "bcserver.conf",
+    notify => Service["bcserver"],
 }
 
 file {"/etc/init/poolserver.conf":
     ensure => present,
     mode => 0644,
     source => "/configs/poolserver.conf",
-    alias => "poolserver.conf"
+    alias => "poolserver.conf",
+    notify => Service["poolserver"],
 }
 
 Service {

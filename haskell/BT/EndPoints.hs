@@ -16,6 +16,7 @@ import Data.Pool (withResource)
 import Control.Monad.IO.Class (liftIO)
 import System.Timeout (timeout)
 import Data.Aeson (decode)
+import Network.Bitcoin (HashData)
 
 register :: Request -> PersistentConns-> IO [(String, String)]
 register info conn = do
@@ -142,7 +143,7 @@ mine info conn = do
                 liftIO $ ZMQ.receive s)
             let item = getMaybe (BackendException "Cannot talk to p2pool server") resp
             putStrLn "done talking backend"
-            return $ jsonRPC (rpcid request) (BC.unpack item)
+            return $ jsonRPC (rpcid request) ((getMaybe (BackendException "Cannot convert result to hash") . (decode) . BL.fromStrict $ item) :: HashData)
         _ -> do
             putStrLn "getwork length != 0"
             result <- runRedis (redis conn) $ do
@@ -157,5 +158,5 @@ mine info conn = do
                     set (B.append "balance_" username) amount
 
             case result of
-                TxSuccess _ -> return $ jsonRPC (rpcid request) ("hi")
+                TxSuccess _ -> return $ jsonRPC (rpcid request) ("hi" :: String)
                 _ -> mine info conn

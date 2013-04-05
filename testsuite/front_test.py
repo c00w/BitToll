@@ -32,8 +32,10 @@ def test_request(login):
 
 def test_mine(login):
     info = mine(login['username'], login['secret'])
-    info = balance(login['username'], login['secret'])
-    assert float(info['balance']) == 0.1
+    assert 'result' in info
+    assert 'id' in info
+    assert 'error' in info
+    assert info['error'] is None
 
 def pytest_funcarg__paidlogin(request, login):
     info = deposit(login['username'], login['secret'])

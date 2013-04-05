@@ -2,6 +2,7 @@
 node User {
     [Bittoll Client]
 }
+
 cloud "Bittoll Node" {
 
 frame "Webserver" {
@@ -21,6 +22,13 @@ database "Redis" {
 }
 }
 
+node Server {
+    [Server Bittoll Client]
+}
+
+
+[Server Bittoll Client] --> [HTTP Handler]
+[Server Bittoll Client] -- [Bittoll Client]
 [Bittoll Client] --> [HTTP Handler]
 [HTTP Handler] --> [User Database]
 [HTTP Handler] --> [p2pool]

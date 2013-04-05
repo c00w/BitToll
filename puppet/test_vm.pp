@@ -105,11 +105,22 @@ file {"/home/bitcoind/.bitcoin":
     require => User["bitcoind"],
     alias   => "bitcoin_folder",
     ensure  => directory,
-    mode    => 0600,
+    mode    => 0644,
     owner   => "bitcoind",
     notify  => Service["bitcoind"],
     recurse => true,
     source  => "/configs/testnet-box/1/",
+}
+
+file {"/home/bitcoind/.bitcoin1":
+    require => User["bitcoind"],
+    alias   => "bitcoin_folder1",
+    ensure  => directory,
+    mode    => 0644,
+    owner   => "bitcoind",
+    notify  => Service["bitcoind1"],
+    recurse => true,
+    source  => "/configs/testnet-box/2/",
 }
 
 file {"/home/vagrant/.bitcoin":
@@ -140,6 +151,14 @@ file {"/etc/init/bitcoind.conf":
     notify => Service["bitcoind"],
 }
 
+file {"/etc/init/bitcoind1.conf":
+    ensure => present,
+    mode => 0644,
+    source => "/configs/bitcoind1.conf",
+    alias => "bitcoind1.conf",
+    notify => Service["bitcoind1"],
+}
+
 file {"/etc/init/p2pool.conf":
     ensure => present,
     mode => 0644,
@@ -157,6 +176,17 @@ service {"bitcoind":
     ensure => running,
     enable => true,
 }
+
+service {"bitcoind1":
+    require => [
+        Package["bitcoind"],
+        File["bitcoin_folder1"],
+        File["bitcoind1.conf"],
+    ],
+    ensure => running,
+    enable => true,
+}
+
 
 service {"p2pool":
     require => [

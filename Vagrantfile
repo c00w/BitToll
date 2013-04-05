@@ -18,6 +18,8 @@ Vagrant.configure("2") do |config|
   # accessing "localhost:8080" will access port 80 on the guest machine.
   #p2pool
   config.vm.network :forwarded_port, guest: 19332, host: 19332
+  #testnet-box
+  config.vm.network :forwarded_port, guest: 19001, host: 19001
 
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.

@@ -10,7 +10,7 @@ import Network.Bitcoin as BTC
 import Data.Text.Encoding (encodeUtf8, decodeUtf8)
 
 bcd :: Auth
-bcd = BTC.Auth "http://127.0.0.1:8332" "FGHJUYTUJKNMBVCCDFSTRdfyhydsaoiuyaustdyutyoiurewri" "jakhdkjahslkjdhlkjfhdskjlhflkjHJITYUIOTRRRRYII"
+bcd = BTC.Auth "http://127.0.0.1:19001" "FGHJUYTUJKNMBVCCDFSTRdfyhydsaoiuyaustdyutyoiurewri" "jakhdkjahslkjdhlkjfhdskjlhflkjHJITYUIOTRRRRYII"
 
 main :: IO ()
 main = do

@@ -103,11 +103,13 @@ file {"/etc/redis/redis.conf":
 
 file {"/home/bitcoind/.bitcoin":
     require => User["bitcoind"],
-    alias => "bitcoin_folder",
-    ensure => directory,
-    mode => 0644,
-    owner => "bitcoind",
-    notify => Service["bitcoind"],
+    alias   => "bitcoin_folder",
+    ensure  => directory,
+    mode    => 0600,
+    owner   => "bitcoind",
+    notify  => Service["bitcoind"],
+    recurse => true,
+    source  => "/configs/testnet-box/1/",
 }
 
 file {"/home/vagrant/.bitcoin":
@@ -130,16 +132,6 @@ file {"/home/p2pool/.bitcoin":
     notify => Service["p2pool"],
 }
 
-file {"/home/bitcoind/.bitcoin/bitcoin.conf":
-    require => File["bitcoin_folder"],
-    ensure => present,
-    mode => 0644,
-    source => "/configs/bitcoin.conf",
-    owner => "bitcoind",
-    alias => "bitcoin.conf",
-    notify => Service["bitcoind"],
-}
-
 file {"/etc/init/bitcoind.conf":
     ensure => present,
     mode => 0644,
@@ -159,7 +151,7 @@ file {"/etc/init/p2pool.conf":
 service {"bitcoind":
     require => [
         Package["bitcoind"],
-        File["bitcoin.conf"],
+        File["bitcoin_folder"],
         File["bitcoind.conf"],
     ],
     ensure => running,

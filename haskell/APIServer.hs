@@ -1,4 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
+import Prelude hiding (catch)
 import Network.Wai
 import Network.Wai.Handler.Warp (run)
 import Network.HTTP.Types (status200)

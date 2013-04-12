@@ -144,6 +144,14 @@ mine info conn = do
             let item = getMaybe (BackendException "Cannot talk to p2pool server") resp
             putStrLn "done talking backend"
             return $ jsonRPC (rpcid request) ((getMaybe (BackendException "Cannot convert result to hash") . (decode) . BL.fromStrict $ item) :: HashData)
+        1 -> do
+            let sub_hash = head . getwork $ request
+            resp <- liftIO $ timeout 30000000 $ withResource (mine_pool conn) (\s -> do
+                liftIO $ ZMQ.send s [] (BC.pack ("recvwork"++ sub_hash))
+                liftIO $ ZMQ.receive s)
+            let item = getMaybe (BackendException "Cannot talk to p2pool server") resp
+            putStrLn "done submitting work"
+            return $ BL.fromStrict $ item
         _ -> do
             putStrLn "getwork length != 0"
             result <- runRedis (redis conn) $ do

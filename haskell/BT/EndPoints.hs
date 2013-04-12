@@ -154,17 +154,4 @@ mine info conn = do
             return $ BL.fromStrict $ item
         _ -> do
             putStrLn "getwork length != 0"
-            result <- runRedis (redis conn) $ do
-                sw <- watch $ [B.append "balance_" username]
-                checkWatch sw
-                user_balance_wrap <- get $ B.append "balance_" username
-                amount <- case user_balance_wrap of
-                    (Right (Just a)) -> return $ satoshi_add a ( BC.pack "0.1")
-                    (Right (Nothing)) -> return $ BC.pack "0.1"
-                    _ -> error "Failed to talk to box 271"
-                multiExec $ do
-                    set (B.append "balance_" username) amount
-
-            case result of
-                TxSuccess _ -> return $ jsonRPC (rpcid request) ("hi" :: String)
-                _ -> mine info conn
+            return $ "ERRORRRRRRR"

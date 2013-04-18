@@ -23,11 +23,11 @@ update_stored_balance bitcoinid userid conn = do
             return resp)
         let actual_recv = getMaybe (BackendException "Cannot talk to bc server") ractual_recv
         stored_recvraw <- get $ B.append "address_recieved_" bitcoinid
-        let stored_recv = getRight (\s -> RedisException (show s)) stored_recvraw
+        let stored_recv = getRightRedis stored_recvraw
         bw <- watch $ [ B.append "balance_" userid]
         checkWatch bw
         stored_balanceraw <- get $ B.append "balance_" userid
-        let stored_balance = getRight (\s -> RedisException (show s)) stored_balanceraw
+        let stored_balance = getRightRedis stored_balanceraw
         _ <- liftIO $ BC.putStrLn  actual_recv
         case (stored_recv, stored_balance) of
             (Just stored, Just st_balance) -> do
@@ -68,7 +68,7 @@ lock_user :: PersistentConns -> B.ByteString -> IO ()
 lock_user conn user = do
     ok <- liftIO $ runRedis (redis conn) $ do
         setnx ( BC.append "user_lock_" user ) "h"
-    case getRight (\s -> RedisException (show s)) ok of
+    case getRightRedis ok of
         True -> return ()
         _ -> lock_user conn user
 
@@ -76,12 +76,12 @@ unlock_user :: PersistentConns -> B.ByteString -> IO ()
 unlock_user conn user = do
     ok <- liftIO $ runRedis (redis conn) $ do
         del [ BC.pack $ "user_lock_" ++ show user ]
-    case getRight (\s -> RedisException (show s)) ok of
+    case getRightRedis ok of
         _ -> return ()
 
 get_user_balance :: PersistentConns -> B.ByteString -> IO (Maybe B.ByteString)
 get_user_balance conn user = do
     ok <- liftIO $ runRedis (redis conn) $ do
         get $ BC.append "balance_" user
-    return $ getRight (\s -> RedisException (show s)) ok
+    return $ getRightRedis ok
 

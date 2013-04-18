@@ -1,5 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
-module BT.Util(jsonRPC, random256String, getRight, getMaybe, getResult, satoshi_big, satoshi_sub, satoshi_add, checkWatch, getRequestBody, getAesonResult) where
+module BT.Util where 
 import System.Random (randomIO)
 import Numeric (showHex)
 import Data.Word (Word64)
@@ -53,6 +53,9 @@ getRight :: (a -> MyException) -> Either a b -> b
 getRight exc i = case i of
     Right a -> a
     Left b -> throw (exc b)
+
+getRightRedis :: Show a => Either a b -> b
+getRightRedis = getRight (\s -> RedisException (show s))
 
 checkWatch :: (Either a b) -> Redis ()
 checkWatch a = do 

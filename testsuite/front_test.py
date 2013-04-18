@@ -1,5 +1,5 @@
 #!/usr/bin/env python2
-from testlib import register, balance, mine, request, deposit, pay, apicall
+from testlib import register, balance, mine, request, deposit, pay, apicall, send_1btc
 
 ip_address = "vm"
 port = "3000"
@@ -43,10 +43,7 @@ def pytest_funcarg__paidlogin(request, login):
     info2 = deposit(login['username'], login['secret'])
     assert info['address'] == info2['address']
 
-    print
-    print 'Please send some bitcoins to %s' % info['address']
-    print 'Then Hit Enter'
-    raw_input()
+    send_1btc(info['address'])
 
     info = balance(login['username'], login['secret'])
     assert float(info['balance']) > 0

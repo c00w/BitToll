@@ -2,10 +2,27 @@ import requests
 import json
 import time
 import hashlib
+import fabric
 
 ip_address = "vm"
 port = "3000"
 url = ''.join(['http://', ip_address, ':', port])
+
+from fabric.api import task, run, env
+from fabric.tasks import execute
+
+env.user = 'vagrant'
+env.password = 'vagrant'
+
+@task
+def _send_bc(address):
+    run("bitcoind sendtoaddress %s 1" % address)
+
+def send_1btc(address):
+    execute(_send_bc,address, host='vm')
+
+def send_to_address():
+    env.hosts = [ip_address]
 
 def _secret(params, secret):
     keys = list(params.keys())

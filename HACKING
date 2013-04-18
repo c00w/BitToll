@@ -1,0 +1,12 @@
+#!/bin/bash
+
+#Programs to install:
+sudo pacman -S cabal-install python2-fabric python2-requests
+sudo pacman -S python2-pip
+
+#Might have gotten this name wrong
+sudo pip2 install py-test
+
+#Also need vagrant. If you have aura this might work
+#sudo aura -Ak vagrant
+

@@ -1,5 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
-module BT.User (update_stored_balance) where
+module BT.User where
 import Database.Redis (runRedis, watch, get, set, setnx, del, TxResult( TxSuccess), multiExec)
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Char8 as BC
@@ -78,4 +78,10 @@ unlock_user conn user = do
         del [ BC.pack $ "user_lock_" ++ show user ]
     case getRight (\s -> RedisException (show s)) ok of
         _ -> return ()
+
+get_user_balance :: PersistentConns -> B.ByteString -> IO (Maybe B.ByteString)
+get_user_balance conn user = do
+    ok <- liftIO $ runRedis (redis conn) $ do
+        get $ BC.append "balance_" user
+    return $ getRight (\s -> RedisException (show s)) ok
 

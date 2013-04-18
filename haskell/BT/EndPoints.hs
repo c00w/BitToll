@@ -39,13 +39,11 @@ getBalance info conn = do
     case bitcoinid_wrap of
         Right (Just bitcoinid) -> update_stored_balance bitcoinid (BC.pack username) conn
         _ -> return ()
-
-    b_resp <- runRedis (redis conn) $ do
-        get $ B.append "balance_" $ BC.pack username
-    case b_resp of
-        (Right (Just a)) -> return [("balance", BC.unpack a)]
-        (Right Nothing )-> return [("balance", "0")]
-        _ -> return []
+    
+    resp <- get_user_balance conn (BC.pack username)
+    case resp of
+        Just a -> return [("balance", BC.unpack a)]
+        Nothing -> return [("balance", "0")]
 
 createPayment :: Request -> PersistentConns -> IO [(String, String)]
 createPayment info conn = do

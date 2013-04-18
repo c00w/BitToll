@@ -33,14 +33,14 @@ getBalance :: Request -> PersistentConns-> IO [(String, String)]
 getBalance info conn = do
     requestal <- getRequestAL info
     verifyAL requestal
-    let username = getMaybe (UserException "Missing username field") $ lookup "username" requestal
+    let username = BC.pack $ getMaybe (UserException "Missing username field") $ lookup "username" requestal
     bitcoinid_wrap <- runRedis (redis conn) $ do
-        get $ B.append "address_" $ BC.pack username
+        get $ B.append "address_" $ username
     case bitcoinid_wrap of
-        Right (Just bitcoinid) -> update_stored_balance bitcoinid (BC.pack username) conn
+        Right (Just bitcoinid) -> update_stored_balance bitcoinid username conn
         _ -> return ()
-    
-    resp <- get_user_balance conn (BC.pack username)
+
+    resp <- get_user_balance conn username
     case resp of
         Just a -> return [("balance", BC.unpack a)]
         Nothing -> return [("balance", "0")]

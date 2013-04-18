@@ -16,6 +16,7 @@ update_stored_balance bitcoinid userid conn = do
     runRedis (redis conn) $ do
         w_addr <- watch $ [ B.append "address_recieved_" bitcoinid ]
         checkWatch w_addr
+
         liftIO $ putStrLn "Updating balance"
         ractual_recv <- liftIO $ timeout 3000000 $ withResource (pool conn) (\s -> do
             liftIO $ ZMQ.send s [] $ B.append "recieved" bitcoinid

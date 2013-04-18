@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 module BT.User (update_stored_balance) where
-import Database.Redis (runRedis, watch, get, set, TxResult( TxSuccess), multiExec)
+import Database.Redis (runRedis, watch, get, set, setnx, del, TxResult( TxSuccess), multiExec)
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Char8 as BC
 import qualified System.ZMQ3 as ZMQ
@@ -62,3 +62,20 @@ update_stored_balance bitcoinid userid conn = do
                         _ -> liftIO $ update_stored_balance bitcoinid userid conn
             _ -> throw $ RedisException "Stored balance but no address..."
     return ()
+
+
+lock_user :: PersistentConns -> B.ByteString -> IO ()
+lock_user conn user = do
+    ok <- liftIO $ runRedis (redis conn) $ do
+        setnx ( BC.append "user_lock_" user ) "h"
+    case getRight (\s -> RedisException (show s)) ok of
+        True -> return ()
+        _ -> lock_user conn user
+
+unlock_user :: PersistentConns -> B.ByteString -> IO ()
+unlock_user conn user = do
+    ok <- liftIO $ runRedis (redis conn) $ do
+        del [ BC.pack $ "user_lock_" ++ show user ]
+    case getRight (\s -> RedisException (show s)) ok of
+        _ -> return ()
+

@@ -30,7 +30,7 @@ executable APIServer
                     base64-bytestring
     main-is:        APIServer.hs
     hs-source-dirs: haskell
-    ghc-options:     -Wall -O2 -fllvm -optlo-Os
+    ghc-options:     -Wall -O2 -fllvm -optlo-Os -optlc-O3
     default-language: Haskell2010
 
 executable BCServer 
@@ -42,7 +42,7 @@ executable BCServer
                     bytestring>=0.10.0.2
     main-is:        BCServer.hs
     hs-source-dirs: haskell
-    ghc-options:     -Wall -O2 -fllvm -optlo-Os
+    ghc-options:     -Wall -O2 -fllvm -optlo-Os -optlc-O3
     default-language: Haskell2010
 
 executable PoolServer
@@ -55,6 +55,6 @@ executable PoolServer
                     bytestring==0.10.0.2
     main-is:        PoolServer.hs
     hs-source-dirs: haskell
-    ghc-options:     -Wall -O2 -fllvm -optlo-Os
+    ghc-options:     -Wall -O2 -fllvm -optlo-Os -optlc-O3
     default-language: Haskell2010
 

@@ -80,9 +80,19 @@ unlock_user conn user = do
     case getRightRedis ok of
         _ -> return ()
 
-get_user_balance :: PersistentConns -> B.ByteString -> IO (Maybe B.ByteString)
-get_user_balance conn user = do
+get_user :: PersistentConns -> B.ByteString -> B.ByteString -> IO (Maybe B.ByteString)
+get_user conn key user = do
     ok <- liftIO $ runRedis (redis conn) $ do
-        get $ BC.append "balance_" user
+        get $ BC.append key user
     return $ getRightRedis ok
+
+get_user_balance :: PersistentConns -> B.ByteString -> IO (Maybe B.ByteString)
+get_user_balance conn user = get_user conn "balance_" user
+
+get_owed_balance :: PersistentConns -> B.ByteString -> IO (Maybe B.ByteString)
+get_owed_balance conn user = get_user conn "balance_owed_" user
+
+get_paid_balance :: PersistentConns -> B.ByteString -> IO (Maybe B.ByteString)
+get_paid_balance conn user = get_user conn "balance_paid_" user
+
 

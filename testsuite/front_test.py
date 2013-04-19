@@ -46,6 +46,7 @@ def pytest_funcarg__paidlogin(request, login):
     send_1btc(info['address'])
 
     info = balance(login['username'], login['secret'])
+    assert 'balance' in info
     assert float(info['balance']) > 0
     return login
 

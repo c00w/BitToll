@@ -10,3 +10,13 @@ sudo pip2 install py-test
 #Also need vagrant. If you have aura this might work
 #sudo aura -Ak vagrant
 
+#How to actually test
+
+#1st build your changes
+cabal install
+
+#then bring up the vagrant box
+vagrant up
+
+#Then run the testsuite
+py.test testsuite/ -s

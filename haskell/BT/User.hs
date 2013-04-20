@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 module BT.User where
-import Database.Redis (runRedis, watch, get, set, setnx, del, TxResult( TxSuccess), multiExec)
+import Database.Redis (runRedis, watch, get, set, setnx, del, TxResult( TxSuccess), multiExec, Status(Ok))
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Char8 as BC
 import qualified System.ZMQ3 as ZMQ
@@ -86,6 +86,13 @@ get_user conn key user = do
         get $ BC.append key user
     return $ getRightRedis ok
 
+set_user :: PersistentConns -> B.ByteString -> B.ByteString -> B.ByteString -> IO (Bool)
+set_user conn key user value = do
+    ok <- liftIO $ runRedis (redis conn) $ do
+        set (BC.append key user) value
+    return $ (getRightRedis ok) == Ok
+
+
 get_user_balance :: PersistentConns -> B.ByteString -> IO (Maybe B.ByteString)
 get_user_balance conn user = get_user conn "balance_" user
 
@@ -94,5 +101,14 @@ get_owed_balance conn user = get_user conn "balance_owed_" user
 
 get_paid_balance :: PersistentConns -> B.ByteString -> IO (Maybe B.ByteString)
 get_paid_balance conn user = get_user conn "balance_paid_" user
+
+set_balance :: PersistentConns -> B.ByteString -> B.ByteString -> IO (Bool)
+set_balance conn user key = set_user conn "balance_" user key
+
+set_owed_balance :: PersistentConns -> B.ByteString -> B.ByteString -> IO (Bool)
+set_owed_balance conn user key = set_user conn "balance_owed_" user key
+
+set_paid_balance :: PersistentConns -> B.ByteString -> B.ByteString -> IO (Bool)
+set_paid_balance conn user key = set_user conn "balance_paid_" user key
 
 

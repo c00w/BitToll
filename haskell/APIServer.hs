@@ -14,7 +14,7 @@ import System.Timeout (timeout)
 
 exceptionHandler :: MyException -> IO (Maybe LB.ByteString)
 exceptionHandler e = do
-    hPutStr stderr $ show e
+    hPutStrLn stderr $ show e
     case e of
         RedisException _ -> return $ Just "{\"error\":\"Server Error\"}"
         BackendException _ -> return $ Just "{\"error\":\"Server Error\"}"

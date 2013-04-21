@@ -2842,3 +2842,200 @@ Flush(true)
 DBFlush(true) ended               0ms
 Bitcoin exited
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Bitcoin version v0.8.1.0-g34d62a8-beta ()
+Using OpenSSL version OpenSSL 1.0.1 14 Mar 2012
+Startup time: 2013-04-21 03:50:44
+Default data directory /home/bitcoind/.bitcoin
+Used data directory /home/bitcoind/.bitcoin/testnet3
+Using 2 threads for script verification
+init message: Verifying wallet integrity...
+dbenv.open LogDir=/home/bitcoind/.bitcoin/testnet3/database ErrorFile=/home/bitcoind/.bitcoin/testnet3/db.log
+Bound to [::]:19000
+Bound to 0.0.0.0:19000
+init message: Loading block index...
+Opening LevelDB in /home/bitcoind/.bitcoin/testnet3/blocks/index
+Opened LevelDB successfully
+Opening LevelDB in /home/bitcoind/.bitcoin/testnet3/chainstate
+Opened LevelDB successfully
+LoadBlockIndex(): last block file = 0
+LoadBlockIndex(): last block file: CBlockFileInfo(blocks=64179, size=46318738, heights=0..64178, time=2011-02-02..2013-04-05)
+LoadBlockIndex(): transaction index disabled
+LoadBlockIndex(): hashBestChain=0000000008c563adb41cdc4c0e54369ec1c0b829d68c8fef4246f3bd7a0d6a69  height=64178 date=2013-04-05 18:27:17
+init message: Verifying block database integrity...
+Verifying last 288 blocks at level 3
+No coin database inconsistencies in last 289 blocks (1948 transactions)
+ block index             889ms
+init message: Loading wallet...
+nFileVersion = 80100
+ wallet                  150ms
+init message: Importing blocks from block database...
+init message: Loading addresses...
+Loaded 10356 addresses from peers.dat  34ms
+mapBlockIndex.size() = 64179
+nBestHeight = 64178
+setKeyPool.size() = 9
+mapWallet.size() = 233
+mapAddressBook.size() = 4
+init message: Done loading
+send version message: version 70001, blocks=64178, us=0.0.0.0:0, them=0.0.0.0:0, peer=127.0.0.1:0
+ThreadRPCServer started
+DNS seeding disabled
+ThreadIRCSeed started
+ThreadIRCSeed exited
+ThreadSocketHandler started
+accepted connection 127.0.0.1:49987
+ThreadOpenConnections started
+ThreadDumpAddress started
+ThreadMessageHandler started
+ThreadOpenAddedConnections started
+Flushed 10356 addresses to peers.dat  50ms
+send version message: version 70001, blocks=64178, us=0.0.0.0:0, them=0.0.0.0:0, peer=127.0.0.1:49987
+Added time data, samples 2, offset +0 (+0 minutes)
+receive version message: version 70001, blocks=23500, us=0.0.0.0:0, them=0.0.0.0:0, peer=127.0.0.1:49987
+getblocks 23501 to 0000000000000000000000000000000000000000000000000000000000000000 limit 500
+  getblocks stopping at limit 24000 000000005e6c627c2126e1e52f42d2f4112a89952d6d7bacea0f5b56271afc7e
+trying connection 173.236.193.117:18333 lastseen=369.2hrs
+received getdata (500 invsz)
+getblocks 24001 to 0000000008c563adb41cdc4c0e54369ec1c0b829d68c8fef4246f3bd7a0d6a69 limit 500
+  getblocks stopping at limit 24500 000000000a1f0a519ad342de02fc98d392284bce39a924b94cab100598fab4f2
+received getdata (500 invsz)
+getblocks 24501 to 0000000008c563adb41cdc4c0e54369ec1c0b829d68c8fef4246f3bd7a0d6a69 limit 500
+  getblocks stopping at limit 25000 0000000022b23de294af24d922fb3f1ed21521a8b3bd7716861dcb5310b1b525
+received getdata (500 invsz)
+ThreadRPCServer method=getinfo
+keypool reserve 10
+keypool return 10
+getblocks 25001 to 0000000008c563adb41cdc4c0e54369ec1c0b829d68c8fef4246f3bd7a0d6a69 limit 500
+  getblocks stopping at limit 25500 00000000000a1e5a6e7090240723c0cf6b82bb129c398973742f9279d57dbb3f
+received getdata (500 invsz)
+getblocks 25501 to 0000000008c563adb41cdc4c0e54369ec1c0b829d68c8fef4246f3bd7a0d6a69 limit 500
+  getblocks stopping at limit 26000 000000000e0153bc9f2ea52740cf7ce20a12678d76f811bd9c91f7acbb3862ca
+received getdata (500 invsz)
+getblocks 26001 to 0000000008c563adb41cdc4c0e54369ec1c0b829d68c8fef4246f3bd7a0d6a69 limit 500
+  getblocks stopping at limit 26500 000000000da0cb840cf15b957488859fc2d58f655db10dccea0b5d8f7634b80a
+received getdata (500 invsz)
+getblocks 26501 to 0000000008c563adb41cdc4c0e54369ec1c0b829d68c8fef4246f3bd7a0d6a69 limit 500
+  getblocks stopping at limit 27000 0000000005508307f6696fd8f3bc171776c9940c8e957a064985260571c4c3f4
+connection timeout
+ERROR: GetMyExternalIP() : connection to 91.198.22.70:80 failed
+received getdata (500 invsz)
+connection timeout
+getblocks 27001 to 0000000008c563adb41cdc4c0e54369ec1c0b829d68c8fef4246f3bd7a0d6a69 limit 500
+  getblocks stopping at limit 27500 00000000002c850e1cdcc57157dd0605818f5a6f796a0a039271a99a2639a2b3
+received getdata (500 invsz)
+ThreadRPCServer method=getinfo
+keypool reserve 10
+keypool return 10
+trying connection 198.8.87.4:18333 lastseen=369.5hrs
+getblocks 27501 to 0000000008c563adb41cdc4c0e54369ec1c0b829d68c8fef4246f3bd7a0d6a69 limit 500
+  getblocks stopping at limit 28000 0000000013bb07c6fe855814fcc92661b45022c843960b7760433319cddfae9e
+received getdata (500 invsz)
+getblocks 28001 to 0000000008c563adb41cdc4c0e54369ec1c0b829d68c8fef4246f3bd7a0d6a69 limit 500
+  getblocks stopping at limit 28500 0000000004a21d560c10e32dba6af5f2ad384afac570fbeac4ef87cfffb57377
+received getdata (500 invsz)
+ThreadRPCServer method=getinfo
+keypool reserve 10
+keypool return 10
+getblocks 28501 to 0000000008c563adb41cdc4c0e54369ec1c0b829d68c8fef4246f3bd7a0d6a69 limit 500
+  getblocks stopping at limit 29000 000000000e66824d176dba835f8e71292b0a8cebace08d0cd34ce2c8a4b06433
+received getdata (500 invsz)
+getblocks 29001 to 0000000008c563adb41cdc4c0e54369ec1c0b829d68c8fef4246f3bd7a0d6a69 limit 500
+  getblocks stopping at limit 29500 0000000000eff8f666449b78042d30f9be452187a718a31b15483ec8e864b321
+received getdata (500 invsz)
+ThreadRPCServer method=getinfo
+keypool reserve 10
+keypool return 10
+getblocks 29501 to 0000000008c563adb41cdc4c0e54369ec1c0b829d68c8fef4246f3bd7a0d6a69 limit 500
+  getblocks stopping at limit 30000 000000001036e9539cc6ed03d7b265618004138eb378ddb3921ee93ba30817ab
+received getdata (500 invsz)
+getblocks 30001 to 0000000008c563adb41cdc4c0e54369ec1c0b829d68c8fef4246f3bd7a0d6a69 limit 500
+  getblocks stopping at limit 30500 00000000011b397f4dba9aae6e0dd3b2769b60d900bb75c45e004ecc21e25487
+connection timeout
+ERROR: GetMyExternalIP() : connection to 74.208.43.192:80 failed
+ThreadRPCServer method=getinfo
+keypool reserve 10
+keypool return 10
+received getdata (500 invsz)
+getblocks 30501 to 0000000008c563adb41cdc4c0e54369ec1c0b829d68c8fef4246f3bd7a0d6a69 limit 500
+  getblocks stopping at limit 31000 00000000015593007156b5efd0511a782b111183e5257356725cfc57e0729232
+received getdata (500 invsz)
+ThreadRPCServer method=getinfo
+keypool reserve 10
+keypool return 10
+connection timeout
+trying connection 95.170.83.79:18333 lastseen=369.5hrs
+ThreadRPCServer method=getinfo
+keypool reserve 10
+keypool return 10
+getblocks 31001 to 0000000008c563adb41cdc4c0e54369ec1c0b829d68c8fef4246f3bd7a0d6a69 limit 500
+  getblocks stopping at limit 31500 00000000005650862cf25dcd994562761a57a1056c196e35ac101b92bbe688df
+received getdata (500 invsz)
+getblocks 31501 to 0000000008c563adb41cdc4c0e54369ec1c0b829d68c8fef4246f3bd7a0d6a69 limit 500
+  getblocks stopping at limit 32000 00000000027602f65768306573a0a421bf19bb53b0bfc8bd1c731621749e6eba
+ThreadRPCServer method=getinfo
+keypool reserve 10
+keypool return 10
+received getdata (500 invsz)
+getblocks 32001 to 0000000008c563adb41cdc4c0e54369ec1c0b829d68c8fef4246f3bd7a0d6a69 limit 500
+  getblocks stopping at limit 32500 00000000005e3cedd6780a3d1853159f629fc37bd86c72ad37de679a6b599006
+received getdata (500 invsz)
+ThreadRPCServer method=getinfo
+keypool reserve 10
+keypool return 10
+getblocks 32501 to 0000000008c563adb41cdc4c0e54369ec1c0b829d68c8fef4246f3bd7a0d6a69 limit 500
+  getblocks stopping at limit 33000 000000008b4e4533408c6c5fcf103fc83577612911cef119a7ce8715925e838e
+received getdata (500 invsz)
+getblocks 33001 to 0000000008c563adb41cdc4c0e54369ec1c0b829d68c8fef4246f3bd7a0d6a69 limit 500
+  getblocks stopping at limit 33500 000000009d1913ddf4037cafe528989cb8805322f69850acadd9bf2ab8fc8034
+received getdata (500 invsz)
+connection timeout
+trying connection 71.199.202.14:18333 lastseen=369.2hrs
+getblocks 33501 to 0000000008c563adb41cdc4c0e54369ec1c0b829d68c8fef4246f3bd7a0d6a69 limit 500
+  getblocks stopping at limit 34000 00000000dfc7f64478db7356addeae9e926c43461a71dca813ccab9a2949ce03
+received getdata (500 invsz)
+connection timeout
+getblocks 34001 to 0000000008c563adb41cdc4c0e54369ec1c0b829d68c8fef4246f3bd7a0d6a69 limit 500
+  getblocks stopping at limit 34500 000000000199201ccee8a591e26545d3639d0c0bae2717e42abfd678329d3ebc
+trying connection 97.107.133.172:18333 lastseen=369.5hrs
+received getdata (500 invsz)
+getblocks 34501 to 0000000008c563adb41cdc4c0e54369ec1c0b829d68c8fef4246f3bd7a0d6a69 limit 500
+  getblocks stopping at limit 35000 0000000001d9441d996c60e742198205fa5edd14b1984b3fde565bf7389d66dd
+received getdata (500 invsz)
+getblocks 35001 to 0000000008c563adb41cdc4c0e54369ec1c0b829d68c8fef4246f3bd7a0d6a69 limit 500
+  getblocks stopping at limit 35500 0000000001d3c013912664ee4bf958adfa88b534340ed36975b1c74a6c543a67
+received getdata (500 invsz)
+Flush(false)
+wallet.dat refcount=0
+wallet.dat checkpoint
+wallet.dat detach
+wallet.dat closed
+DBFlush(false) ended              10ms
+StopNode()
+ThreadSocketHandler exited
+Flushed 10356 addresses to peers.dat  38ms
+Committing 1773 changed transactions to coin database...
+ThreadMessageHandler exited
+Flush(true)
+DBFlush(true) ended               0ms
+Bitcoin exited
+

@@ -2524,3 +2524,113 @@ DBFlush(true) ended               0ms
 ThreadOpenConnections exited
 Bitcoin exited
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Bitcoin version v0.8.1.0-g34d62a8-beta ()
+Using OpenSSL version OpenSSL 1.0.1e 11 Feb 2013
+Startup time: 2013-04-21 03:37:00
+Default data directory /home/colin/.bitcoin
+Used data directory /home/colin/code/bittoll/configs/testnet-box/1/./testnet3
+Using 4 threads for script verification
+init message: Verifying wallet integrity...
+dbenv.open LogDir=/home/colin/code/bittoll/configs/testnet-box/1/./testnet3/database ErrorFile=/home/colin/code/bittoll/configs/testnet-box/1/./testnet3/db.log
+Bound to [::]:19000
+Bound to 0.0.0.0:19000
+init message: Loading block index...
+Opening LevelDB in /home/colin/code/bittoll/configs/testnet-box/1/./testnet3/blocks/index
+Opened LevelDB successfully
+Opening LevelDB in /home/colin/code/bittoll/configs/testnet-box/1/./testnet3/chainstate
+Opened LevelDB successfully
+LoadBlockIndex(): last block file = 0
+LoadBlockIndex(): last block file: CBlockFileInfo(blocks=64179, size=46318738, heights=0..64178, time=2011-02-02..2013-04-05)
+LoadBlockIndex(): transaction index disabled
+LoadBlockIndex(): hashBestChain=0000000008c563adb41cdc4c0e54369ec1c0b829d68c8fef4246f3bd7a0d6a69  height=64178 date=2013-04-05 18:27:17
+init message: Verifying block database integrity...
+Verifying last 288 blocks at level 3
+No coin database inconsistencies in last 289 blocks (1948 transactions)
+ block index             752ms
+init message: Loading wallet...
+nFileVersion = 80100
+ wallet                  132ms
+init message: Importing blocks from block database...
+init message: Loading addresses...
+Loaded 10356 addresses from peers.dat  32ms
+mapBlockIndex.size() = 64179
+nBestHeight = 64178
+setKeyPool.size() = 9
+mapWallet.size() = 233
+mapAddressBook.size() = 4
+ThreadRPCServer started
+send version message: version 70001, blocks=64178, us=0.0.0.0:0, them=0.0.0.0:0, peer=127.0.0.1:0
+init message: Done loading
+DNS seeding disabled
+connect() failed: 101
+ERROR: GetMyExternalIP() : connection to 91.198.22.70:80 failed
+connect() failed: 101
+ERROR: GetMyExternalIP() : connection to 74.208.43.192:80 failed
+ThreadMessageHandler started
+ThreadOpenAddedConnections started
+ThreadIRCSeed started
+ThreadIRCSeed exited
+ThreadDumpAddress started
+ThreadSocketHandler started
+ThreadOpenConnections started
+refreshWallet
+connect() failed: 101
+ERROR: GetMyExternalIP() : connection to 91.198.22.70:80 failed
+connect() failed: 101
+ERROR: GetMyExternalIP() : connection to 74.208.43.192:80 failed
+Flushed 10356 addresses to peers.dat  30ms
+ipcThread started
+trying connection 78.47.234.218:18333 lastseen=369.0hrs
+connect() failed: 101
+trying connection 91.121.137.219:18333 lastseen=369.2hrs
+connect() failed: 101
+trying connection 108.61.77.74:18333 lastseen=369.0hrs
+connect() failed: 101
+trying connection 78.46.18.137:18333 lastseen=369.0hrs
+connect() failed: 101
+trying connection 78.46.18.137:18333 lastseen=369.0hrs
+connect() failed: 101
+trying connection 24.12.138.16:18333 lastseen=368.9hrs
+connect() failed: 101
+trying connection 62.213.207.209:18333 lastseen=369.0hrs
+connect() failed: 101
+trying connection 92.25.10.214:18333 lastseen=369.0hrs
+connect() failed: 101
+trying connection 24.12.138.16:18333 lastseen=368.9hrs
+connect() failed: 101
+Flush(false)
+wallet.dat refcount=0
+wallet.dat checkpoint
+wallet.dat detach
+wallet.dat closed
+DBFlush(false) ended               6ms
+StopNode()
+ThreadMessageHandler exited
+ThreadSocketHandler exited
+ipcThread exited
+Flushed 10356 addresses to peers.dat  29ms
+Committing 1773 changed transactions to coin database...
+Flush(true)
+DBFlush(true) ended               0ms
+Bitcoin exited
+

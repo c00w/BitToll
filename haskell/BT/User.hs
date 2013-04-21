@@ -102,8 +102,11 @@ get_owed_balance conn user = get_user conn "balance_owed_" user
 get_paid_balance :: PersistentConns -> B.ByteString -> IO (Maybe B.ByteString)
 get_paid_balance conn user = get_user conn "balance_paid_" user
 
-set_balance :: PersistentConns -> B.ByteString -> B.ByteString -> IO (Bool)
-set_balance conn user key = set_user conn "balance_" user key
+get_user_address :: PersistentConns -> B.ByteString -> IO (Maybe B.ByteString)
+get_user_address conn user = get_user conn "address_" user
+
+set_user_balance :: PersistentConns -> B.ByteString -> B.ByteString -> IO (Bool)
+set_user_balance conn user key = set_user conn "balance_" user key
 
 set_owed_balance :: PersistentConns -> B.ByteString -> B.ByteString -> IO (Bool)
 set_owed_balance conn user key = set_user conn "balance_owed_" user key

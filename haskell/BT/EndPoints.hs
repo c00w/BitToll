@@ -34,11 +34,10 @@ getBalance info conn = do
     requestal <- getRequestAL info
     verifyAL requestal
     let username = BC.pack $ getMaybe (UserException "Missing username field") $ lookup "username" requestal
-    bitcoinid_wrap <- runRedis (redis conn) $ do
-        get $ B.append "address_" $ username
+    bitcoinid_wrap <- get_user_address conn username
     case bitcoinid_wrap of
-        Right (Just bitcoinid) -> update_stored_balance bitcoinid username conn
-        _ -> return ()
+        Just bitcoinid -> update_stored_balance bitcoinid username conn
+        Nothing -> return ()
 
     resp <- get_user_balance conn username
     case resp of

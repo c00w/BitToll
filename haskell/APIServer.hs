@@ -9,7 +9,7 @@ import BT.Routing
 import BT.Global
 import BT.Types
 import Control.Exception (catch)
-import System.IO(hPutStr, stderr)
+import System.IO(hPutStrLn, stderr)
 import System.Timeout (timeout)
 
 exceptionHandler :: MyException -> IO (Maybe LB.ByteString)

@@ -61,7 +61,7 @@ update_stored_balance bitcoinid userid conn = do
                 case cm of
                         TxSuccess _ -> return ()
                         _ -> liftIO $ update_stored_balance bitcoinid userid conn
-            _ -> throw $ RedisException "Stored balance but no address..."
+            (Just _, Nothing) -> throw $ RedisException "Stored recv but no stored balance..."
     return ()
 
 

@@ -102,25 +102,46 @@ file {"/etc/redis/redis.conf":
     notify => Service["redis-server"],
 }
 
+exec {
+    "/sbin/stop bitcoind":
+        alias   => "stop_bcd",
+        returns => [0,1];
+    "/sbin/stop bitcoind1":
+        alias   => "stop_bcd1",
+        returns => [0,1];
+}
+
 file {"/home/bitcoind/.bitcoin":
-    require => User["bitcoind"],
+    require => [
+        User["bitcoind"],
+        Exec["stop_bcd"],
+        Exec["stop_bcd1"],
+        ],
     alias   => "bitcoin_folder",
     ensure  => directory,
     mode    => 0644,
     owner   => "bitcoind",
     notify  => Service["bitcoind"],
     recurse => true,
+    purge   => true,
+    force   => true,
     source  => "/configs/testnet-box/1/",
 }
 
 file {"/home/bitcoind/.bitcoin1":
-    require => User["bitcoind"],
+    require => [
+        User["bitcoind"],
+        Exec["stop_bcd1"],
+        Exec["stop_bcd"],
+        ],
     alias   => "bitcoin_folder1",
     ensure  => directory,
     mode    => 0644,
     owner   => "bitcoind",
     notify  => Service["bitcoind1"],
     recurse => true,
+    purge   => true,
+    force   => true,
     source  => "/configs/testnet-box/2/",
 }
 
@@ -188,7 +209,6 @@ service {"bitcoind1":
     enable => true,
 }
 
-
 service {"p2pool":
     require => [
         Vcsrepo["p2pool"],
@@ -197,8 +217,6 @@ service {"p2pool":
     ensure => running,
     enable => true,
 }
-
-
 
 file {"/usr/bin/BCServer":
     ensure => present,

@@ -9,17 +9,17 @@ import BT.Routing
 import BT.Global
 import BT.Types
 import Control.Exception (catch)
-import System.IO(hPutStrLn, stderr)
+import System.IO(hPutStrLn, stderr, stdout)
 import System.Timeout (timeout)
 
 exceptionHandler :: MyException -> IO (Maybe LB.ByteString)
 exceptionHandler e = do
-    hPutStrLn stderr $ show e
+    hPutStrLn stdout $ show e
     case e of
         RedisException _ -> return $ Just "{\"error\":\"Server Error\"}"
         BackendException _ -> return $ Just "{\"error\":\"Server Error\"}"
         UserException a -> return $ Just $ LBC.pack $ "{\"error\":\"" ++ a ++ "\"}"
-        _ -> return $ Just "ServerError"
+        _ -> return $ Just "{\"error\":\"Server Error\"}"
 
 application :: PersistentConns -> Application
 application conns info = do

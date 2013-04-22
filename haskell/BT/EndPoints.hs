@@ -11,6 +11,7 @@ import BT.Types
 import BT.Util
 import BT.JSON
 import BT.User
+import BT.Mining
 import qualified System.ZMQ3 as ZMQ
 import Data.Pool (withResource)
 import Control.Monad.IO.Class (liftIO)
@@ -140,7 +141,9 @@ mine info conn = do
                 liftIO $ ZMQ.receive s)
             let item = getMaybe (BackendException "Cannot talk to p2pool server") resp
             putStrLn "done talking backend"
-            return $ jsonRPC (rpcid request) ((getMaybe (BackendException "Cannot convert result to hash") . (decode) . BL.fromStrict $ item) :: HashData)
+            let hashData = ((getMaybe (BackendException "Cannot convert result to hash")) . (decode) . BL.fromStrict $ item) :: HashData
+            let merkle = extractMerkle hashData
+            return $ jsonRPC (rpcid request) hashData
         1 -> do
             let sub_hash = head . getwork $ request
             resp <- liftIO $ timeout 30000000 $ withResource (mine_pool conn) (\s -> do

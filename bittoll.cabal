@@ -27,7 +27,8 @@ executable APIServer
                     hex,
                     network-bitcoin,
                     aeson,
-                    base64-bytestring
+                    base64-bytestring,
+                    text
     main-is:        APIServer.hs
     hs-source-dirs: haskell
     ghc-options:     -Wall -O2 -fllvm -optlo-Os -optlc-O3

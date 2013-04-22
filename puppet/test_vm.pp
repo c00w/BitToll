@@ -13,8 +13,9 @@ package { $test_packages:
     require =>  Exec["apt_update"]
 }
 
-exec {"/usr/bin/apt-get update":
-    alias => "apt_update"
+exec {"/usr/bin/apt-get update && /usr/bin/touch /var/tmp/updated":
+    alias => "apt_update",
+    creates => "/var/tmp/updated"
 }
 
 exec { "/usr/bin/apt-add-repository ppa:bitcoin/bitcoin && /usr/bin/apt-get update":

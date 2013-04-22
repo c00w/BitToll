@@ -17,9 +17,15 @@ env.password = 'vagrant'
 @task
 def _send_bc(address):
     run("bitcoind sendtoaddress %s 1" % address)
+@task
+def _flush_db():
+    run("redis-cli FLUSHALL")
 
 def send_1btc(address):
     execute(_send_bc,address, host='vm')
+
+def flushdb():
+    execute(_flush_db, host='vm')
 
 def send_to_address():
     env.hosts = [ip_address]

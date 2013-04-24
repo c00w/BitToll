@@ -1,11 +1,13 @@
 {-# LANGUAGE OverloadedStrings #-}
 module BT.Mining where
 import Network.Bitcoin (HashData, blockData, HashData, hdTarget)
-import Data.ByteString as B
+import Data.ByteString as B hiding (head)
+import qualified Data.ByteString.Char8 as BC
 import Prelude hiding (take, drop)
 import Data.Text.Encoding as E
 import BT.Types (PersistentConns)
 import BT.Redis (get, set)
+import Numeric (readHex)
 
 storeMerkleDiff :: PersistentConns -> HashData -> IO ()
 storeMerkleDiff conn hashData = do
@@ -24,3 +26,6 @@ setMerkleDiff conn merkle diff = set conn "merklediff_" merkle diff
 
 getMerkleDiff :: PersistentConns -> B.ByteString -> IO (Maybe B.ByteString)
 getMerkleDiff conn merkle = get conn "merklediff_" merkle
+
+hexDiffToInt :: B.ByteString -> Int
+hexDiffToInt hd = (fst . head . readHex . BC.unpack . B.reverse) hd

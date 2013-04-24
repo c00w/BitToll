@@ -142,7 +142,7 @@ mine info conn = do
             let item = getMaybe (BackendException "Cannot talk to p2pool server") resp
             putStrLn "done talking backend"
             let hashData = ((getMaybe (BackendException "Cannot convert result to hash")) . (decode) . BL.fromStrict $ item) :: HashData
-            let merkle = extractMerkle hashData
+            storeMerkleDiff conn hashData
             return $ jsonRPC (rpcid request) hashData
         1 -> do
             let sub_hash = head . getwork $ request

@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 module BT.User where
-import Database.Redis (runRedis, watch, get, set, setnx, del, TxResult( TxSuccess), multiExec, Status(Ok))
+import Database.Redis (runRedis, watch, setnx, del, TxResult( TxSuccess), multiExec, get, set)
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Char8 as BC
 import qualified System.ZMQ3 as ZMQ
@@ -8,6 +8,7 @@ import Control.Monad.IO.Class (liftIO)
 import System.Timeout (timeout)
 import Data.Pool (withResource)
 import Control.Exception (throw)
+import qualified BT.Redis as BR
 import BT.Types
 import BT.Util
 
@@ -80,38 +81,25 @@ unlock_user conn user = do
     case getRightRedis ok of
         _ -> return ()
 
-get_user :: PersistentConns -> B.ByteString -> B.ByteString -> IO (Maybe B.ByteString)
-get_user conn key user = do
-    ok <- liftIO $ runRedis (redis conn) $ do
-        get $ BC.append key user
-    return $ getRightRedis ok
-
-set_user :: PersistentConns -> B.ByteString -> B.ByteString -> B.ByteString -> IO (Bool)
-set_user conn key user value = do
-    ok <- liftIO $ runRedis (redis conn) $ do
-        set (BC.append key user) value
-    return $ (getRightRedis ok) == Ok
-
-
 get_user_balance :: PersistentConns -> B.ByteString -> IO (Maybe B.ByteString)
-get_user_balance conn user = get_user conn "balance_" user
+get_user_balance conn user = BR.get conn "balance_" user
 
 get_owed_balance :: PersistentConns -> B.ByteString -> IO (Maybe B.ByteString)
-get_owed_balance conn user = get_user conn "balance_owed_" user
+get_owed_balance conn user = BR.get conn "balance_owed_" user
 
 get_paid_balance :: PersistentConns -> B.ByteString -> IO (Maybe B.ByteString)
-get_paid_balance conn user = get_user conn "balance_paid_" user
+get_paid_balance conn user = BR.get conn "balance_paid_" user
 
 get_user_address :: PersistentConns -> B.ByteString -> IO (Maybe B.ByteString)
-get_user_address conn user = get_user conn "address_" user
+get_user_address conn user = BR.get conn "address_" user
 
 set_user_balance :: PersistentConns -> B.ByteString -> B.ByteString -> IO (Bool)
-set_user_balance conn user key = set_user conn "balance_" user key
+set_user_balance conn user key = BR.set conn "balance_" user key
 
 set_owed_balance :: PersistentConns -> B.ByteString -> B.ByteString -> IO (Bool)
-set_owed_balance conn user key = set_user conn "balance_owed_" user key
+set_owed_balance conn user key = BR.set conn "balance_owed_" user key
 
 set_paid_balance :: PersistentConns -> B.ByteString -> B.ByteString -> IO (Bool)
-set_paid_balance conn user key = set_user conn "balance_paid_" user key
+set_paid_balance conn user key = BR.set conn "balance_paid_" user key
 
 

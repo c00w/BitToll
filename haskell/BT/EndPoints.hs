@@ -12,6 +12,7 @@ import BT.Util
 import BT.JSON
 import BT.User
 import BT.Mining
+import BT.ZMQ
 import qualified System.ZMQ3 as ZMQ
 import Data.Pool (withResource)
 import Control.Monad.IO.Class (liftIO)

@@ -132,7 +132,7 @@ mine info conn = do
     case length . getwork $ request of
         0 -> do
             putStrLn "getwork length = 0"
-            resp <- timeout 30000000 $ send conn "getwork"
+            resp <- timeout 30000000 $ sendmine conn "getwork"
             let item = getMaybe (BackendException "Cannot talk to p2pool server") resp
             putStrLn "done talking backend"
             let hashData = ((getMaybe (BackendException "Cannot convert result to hash")) . (decode) . BL.fromStrict $ item) :: HashData
@@ -140,7 +140,7 @@ mine info conn = do
             return $ jsonRPC (rpcid request) hashData
         1 -> do
             let sub_hash = head . getwork $ request
-            resp <- liftIO $ timeout 30000000 $ send conn (BC.pack ("recvwork"++ sub_hash))
+            resp <- liftIO $ timeout 30000000 $ sendmine conn (BC.pack ("recvwork"++ sub_hash))
             let item = getMaybe (BackendException "Cannot talk to p2pool server") resp
             putStrLn "done submitting work"
             return $ BL.fromStrict $ item

@@ -1,8 +1,8 @@
 {-# LANGUAGE OverloadedStrings #-}
 import Prelude hiding (take, drop)
-import Data.ByteString.Char8 (pack)
+import Data.ByteString.Char8 (pack, split, unpack)
 import Data.ByteString (ByteString, drop, take)
-import Data.Map
+import qualified Data.Map
 import Data.Ratio
 
 import qualified System.ZMQ3 as ZMQ
@@ -24,11 +24,12 @@ main = do
                 resp <- route request
                 ZMQ.send s [] $ resp
 
-router :: Map ByteString (ByteString -> IO ByteString)
+router :: Data.Map.Map ByteString (ByteString -> IO ByteString)
 router = Data.Map.fromList $ [
     ("recieved", getrecieved bcd),
     ("payout", getpayout bcd),
     ("target", gettarget bcd),
+    ("sendto", sendBTC bcd),
     ("address", getaddress bcd)]
 
 route :: ByteString -> IO ByteString
@@ -49,6 +50,13 @@ getaddress :: BTC.Auth -> ByteString -> IO ByteString
 getaddress auth _ = do
     addr <- BTC.getNewAddress auth Nothing
     return $ encodeUtf8 addr
+
+sendBTC :: BTC.Auth -> ByteString -> IO ByteString
+sendBTC auth msg = do
+    let address = read . unpack .head . split '|' $ msg :: Address
+    let amount = read. unpack .last . split '|' $ msg :: BTC
+    resp <- BTC.sendToAddress auth address amount Nothing Nothing
+    return $ encodeUtf8 "hi" 
 
 gettarget :: BTC.Auth -> ByteString -> IO ByteString
 gettarget auth _ = do

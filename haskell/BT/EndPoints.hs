@@ -13,8 +13,6 @@ import BT.JSON
 import BT.User
 import BT.Mining
 import BT.ZMQ
-import qualified System.ZMQ3 as ZMQ
-import Data.Pool (withResource)
 import Control.Monad.IO.Class (liftIO)
 import System.Timeout (timeout)
 import Data.Aeson (decode)
@@ -115,10 +113,7 @@ deposit info conn = do
     case addr of
         (Right (Just a)) -> return $ [("address",BC.unpack a)]
         _ -> do
-            resp <- withResource (pool conn) (\s -> do
-                ZMQ.send s [] "address"
-                resp <- ZMQ.receive s
-                return resp)
+            resp <-send conn "address"
             ok <- runRedis (redis conn) $ do
                 setnx (B.append "address_" username)  resp
             case ok of
@@ -137,9 +132,7 @@ mine info conn = do
     case length . getwork $ request of
         0 -> do
             putStrLn "getwork length = 0"
-            resp <- liftIO $ timeout 30000000 $ withResource (mine_pool conn) (\s -> do
-                liftIO $ ZMQ.send s [] $ "getwork"
-                liftIO $ ZMQ.receive s)
+            resp <- timeout 30000000 $ send conn "getwork"
             let item = getMaybe (BackendException "Cannot talk to p2pool server") resp
             putStrLn "done talking backend"
             let hashData = ((getMaybe (BackendException "Cannot convert result to hash")) . (decode) . BL.fromStrict $ item) :: HashData
@@ -147,9 +140,7 @@ mine info conn = do
             return $ jsonRPC (rpcid request) hashData
         1 -> do
             let sub_hash = head . getwork $ request
-            resp <- liftIO $ timeout 30000000 $ withResource (mine_pool conn) (\s -> do
-                liftIO $ ZMQ.send s [] (BC.pack ("recvwork"++ sub_hash))
-                liftIO $ ZMQ.receive s)
+            resp <- liftIO $ timeout 30000000 $ send conn (BC.pack ("recvwork"++ sub_hash))
             let item = getMaybe (BackendException "Cannot talk to p2pool server") resp
             putStrLn "done submitting work"
             return $ BL.fromStrict $ item

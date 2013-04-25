@@ -84,8 +84,8 @@ unlock_user conn user = do
 get_user_balance :: PersistentConns -> B.ByteString -> IO (Maybe B.ByteString)
 get_user_balance conn user = BR.get conn "balance_" user
 
-get_owed_balance :: PersistentConns -> B.ByteString -> IO (Maybe B.ByteString)
-get_owed_balance conn user = BR.get conn "balance_owed_" user
+get_unconfirmed_balance :: PersistentConns -> B.ByteString -> IO (Maybe B.ByteString)
+get_unconfirmed_balance conn user = BR.get conn "balance_unconfirmed_" user
 
 get_paid_balance :: PersistentConns -> B.ByteString -> IO (Maybe B.ByteString)
 get_paid_balance conn user = BR.get conn "balance_paid_" user
@@ -96,8 +96,8 @@ get_user_address conn user = BR.get conn "address_" user
 set_user_balance :: PersistentConns -> B.ByteString -> B.ByteString -> IO (Bool)
 set_user_balance conn user key = BR.set conn "balance_" user key
 
-set_owed_balance :: PersistentConns -> B.ByteString -> B.ByteString -> IO (Bool)
-set_owed_balance conn user key = BR.set conn "balance_owed_" user key
+set_unconfirmed_balance :: PersistentConns -> B.ByteString -> B.ByteString -> IO (Bool)
+set_unconfirmed_balance conn user key = BR.set conn "balance_unconfirmed_" user key
 
 set_paid_balance :: PersistentConns -> B.ByteString -> B.ByteString -> IO (Bool)
 set_paid_balance conn user key = BR.set conn "balance_paid_" user key

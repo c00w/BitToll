@@ -4,8 +4,9 @@ import Database.Redis as RD
 import System.ZMQ3 as ZMQ
 import Data.Pool
 import BT.Types
+import BT.Polling
 import Data.IORef (newIORef)
-
+import Control.Concurrent (forkIO)
 
 makeZMQSocket :: ZMQ.Context -> IO (ZMQ.Socket ZMQ.Req)
 makeZMQSocket ctx = do
@@ -30,10 +31,12 @@ makeCons = do
     conn <- RD.connect defaultConnectInfo{connectPort = UnixSocket "/tmp/redis.sock", connectMaxConnections=500}
     payout <- newIORef 0
     target <- newIORef 0
-    return PersistentConns{
+    let p = PersistentConns{
         redis=conn,
         pool=zmq_pool,
         mine_pool=mine_zmq_pool,
         curPayout=payout,
         curTarget=target
         }
+    _ <- forkIO $ poll p
+    return p

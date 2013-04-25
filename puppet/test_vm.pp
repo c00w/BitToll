@@ -59,7 +59,7 @@ vcsrepo {"/home/p2pool/p2pool":
     source   => "git://github.com/forrestv/p2pool.git",
     require  => User["p2pool"],
     user     => "p2pool",
-    ensure   => latest,
+    ensure   => "present",
     provider => git,
     alias    => "p2pool",
 }

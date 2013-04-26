@@ -157,9 +157,10 @@ sendBTC info conn = do
     let rawamount = BC.pack $ getMaybe (UserException "Missing amount") $ lookup "amount" al
     let rawaddress = BC.pack $ getMaybe (UserException "Missing address") $ lookup "address" al
 
-    let amount = BC.pack $ show (read. BC.unpack $ rawamount :: BTC)
-    let address = BC.pack $ show (read. BC.unpack $ rawaddress :: Address)
-    resp <- send conn (BC.intercalate "|" [address, amount])
-    return []
+    let amount = show (read. BC.unpack $ rawamount :: BTC)
+    let address = show (read. BC.unpack $ rawaddress :: Address)
+    resp <- send conn (BC.intercalate "|" [BC.pack address,
+                                           BC.pack amount])
+    return [("id", BC.unpack resp)]
 
 

@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 import Prelude hiding (take, drop)
-import Data.ByteString.Char8 (pack, split, unpack)
+import Data.ByteString.Char8 (pack, split, unpack, append)
 import Data.ByteString (ByteString, drop, take)
 import qualified Data.Map
 import Data.Ratio
@@ -33,14 +33,17 @@ router = Data.Map.fromList $ [
     ("address", getaddress bcd)]
 
 route :: ByteString -> IO ByteString
-route request = case Data.Map.lookup (take 6 request) router of
-    Just a -> a (drop 6 request)
-    Nothing -> case Data.Map.lookup (take 7 request) router of
-        Just a -> a (drop 7 request)
-        Nothing -> case Data.Map.lookup (take 8 request) router of
-            Just a -> a (drop 8 request)
-            Nothing -> return "Error"
-
+route request = do
+    putStrLn $ unpack (append "Handling " request)
+    resp <- case Data.Map.lookup (take 6 request) router of
+        Just a -> a (drop 6 request)
+        Nothing -> case Data.Map.lookup (take 7 request) router of
+            Just a -> a (drop 7 request)
+            Nothing -> case Data.Map.lookup (take 8 request) router of
+                Just a -> a (drop 8 request)
+                Nothing -> return "Error"
+    putStrLn $ unpack resp
+    return resp
 getrecieved :: BTC.Auth -> ByteString -> IO ByteString
 getrecieved auth req = do
     recv <- BTC.getReceivedByAddress' auth (decodeUtf8 req) 0
@@ -53,7 +56,7 @@ getaddress auth _ = do
 
 sendBTC :: BTC.Auth -> ByteString -> IO ByteString
 sendBTC auth msg = do
-    let address = read . unpack . head . split '|' $ msg :: Address
+    let address = decodeUtf8 . head . split '|' $ msg :: Address
     let amount = read. unpack . last . split '|' $ msg :: BTC
     resp <- BTC.sendToAddress auth address amount Nothing Nothing
     return $ encodeUtf8 resp

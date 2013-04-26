@@ -1,4 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE BangPatterns #-}
 module BT.EndPoints(register, deposit, getBalance, makePayment, createPayment, mine, sendBTC) where
 import qualified Data.ByteString.Char8 as BC
 import qualified Data.ByteString as B
@@ -155,13 +156,16 @@ sendBTC info conn = do
     verifyAL al
     let username = BC.pack$ getMaybe (UserException "Missing username") $ lookup "username" al
     let rawamount = BC.pack $ getMaybe (UserException "Missing amount") $ lookup "amount" al
-    let rawaddress = BC.pack $ getMaybe (UserException "Missing address") $ lookup "address" al
+    let address = BC.pack $ getMaybe (UserException "Missing address") $ lookup "address" al
 
+    putStrLn "Locking"
     lock_user conn username
+    putStrLn "Locked"
 
     raw_balance <- get_user_balance conn username
     raw_unconfirmed_balance <- get_user_balance conn username
 
+    putStrLn "Got Balances"
     let balance = case raw_balance of
                 Just b -> read . BC.unpack $ b :: BTC
                 Nothing -> 0.0   :: BTC
@@ -170,15 +174,25 @@ sendBTC info conn = do
                     Just b -> read . BC.unpack $ b :: BTC
                     Nothing -> 0.0   :: BTC
 
-    let amount = read. BC.unpack $ rawamount :: BTC
-    let address = show (read. BC.unpack $ rawaddress :: Address)
+    putStrLn "forcing amount"
+    let !amount = read. BC.unpack $ rawamount :: BTC
 
+    putStrLn "Handle cases"
     resp <- case amount > balance-unconfirmed of
         True -> do
+            putStrLn "Can do it"
+            putStrLn "Set Balance"
             set_user_balance conn username (BC.pack . show $ balance-amount)
-            resp <- send conn (BC.intercalate "|" [BC.pack address, (BC.pack . show) amount])
+            putStrLn "send_money"
+            let arg = (BC.intercalate "|" [address, (BC.pack . show) amount])
+
+            resp <- send conn (BC.append "sendto" arg) 
+
+            putStrLn "sent"
             return [("id", BC.unpack resp)]
         False -> return [("error", "Insufficient Balance")]
-
+    
+    putStrLn "unlocking"
     unlock_user conn username
+    putStrLn "Unlocked"
     return resp

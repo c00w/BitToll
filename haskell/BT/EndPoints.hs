@@ -157,10 +157,28 @@ sendBTC info conn = do
     let rawamount = BC.pack $ getMaybe (UserException "Missing amount") $ lookup "amount" al
     let rawaddress = BC.pack $ getMaybe (UserException "Missing address") $ lookup "address" al
 
-    let amount = show (read. BC.unpack $ rawamount :: BTC)
+    lock_user conn username
+
+    raw_balance <- get_user_balance conn username
+    raw_unconfirmed_balance <- get_user_balance conn username
+
+    let balance = case raw_balance of
+                Just b -> read . BC.unpack $ b :: BTC
+                Nothing -> 0.0   :: BTC
+
+    let unconfirmed = case raw_unconfirmed_balance of 
+                    Just b -> read . BC.unpack $ b :: BTC
+                    Nothing -> 0.0   :: BTC
+
+    let amount = read. BC.unpack $ rawamount :: BTC
     let address = show (read. BC.unpack $ rawaddress :: Address)
-    resp <- send conn (BC.intercalate "|" [BC.pack address,
-                                           BC.pack amount])
-    return [("id", BC.unpack resp)]
 
+    resp <- case amount > balance-unconfirmed of
+        True -> do
+            set_user_balance conn username (BC.pack . show $ balance-amount)
+            resp <- send conn (BC.intercalate "|" [BC.pack address, (BC.pack . show) amount])
+            return [("id", BC.unpack resp)]
+        False -> return [("error", "Insufficient Balance")]
 
+    unlock_user conn username
+    return resp

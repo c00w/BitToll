@@ -1,5 +1,5 @@
 #!/usr/bin/env python2
-from testlib import register, balance, mine, request, deposit, pay, apicall, send_1btc
+from testlib import register, balance, mine, request, deposit, pay, apicall, send_1btc, withdraw
 
 ip_address = "vm"
 port = "3000"
@@ -68,3 +68,17 @@ def test_payment(paidlogin):
 
     info = balance(paidlogin['username'], paidlogin['secret'])
     assert orig_b == info['balance']
+
+def test_withdraw(login, paidlogin):
+    info = deposit(login['username'], login['secret'])
+    assert 'address' in info
+    addr = info['address']
+
+    info = withdraw(paidlogin['username'], paidlogin['secret'], addr, '0.5')
+
+    assert "id" in info
+    info = balance(login['username'], login['secret'])
+    assert "balance" in info
+    assert info["balance"] > 0
+
+    info = withdraw

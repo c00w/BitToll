@@ -24,7 +24,7 @@ class BittollClient(cmd.Cmd):
             print ("withdraw address amount")
             return
         address, amount = arg.split(' ', 1)
-        info = withdraw(self.login[0], self.login[1], address, amount) 
+        info = withdraw(self.login[0], self.login[1], address, amount)
         print( info)
 
     def do_deposit(self, arg):

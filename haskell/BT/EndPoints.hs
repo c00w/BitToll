@@ -1,5 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
-module BT.EndPoints(register, deposit, getBalance, makePayment, createPayment, mine) where
+module BT.EndPoints(register, deposit, getBalance, makePayment, createPayment, mine, sendBTC) where
 import qualified Data.ByteString.Char8 as BC
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL
@@ -147,3 +147,16 @@ mine info conn = do
         _ -> do
             putStrLn "getwork length != 0"
             return $ "ERRORRRRRRR"
+
+
+sendBTC :: Request -> PersistentConns -> IO [(String, String)]
+sendBTC :: info conn = do
+    al <- getRequestAL info
+    verifyAL al
+    let username = BC.pack$ getMaybe (UserException "Missing username") $ lookup "username" al
+    let rawamount = BC.pack $ getMaybe (UserException "Missing amount") $ lookup "amount" al
+    let rawaddress = BC.pack $ getMaybe (UserException "Missing address") $ lookup "address" al
+    ZMQ.send conn (BC.intercalate "|" [address, amount])
+    return []
+
+

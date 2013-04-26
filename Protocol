@@ -60,6 +60,18 @@ response
     "error":_
 }
 
+/withdraw
+{
+    "username":_
+    "time":_
+    "amount":_
+    "address":_
+    "sign":_
+}
+{
+    "error":_
+}
+
 /mine
 {
     "username"_

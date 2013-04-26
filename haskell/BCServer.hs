@@ -53,8 +53,8 @@ getaddress auth _ = do
 
 sendBTC :: BTC.Auth -> ByteString -> IO ByteString
 sendBTC auth msg = do
-    let address = read . unpack .head . split '|' $ msg :: Address
-    let amount = read. unpack .last . split '|' $ msg :: BTC
+    let address = read . unpack . head . split '|' $ msg :: Address
+    let amount = read. unpack . last . split '|' $ msg :: BTC
     resp <- BTC.sendToAddress auth address amount Nothing Nothing
     return $ encodeUtf8 "hi" 
 

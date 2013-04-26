@@ -19,6 +19,7 @@ router :: Map B.ByteString (Request -> PersistentConns -> IO BL.ByteString)
 router = Data.Map.fromList $ [
         ("/register", jstostring BT.EndPoints.register),
         ("/balance", jstostring BT.EndPoints.getBalance),
+        ("/withdraw", jstostring BT.EndPoints.sendBTC),
         ("/deposit", jstostring BT.EndPoints.deposit),
         ("/request", jstostring BT.EndPoints.createPayment),
         ("/mine", BT.EndPoints.mine),

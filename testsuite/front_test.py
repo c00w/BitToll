@@ -80,6 +80,8 @@ def test_withdraw(login, paidlogin):
     assert "id" in info
     info = balance(login['username'], login['secret'])
     assert "balance" in info
-    assert info["balance"] > 0
+    assert float(info["balance"]) == 0.5
+    info = balance(paidlogin['username'], paidlogin['secret'])
+    assert "balance" in info
+    assert float(info["balance"]) == 0.5
 
-    info = withdraw

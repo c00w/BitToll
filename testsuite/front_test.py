@@ -37,7 +37,8 @@ def test_mine(login):
     assert 'error' in info
     assert info['error'] is None
 
-def pytest_funcarg__paidlogin(request, login):
+def pytest_funcarg__paidlogin(request):
+    login = register()
     info = deposit(login['username'], login['secret'])
     assert 'address' in info
     info2 = deposit(login['username'], login['secret'])

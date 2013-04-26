@@ -191,7 +191,7 @@ sendBTC info conn = do
             putStrLn "sent"
             return [("id", BC.unpack resp)]
         False -> return [("error", "Insufficient Balance")]
-    
+
     putStrLn "unlocking"
     unlock_user conn username
     putStrLn "Unlocked"

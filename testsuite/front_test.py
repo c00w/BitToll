@@ -93,3 +93,18 @@ def test_withdraw(login, paidlogin):
     assert "balance" in info
     assert float(info["balance"]) == orig_balance_paid - 0.5
 
+def test_self_withdraw(paidlogin):
+    info = deposit(paidlogin['username'], paidlogin['secret'])
+    assert 'address' in info
+    addr = info['address']
+
+    info = balance(paidlogin['username'], paidlogin['secret'])
+    assert "balance" in info
+    orig_balance_paid = float(info["balance"])
+
+    info = withdraw(paidlogin['username'], paidlogin['secret'], addr, '0.5')
+
+    info = balance(paidlogin['username'], paidlogin['secret'])
+    assert "balance" in info
+    assert float(info["balance"]) == orig_balance_paid
+

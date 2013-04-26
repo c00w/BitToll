@@ -16,7 +16,7 @@ import BT.ZMQ
 import Control.Monad.IO.Class (liftIO)
 import System.Timeout (timeout)
 import Data.Aeson (decode)
-import Network.Bitcoin (HashData)
+import Network.Bitcoin (HashData, BTC, Address)
 
 register :: Request -> PersistentConns-> IO [(String, String)]
 register info conn = do
@@ -150,13 +150,16 @@ mine info conn = do
 
 
 sendBTC :: Request -> PersistentConns -> IO [(String, String)]
-sendBTC :: info conn = do
+sendBTC info conn = do
     al <- getRequestAL info
     verifyAL al
     let username = BC.pack$ getMaybe (UserException "Missing username") $ lookup "username" al
     let rawamount = BC.pack $ getMaybe (UserException "Missing amount") $ lookup "amount" al
     let rawaddress = BC.pack $ getMaybe (UserException "Missing address") $ lookup "address" al
-    ZMQ.send conn (BC.intercalate "|" [address, amount])
+
+    let amount = BC.pack $ show (read. BC.unpack $ rawamount :: BTC)
+    let address = BC.pack $ show (read. BC.unpack $ rawaddress :: Address)
+    resp <- send conn (BC.intercalate "|" [address, amount])
     return []
 
 

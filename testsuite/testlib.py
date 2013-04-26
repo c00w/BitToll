@@ -53,6 +53,15 @@ def balance(userid, secret):
     body['sign'] = _secret(body, secret)
     return apicall('balance', body)
 
+def withdraw(userid, secret, address, amount):
+    body = {}
+    body['username'] = userid
+    body['time'] = str(time.time())
+    body['address'] = address
+    body['amount'] = amount
+    body['sign'] = _secret(body, secret)
+    return apicall('withdraw', body)
+
 def deposit(userid, secret):
     body = {}
     body['username'] = userid

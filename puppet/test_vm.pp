@@ -102,46 +102,56 @@ file {"/etc/redis/redis.conf":
     notify => Service["redis-server"],
 }
 
-exec {
-    "/sbin/stop bitcoind":
-        alias   => "stop_bcd",
-        returns => [0,1];
-    "/sbin/stop bitcoind1":
-        alias   => "stop_bcd1",
-        returns => [0,1];
-}
-
 file {"/home/bitcoind/.bitcoin":
     require => [
         User["bitcoind"],
-        Exec["stop_bcd"],
-        Exec["stop_bcd1"],
         ],
-    alias   => "bitcoin_folder",
+    alias   => "bitcoin_parent_folder",
     ensure  => directory,
     mode    => 0644,
     owner   => "bitcoind",
+    group   => "bitcoind",
+}
+
+file {"/home/bitcoind/.bitcoin/bitcoin.conf":
+    require => File["bitcoin_parent_folder"],
+    alias   => "bitcoin_folder_conf",
+    ensure => file,
+    source  => "/configs/testnet-box/1/bitcoin.conf",
     notify  => Service["bitcoind"],
+    mode    => 0644,
+    owner   => "bitcoind",
+    group   => "bitcoind",
+}
+
+file {"/home/bitcoind/.bitcoin/testnet3/":
+    require => File["bitcoin_folder_conf"],
+    alias   => "bitcoin_folder",
+    ensure  => directory,
+    mode    => 0600,
+    owner   => "bitcoind",
+    group   => "bitcoind",
     recurse => true,
-    purge   => true,
-    force   => true,
-    source  => "/configs/testnet-box/1/",
+    #purge   => true,
+    #force   => true,
+    replace => false,
+    source  => "/configs/testnet-box/1/testnet3",
 }
 
 file {"/home/bitcoind/.bitcoin1":
     require => [
         User["bitcoind"],
-        Exec["stop_bcd1"],
-        Exec["stop_bcd"],
         ],
     alias   => "bitcoin_folder1",
     ensure  => directory,
-    mode    => 0644,
+    mode    => 0600,
     owner   => "bitcoind",
+    group   => "bitcoind",
     notify  => Service["bitcoind1"],
     recurse => true,
-    purge   => true,
-    force   => true,
+    #purge   => true,
+    #force   => true,
+    replace => false,
     source  => "/configs/testnet-box/2/",
 }
 

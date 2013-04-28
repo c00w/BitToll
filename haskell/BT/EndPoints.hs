@@ -17,7 +17,7 @@ import BT.ZMQ
 import Control.Monad.IO.Class (liftIO)
 import System.Timeout (timeout)
 import Data.Aeson (decode)
-import Network.Bitcoin (HashData, BTC, Address)
+import Network.Bitcoin (HashData, BTC)
 
 register :: Request -> PersistentConns-> IO [(String, String)]
 register info conn = do
@@ -74,11 +74,13 @@ makePayment info conn = do
     verifyAL al
     let username = BC.pack $ getMaybe (UserException "Missing username") $ lookup "username" al
     let payment = BC.pack $ getMaybe (UserException "Missing payment") $ lookup "payment" al
+
+    lock_user conn username
+
+    balance_wrap <- get_user_balance conn username
+    let balance = getMaybe (UserException "No Balance") balance_wrap
+
     resp <- runRedis (redis conn) $ do
-        s <- watch $ [B.append "balance_" username]
-        checkWatch s
-        balance_wrap <- get $B.append "balance_" username
-        let balance = getRedisResult balance_wrap "Failure Getting Balance 215"
         req_amount_wrap <- get $ B.append "payment_" payment
         let req_amount = getRedisResult req_amount_wrap "Failure Getting Request 217"
 
@@ -100,6 +102,9 @@ makePayment info conn = do
                 _ <- set (B.append "balance_" username) diff
                 _ <- set (B.append "balance_" user) $ satoshi_add user_balance req_amount
                 set (B.append "payment_done_" payment) (BC.pack "1")
+
+    unlock_user conn username
+
     case resp of 
         TxSuccess _ -> return [("code", "hi")]
         _ -> return [("Error", "Payment Failure")]
@@ -109,12 +114,13 @@ deposit info conn = do
     al <- getRequestAL info
     verifyAL al
     let username = BC.pack $ getMaybe (UserException "Missing username") $ lookup "username" al
+
     addr <- runRedis (redis conn) $ do
         get $ B.append "address_" username
     case addr of
         (Right (Just a)) -> return $ [("address",BC.unpack a)]
         _ -> do
-            resp <-send conn "address"
+            resp <- send conn "address"
             ok <- runRedis (redis conn) $ do
                 setnx (B.append "address_" username)  resp
             case ok of

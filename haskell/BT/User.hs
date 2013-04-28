@@ -3,14 +3,12 @@ module BT.User where
 import Database.Redis (runRedis, watch, setnx, del, TxResult( TxSuccess), multiExec, get, set)
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Char8 as BC
-import qualified System.ZMQ3 as ZMQ
 import Control.Monad.IO.Class (liftIO)
-import System.Timeout (timeout)
-import Data.Pool (withResource)
 import Control.Exception (throw)
 import qualified BT.Redis as BR
 import BT.Types
 import BT.Util
+import BT.ZMQ
 
 update_stored_balance :: B.ByteString -> B.ByteString -> PersistentConns -> IO ()
 update_stored_balance bitcoinid userid conn = do
@@ -19,11 +17,8 @@ update_stored_balance bitcoinid userid conn = do
         checkWatch w_addr
 
         liftIO $ putStrLn "Updating balance"
-        ractual_recv <- liftIO $ timeout 3000000 $ withResource (pool conn) (\s -> do
-            liftIO $ ZMQ.send s [] $ B.append "recieved" bitcoinid
-            resp <-liftIO $ ZMQ.receive s
-            return resp)
-        let actual_recv = getMaybe (BackendException "Cannot talk to bc server") ractual_recv
+        actual_recv <- liftIO $ send conn $ B.append "recieved" bitcoinid
+
         stored_recvraw <- get $ B.append "address_recieved_" bitcoinid
         let stored_recv = getRightRedis stored_recvraw
         bw <- watch $ [ B.append "balance_" userid]

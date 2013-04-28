@@ -4,16 +4,19 @@ module BT.EndPoints(register, deposit, getBalance, makePayment, createPayment, m
 import qualified Data.ByteString.Char8 as BC
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL
-import Database.Redis(runRedis, setnx, get, set, watch, multiExec, TxResult(TxSuccess))
+import Database.Redis(runRedis, setnx, get )
 import Network.Wai (Request, requestHeaders)
 import Network.HTTP.Types.Header (hAuthorization)
 import Data.ByteString.Base64 (decodeLenient)
+import Control.Monad (when)
+import Control.Exception (throw)
 import BT.Types
 import BT.Util
 import BT.JSON
 import BT.User
 import BT.Mining
 import BT.ZMQ
+import BT.Payment
 import Control.Monad.IO.Class (liftIO)
 import System.Timeout (timeout)
 import Data.Aeson (decode)
@@ -41,9 +44,7 @@ getBalance info conn = do
         Nothing -> return ()
 
     resp <- get_user_balance conn username
-    case resp of
-        Just a -> return [("balance", BC.unpack a)]
-        Nothing -> return [("balance", "0")]
+    return [("balance", BC.unpack resp)]
 
 createPayment :: Request -> PersistentConns -> IO [(String, String)]
 createPayment info conn = do
@@ -63,11 +64,6 @@ createPayment info conn = do
         _ -> error []
     return val
 
-getRedisResult :: Either t (Maybe a) -> String -> a
-getRedisResult a m = case a of
-    (Right (Just b)) -> b
-    _ -> error m
-
 makePayment :: Request -> PersistentConns -> IO [(String, String)]
 makePayment info conn = do
     al <- getRequestAL info
@@ -75,39 +71,41 @@ makePayment info conn = do
     let username = BC.pack $ getMaybe (UserException "Missing username") $ lookup "username" al
     let payment = BC.pack $ getMaybe (UserException "Missing payment") $ lookup "payment" al
 
+    user_wrap <- get_payment_user conn payment
+    let user = getMaybe (RedisException "Failure getting payment user 225") user_wrap
+
+    putStrLn "Before lock"
     lock_user conn username
+    when (username /= user) $ lock_user conn user
+    putStrLn "After lock"
 
-    balance_wrap <- get_user_balance conn username
-    let balance = getMaybe (UserException "No Balance") balance_wrap
+    str_balance <- get_user_balance conn username
+    let balance = (read. BC.unpack $ str_balance) :: BTC
 
-    resp <- runRedis (redis conn) $ do
-        req_amount_wrap <- get $ B.append "payment_" payment
-        let req_amount = getRedisResult req_amount_wrap "Failure Getting Request 217"
+    req_amount_wrap <- get_payment_amount conn payment
+    let req_amount = (read .BC.unpack. getMaybe (UserException "No Such Payment") $ req_amount_wrap) :: BTC
 
-        let diff = satoshi_sub balance req_amount
-        case satoshi_big diff "0" of
-            False -> error "FU"
-            _ -> return ()
+    str_user_balance <- get_user_balance conn user
+    let user_balance = read . BC.unpack $ str_user_balance :: BTC
 
-        user_wrap <- get $ B.append "payment_user_" payment
-        let user = getRedisResult user_wrap "Failure getting payment user 225"
-        sw <- watch $ [B.append "balance_" user]
-        checkWatch sw
-        user_balance_wrap <- get $ B.append "balance_" user
-        let user_balance = getRedisResult user_balance_wrap "Failure getting user_balance 229"
-        case username== user of
-            True -> multiExec $ do
-                set (B.append "payment_done_" payment) (BC.pack "1")
-            _ -> multiExec $ do
-                _ <- set (B.append "balance_" username) diff
-                _ <- set (B.append "balance_" user) $ satoshi_add user_balance req_amount
-                set (B.append "payment_done_" payment) (BC.pack "1")
+    putStrLn "Got all info"
+
+    when (balance - req_amount < 0) $ do
+        unlock_user conn username
+        unlock_user conn user
+        throw (UserException "Insufficient Funds")
+
+    when (username /= user) $ do
+        _ <- set_user_balance conn username (BC.pack . show $ (balance-req_amount))
+        _ <- set_user_balance conn user (BC.pack . show $ (user_balance+ req_amount))
+        return ()
+
+    _ <- set_payment_done conn payment
 
     unlock_user conn username
+    when (username /= user) $ unlock_user conn user
 
-    case resp of 
-        TxSuccess _ -> return [("code", "hi")]
-        _ -> return [("Error", "Payment Failure")]
+    return [("code", "hi")]
 
 deposit :: Request -> PersistentConns-> IO [(String, String)]
 deposit info conn = do
@@ -172,13 +170,8 @@ sendBTC info conn = do
     raw_unconfirmed_balance <- get_user_balance conn username
 
     putStrLn "Got Balances"
-    let balance = case raw_balance of
-                Just b -> read . BC.unpack $ b :: BTC
-                Nothing -> 0.0   :: BTC
-
-    let unconfirmed = case raw_unconfirmed_balance of 
-                    Just b -> read . BC.unpack $ b :: BTC
-                    Nothing -> 0.0   :: BTC
+    let balance = read . BC.unpack $ raw_balance :: BTC
+    let unconfirmed = read . BC.unpack $ raw_unconfirmed_balance :: BTC
 
     putStrLn "forcing amount"
     let !amount = read. BC.unpack $ rawamount :: BTC
@@ -188,7 +181,7 @@ sendBTC info conn = do
         True -> do
             putStrLn "Can do it"
             putStrLn "Set Balance"
-            set_user_balance conn username (BC.pack . show $ balance-amount)
+            _ <- set_user_balance conn username (BC.pack . show $ balance-amount)
             putStrLn "send_money"
             let arg = (BC.intercalate "|" [address, (BC.pack . show) amount])
 

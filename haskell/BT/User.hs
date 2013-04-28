@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 module BT.User where
-import Database.Redis (runRedis, watch, setnx, del, TxResult( TxSuccess), multiExec, get, set)
+import Database.Redis (runRedis, watch, setnx, del, TxResult( TxSuccess), multiExec, get, set, expire)
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Char8 as BC
 import Control.Monad.IO.Class (liftIO)
@@ -66,18 +66,27 @@ lock_user conn user = do
     ok <- liftIO $ runRedis (redis conn) $ do
         setnx ( BC.append "user_lock_" user ) "h"
     case getRightRedis ok of
-        True -> return ()
+        True -> do
+            liftIO $ runRedis (redis conn) $ do
+                expire ( BC.append "user_lock_" user ) 1
+            putStrLn $ "lock add" ++ show user
+            return ()
         _ -> lock_user conn user
 
 unlock_user :: PersistentConns -> B.ByteString -> IO ()
 unlock_user conn user = do
+    putStrLn $ "lock del " ++ show user
     ok <- liftIO $ runRedis (redis conn) $ do
-        del [ BC.pack $ "user_lock_" ++ show user ]
+        del [ BC.append "user_lock_" user ]
     case getRightRedis ok of
         _ -> return ()
 
-get_user_balance :: PersistentConns -> B.ByteString -> IO (Maybe B.ByteString)
-get_user_balance conn user = BR.get conn "balance_" user
+get_user_balance :: PersistentConns -> B.ByteString -> IO (B.ByteString)
+get_user_balance conn user = do
+    bal <- BR.get conn "balance_" user
+    case bal of
+        Just b -> return b
+        Nothing -> return "0"
 
 get_unconfirmed_balance :: PersistentConns -> B.ByteString -> IO (Maybe B.ByteString)
 get_unconfirmed_balance conn user = BR.get conn "balance_unconfirmed_" user

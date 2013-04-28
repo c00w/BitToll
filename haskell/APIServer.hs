@@ -34,4 +34,5 @@ application conns info = do
 main :: IO ()
 main = do
     handles <- makeCons
+    putStrLn "Starting"
     run 3000 $ application handles

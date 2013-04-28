@@ -1,7 +1,7 @@
 module BT.Global(makeCons) where
 
 import Database.Redis as RD
-import System.ZMQ3 as ZMQ
+import System.ZMQ3 as ZMQ hiding (poll)
 import Data.Pool
 import BT.Types
 import BT.Polling

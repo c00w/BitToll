@@ -69,7 +69,7 @@ lock_user conn user = do
         True -> do
             liftIO $ runRedis (redis conn) $ do
                 expire ( BC.append "user_lock_" user ) 1
-            putStrLn $ "lock add" ++ show user
+            putStrLn $ "lock add " ++ show user
             return ()
         _ -> lock_user conn user
 

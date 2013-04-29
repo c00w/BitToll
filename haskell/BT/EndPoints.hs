@@ -4,6 +4,7 @@ module BT.EndPoints(register, deposit, getBalance, makePayment, createPayment, m
 import qualified Data.ByteString.Char8 as BC
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL
+import qualified Data.ByteString.Lazy.Char8 as BLC
 import Database.Redis(runRedis, setnx, get )
 import Network.Wai (Request, requestHeaders)
 import Network.HTTP.Types.Header (hAuthorization)
@@ -145,8 +146,22 @@ mine info conn = do
             return $ jsonRPC (rpcid request) hashData
         1 -> do
             let sub_hash = head . getwork $ request
+            let merkle_root = extractMerkleRecieved (getMaybe (UserException "Invalid result") . (decode) . BLC.pack $ sub_hash)
             resp <- liftIO $ timeout 30000000 $ sendmine conn (BC.pack ("recvwork"++ sub_hash))
             let item = getMaybe (BackendException "Cannot talk to p2pool server") resp
+            when (item == "true") $ do
+                sdiff <- getMerkleDiff conn merkle_root
+                let diff = getMaybe (RedisException "Error retrieving merklediff") sdiff
+                payout <- getPayout conn diff
+                lock_user conn username
+                strbalance <- get_user_balance conn username
+                strubalance <- get_unconfirmed_balance conn username
+                let balance = (read . BC.unpack $ strbalance :: BTC) + payout
+                let ubalance = (read . BC.unpack $ strubalance :: BTC) + payout
+                _ <- set_user_balance conn username (BC.pack . show $ balance)
+                _ <- set_unconfirmed_balance conn username (BC.pack . show $ ubalance)
+                unlock_user conn username
+
             putStrLn "done submitting work"
             return $ BL.fromStrict $ item
         _ -> do

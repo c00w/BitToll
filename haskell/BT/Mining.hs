@@ -5,7 +5,7 @@ import Data.ByteString as B hiding (head)
 import qualified Data.ByteString.Char8 as BC
 import Prelude hiding (take, drop)
 import Data.Text.Encoding as E
-import BT.Types (PersistentConns, curTarget, curPayout)
+import BT.Types
 import BT.Redis (get, set)
 import Numeric (readHex)
 import Network.Bitcoin (BTC)
@@ -21,7 +21,10 @@ storeMerkleDiff conn hashData = do
         True  -> return ()
 
 extractMerkle :: HashData -> B.ByteString
-extractMerkle hash = (take 64). (drop 72) .E.encodeUtf8 .  blockData $ hash
+extractMerkle hash = (take 64). (drop 72) .E.encodeUtf8 . blockData $ hash
+
+extractMerkleRecieved :: MiningDataResult -> B.ByteString 
+extractMerkleRecieved hash = take(64) . (drop 72) . BC.pack . result_data $ hash
 
 setMerkleDiff :: PersistentConns -> B.ByteString -> B.ByteString -> IO Bool
 setMerkleDiff conn merkle diff = set conn "merklediff_" merkle diff

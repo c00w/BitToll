@@ -88,8 +88,12 @@ get_user_balance conn user = do
         Just b -> return b
         Nothing -> return "0"
 
-get_unconfirmed_balance :: PersistentConns -> B.ByteString -> IO (Maybe B.ByteString)
-get_unconfirmed_balance conn user = BR.get conn "balance_unconfirmed_" user
+get_unconfirmed_balance :: PersistentConns -> B.ByteString -> IO (B.ByteString)
+get_unconfirmed_balance conn user = do
+    bal <- BR.get conn "balance_unconfirmed_" user
+    case bal of
+        Just b -> return b
+        bothing -> return "0"
 
 get_paid_balance :: PersistentConns -> B.ByteString -> IO (Maybe B.ByteString)
 get_paid_balance conn user = BR.get conn "balance_paid_" user

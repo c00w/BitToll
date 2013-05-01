@@ -69,6 +69,8 @@ get_user_address conn user = BR.get conn "address" user
 get_user_address_recieved :: PersistentConns -> B.ByteString -> IO (B.ByteString)
 get_user_address_recieved conn user = (liftM zeroMaybe) $ BR.get conn "address_recieved" user
 
+get_user_secret :: PersistentConns -> B.ByteString -> IO (Maybe B.ByteString)
+get_user_secret conn user = BR.get conn "secret" user
 
 set_user_balance :: PersistentConns -> B.ByteString -> B.ByteString -> IO (Bool)
 set_user_balance conn user key = BR.set conn "balance" user key
@@ -85,3 +87,5 @@ set_user_address conn user value = BR.set conn "address" user value
 set_user_address_recieved :: PersistentConns -> B.ByteString -> B.ByteString -> IO (Bool)
 set_user_address_recieved conn user value = BR.set conn "address_recieved" user value
 
+set_user_secret :: PersistentConns -> B.ByteString -> B.ByteString -> IO (Bool)
+set_user_secret conn user value = BR.setnx conn "secret" user value

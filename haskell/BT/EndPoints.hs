@@ -5,7 +5,6 @@ import qualified Data.ByteString.Char8 as BC
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL
 import qualified Data.ByteString.Lazy.Char8 as BLC
-import Database.Redis (runRedis, setnx)
 import Network.Wai (Request, requestHeaders)
 import Network.HTTP.Types.Header (hAuthorization)
 import Data.ByteString.Base64 (decodeLenient)
@@ -27,10 +26,9 @@ register :: Request -> PersistentConns-> IO [(String, String)]
 register info conn = do
     user <- random256String
     salt <- random256String
-    ok <- runRedis (redis conn) $ do
-        setnx (BC.pack $"user_" ++ user) (BC.pack salt)
+    ok <- set_user_secret conn (BC.pack user) (BC.pack salt)
 
-    case getRight (\s -> RedisException (show s)) ok of
+    case ok of
         True -> return [("username"::String, user), ("secret", salt)]
         _ -> register info conn
 

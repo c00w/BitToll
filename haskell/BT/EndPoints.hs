@@ -57,7 +57,7 @@ createPayment info conn = do
     resp <- set_payment_amount conn (BC.pack paymentid) amount
     val <- case resp of
         True -> do
-            resp2 <- set_payment_user conn (BC.pack paymentid) username 
+            _ <- set_payment_user conn (BC.pack paymentid) username 
             return $ [("payment", paymentid)]
         False -> createPayment info conn
     return val

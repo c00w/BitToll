@@ -6,11 +6,7 @@ import Data.Word (Word64)
 import BT.Types
 import Control.Exception(throw)
 import Text.JSON (Result(Ok, Error))
-import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL
-import qualified Data.ByteString.Char8 as BC
-import Network.Bitcoin (BTC)
-import Database.Redis (Redis)
 import qualified Data.Aeson as A
 import Data.Conduit
 import Data.Conduit.List (consume)
@@ -63,30 +59,6 @@ getRight exc i = case i of
 
 getRightRedis :: Show a => Either a b -> b
 getRightRedis = getRight (\s -> RedisException (show s))
-
-checkWatch :: (Either a b) -> Redis ()
-checkWatch a = do 
-    case a of
-        Left _ -> return $ error "watch"
-        _ -> return ()
-
-satoshi_big :: B.ByteString -> B.ByteString -> Bool 
-satoshi_big a b = aBTC >= bBTC
-    where
-        aBTC = (read . BC.unpack) a :: BTC
-        bBTC = (read . BC.unpack) b :: BTC
-
-satoshi_sub :: B.ByteString -> B.ByteString -> B.ByteString
-satoshi_sub a b = BC.pack . show $ aBTC - bBTC
-    where
-        aBTC = (read . BC.unpack) a :: BTC
-        bBTC = (read . BC.unpack) b :: BTC
-
-satoshi_add :: B.ByteString -> B.ByteString -> B.ByteString
-satoshi_add a b = BC.pack . show $ aBTC + bBTC
-    where
-        aBTC = (read . BC.unpack) a :: BTC
-        bBTC = (read . BC.unpack) b :: BTC
 
 getRequestBody :: Request -> IO BL.ByteString
 getRequestBody req = BL.fromStrict <$> mconcat <$> runResourceT (requestBody req $$ consume)

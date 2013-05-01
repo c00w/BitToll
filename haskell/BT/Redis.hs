@@ -10,11 +10,17 @@ import Control.Monad.IO.Class (liftIO)
 get :: PersistentConns -> B.ByteString -> B.ByteString -> IO (Maybe B.ByteString)
 get conn key user = do
     ok <- liftIO $ DR.runRedis (redis conn) $ do
-        DR.get $ BC.append key user
+        DR.hget (BC.append "u:" user) key
     return $ getRightRedis ok
 
 set :: PersistentConns -> B.ByteString -> B.ByteString -> B.ByteString -> IO (Bool)
 set conn key user value = do
     ok <- liftIO $ DR.runRedis (redis conn) $ do
-        DR.set (BC.append key user) value
-    return $ (getRightRedis ok) == DR.Ok
+        DR.hset (BC.append "u:" user) key value
+    return $ (getRightRedis ok)
+
+setnx :: PersistentConns -> B.ByteString -> B.ByteString -> B.ByteString -> IO (Bool)
+setnx conn key user value = do
+    ok <- liftIO $ DR.runRedis (redis conn) $ do
+        DR.hsetnx (BC.append "u:" user) key value
+    return $ (getRightRedis ok)

@@ -5,7 +5,7 @@ import qualified Data.ByteString.Char8 as BC
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL
 import qualified Data.ByteString.Lazy.Char8 as BLC
-import Database.Redis(runRedis, setnx, get )
+import Database.Redis (runRedis, setnx)
 import Network.Wai (Request, requestHeaders)
 import Network.HTTP.Types.Header (hAuthorization)
 import Data.ByteString.Base64 (decodeLenient)
@@ -54,15 +54,12 @@ createPayment info conn = do
     let username = BC.pack$ getMaybe (UserException "Missing username") $ lookup "username" al
     let amount = BC.pack $ getMaybe (UserException "Missing amount") $ lookup "amount" al
     paymentid <- random256String
-    resp <- runRedis (redis conn) $ do
-        ok <- setnx (B.append "payment_" (BC.pack paymentid)) amount
-        case ok of
-            (Right True) -> setnx (B.append "payment_user_" (BC.pack paymentid)) username
-            a -> return a
+    resp <- set_payment_amount conn (BC.pack paymentid) amount
     val <- case resp of
-        (Right True) -> return $ [("payment",paymentid)]
-        (Right False) -> createPayment info conn
-        _ -> error []
+        True -> do
+            resp2 <- set_payment_user conn (BC.pack paymentid) username 
+            return $ [("payment", paymentid)]
+        False -> createPayment info conn
     return val
 
 makePayment :: Request -> PersistentConns -> IO [(String, String)]
@@ -114,17 +111,18 @@ deposit info conn = do
     verifyAL al
     let username = BC.pack $ getMaybe (UserException "Missing username") $ lookup "username" al
 
-    addr <- runRedis (redis conn) $ do
-        get $ B.append "address_" username
-    case addr of
-        (Right (Just a)) -> return $ [("address",BC.unpack a)]
+    lock_user conn username
+
+    addr <- get_user_address conn username
+    resp <- case addr of
+        (Just a) -> return $ [("address",BC.unpack a)]
         _ -> do
             resp <- send conn "address"
-            ok <- runRedis (redis conn) $ do
-                setnx (B.append "address_" username)  resp
-            case ok of
-                Right True -> return $ [("address", BC.unpack resp)]
-                _ -> return []
+            _ <- set_user_address conn username resp
+            return $ [("address", BC.unpack resp)]
+
+    unlock_user conn username
+    return resp
 
 requestUsername :: Request -> B.ByteString
 requestUsername req = head . (BC.split ':') . decodeLenient . last. (BC.split ' ') $ authstring

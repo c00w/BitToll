@@ -42,4 +42,3 @@ getPayout conn hexdiff = do
     miningDiff <- readIORef . curTarget $ conn
     let diff = (hexDiffToInt hexdiff) :: BTC
     return $ (miningDiff * payout) / diff
-

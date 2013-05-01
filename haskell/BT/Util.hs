@@ -17,6 +17,7 @@ import Data.Conduit.List (consume)
 import Control.Applicative
 import Network.Wai (Request, requestBody)
 import Data.Monoid (mconcat)
+import Data.String (IsString)
 
 randomNum :: IO Word64 
 randomNum = randomIO 
@@ -48,6 +49,12 @@ getMaybe :: MyException -> Maybe a -> a
 getMaybe b may = case may of
     Just a -> a
     _ -> throw b
+
+zeroMaybe :: IsString a => Maybe a -> a
+zeroMaybe a = case a of
+    Just b  -> b
+    Nothing -> "0"
+
 
 getRight :: (a -> MyException) -> Either a b -> b
 getRight exc i = case i of

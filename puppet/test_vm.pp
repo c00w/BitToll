@@ -223,6 +223,7 @@ service {"p2pool":
     require => [
         Vcsrepo["p2pool"],
         File["p2pool.conf"],
+        File["poolwrapper-binary"]
     ],
     ensure => running,
     enable => true,
@@ -250,6 +251,14 @@ file {"/usr/bin/PoolServer":
     source => "/binaries/PoolServer/PoolServer",
     alias => "pool-binary",
     notify => Service["poolserver"],
+}
+
+file {"/usr/bin/PoolWrapper":
+    ensure => present,
+    mode => 0777,
+    source => "/binaries/PoolWrapper/PoolWrapper",
+    alias => "poolwrapper-binary",
+    notify => Service["p2pool"],
 }
 
 file {"/etc/init/apiserver.conf":

@@ -7,5 +7,6 @@ dist
 haskell/APIServer
 haskell/BCServer
 haskell/PoolServer
+haskell/PoolWrapper
 __pycache__
 .vagrant

@@ -7,20 +7,20 @@ import BT.Types
 import BT.Util
 import Control.Monad.IO.Class (liftIO)
 
-get :: PersistentConns -> B.ByteString -> B.ByteString -> IO (Maybe B.ByteString)
-get conn key user = do
+get :: PersistentConns -> B.ByteString -> B.ByteString -> B.ByteString -> IO (Maybe B.ByteString)
+get conn itemType item key = do
     ok <- liftIO $ DR.runRedis (redis conn) $ do
-        DR.hget (BC.append "u:" user) key
+        DR.hget (BC.append itemType item) key
     return $ getRightRedis ok
 
-set :: PersistentConns -> B.ByteString -> B.ByteString -> B.ByteString -> IO (Bool)
-set conn key user value = do
+set :: PersistentConns -> B.ByteString -> B.ByteString -> B.ByteString -> B.ByteString -> IO (Bool)
+set conn itemType item key value = do
     ok <- liftIO $ DR.runRedis (redis conn) $ do
-        DR.hset (BC.append "u:" user) key value
+        DR.hset (BC.append itemType item) key value
     return $ (getRightRedis ok)
 
-setnx :: PersistentConns -> B.ByteString -> B.ByteString -> B.ByteString -> IO (Bool)
-setnx conn key user value = do
+setnx :: PersistentConns -> B.ByteString -> B.ByteString -> B.ByteString -> B.ByteString -> IO (Bool)
+setnx conn itemType item key value = do
     ok <- liftIO $ DR.runRedis (redis conn) $ do
-        DR.hsetnx (BC.append "u:" user) key value
+        DR.hsetnx (BC.append itemType item) key value
     return $ (getRightRedis ok)

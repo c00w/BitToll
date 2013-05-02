@@ -55,37 +55,37 @@ unlock_user conn user = do
         _ -> return ()
 
 get_user_balance :: PersistentConns -> B.ByteString -> IO (B.ByteString)
-get_user_balance conn user = (liftM zeroMaybe) $ BR.get conn "balance" user
+get_user_balance conn user = (liftM zeroMaybe) $ BR.get conn "u:" user "balance"
 
 get_unconfirmed_balance :: PersistentConns -> B.ByteString -> IO (B.ByteString)
-get_unconfirmed_balance conn user = (liftM zeroMaybe) $ BR.get conn "balance_unconfirmed" user
+get_unconfirmed_balance conn user = (liftM zeroMaybe) $ BR.get conn "u:" user "balance_unconfirmed"
 
 get_paid_balance :: PersistentConns -> B.ByteString -> IO (B.ByteString)
-get_paid_balance conn user = (liftM zeroMaybe) $ BR.get conn "balance_paid" user
+get_paid_balance conn user = (liftM zeroMaybe) $ BR.get conn "u:" user "balance_paid"
 
 get_user_address :: PersistentConns -> B.ByteString -> IO (Maybe B.ByteString)
-get_user_address conn user = BR.get conn "address" user
+get_user_address conn user = BR.get conn "u:" user "address"
 
 get_user_address_recieved :: PersistentConns -> B.ByteString -> IO (B.ByteString)
-get_user_address_recieved conn user = (liftM zeroMaybe) $ BR.get conn "address_recieved" user
+get_user_address_recieved conn user = (liftM zeroMaybe) $ BR.get conn "u:" user "address_recieved"
 
 get_user_secret :: PersistentConns -> B.ByteString -> IO (Maybe B.ByteString)
-get_user_secret conn user = BR.get conn "secret" user
+get_user_secret conn user = BR.get conn "u:" user "secret"
 
 set_user_balance :: PersistentConns -> B.ByteString -> B.ByteString -> IO (Bool)
-set_user_balance conn user key = BR.set conn "balance" user key
+set_user_balance conn user key = BR.set conn "u:" user "balance" key
 
 set_unconfirmed_balance :: PersistentConns -> B.ByteString -> B.ByteString -> IO (Bool)
-set_unconfirmed_balance conn user key = BR.set conn "balance_unconfirmed" user key
+set_unconfirmed_balance conn user key = BR.set conn "u:" user "balance_unconfirmed" key
 
 set_paid_balance :: PersistentConns -> B.ByteString -> B.ByteString -> IO (Bool)
-set_paid_balance conn user key = BR.set conn "balance_paid" user key
+set_paid_balance conn user key = BR.set conn "u:" user "balance_paid" key
 
 set_user_address :: PersistentConns -> B.ByteString -> B.ByteString-> IO (Bool)
-set_user_address conn user value = BR.set conn "address" user value
+set_user_address conn user value = BR.set conn "u:" user "address" value
 
 set_user_address_recieved :: PersistentConns -> B.ByteString -> B.ByteString -> IO (Bool)
-set_user_address_recieved conn user value = BR.set conn "address_recieved" user value
+set_user_address_recieved conn user value = BR.set conn "u:" user  "address_recieved" value
 
 set_user_secret :: PersistentConns -> B.ByteString -> B.ByteString -> IO (Bool)
-set_user_secret conn user value = BR.setnx conn "secret" user value
+set_user_secret conn user value = BR.setnx conn "u:" user "secret" value

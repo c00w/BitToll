@@ -27,10 +27,10 @@ extractMerkleRecieved :: MiningDataResult -> B.ByteString
 extractMerkleRecieved hash = take(64) . (drop 72) . BC.pack . result_data $ hash
 
 setMerkleDiff :: PersistentConns -> B.ByteString -> B.ByteString -> IO Bool
-setMerkleDiff conn merkle diff = set conn "merklediff_" merkle diff
+setMerkleDiff conn merkle diff = set conn "m:" merkle "diff" diff
 
 getMerkleDiff :: PersistentConns -> B.ByteString -> IO (Maybe B.ByteString)
-getMerkleDiff conn merkle = get conn "merklediff_" merkle
+getMerkleDiff conn merkle = get conn "m:" merkle "diff"
 
 hexDiffToInt :: B.ByteString -> BTC
 hexDiffToInt hd = fromIntegral int

@@ -232,7 +232,7 @@ service {"p2pool":
 file {"/usr/bin/BCServer":
     ensure => present,
     mode => 0777,
-    source => "/binaries/BCServer/BCServer",
+    source => "/binaries/BCServer",
     alias => "bc-binary",
     notify => Service["bcserver"],
 }
@@ -240,7 +240,7 @@ file {"/usr/bin/BCServer":
 file {"/usr/bin/APIServer":
     ensure => present,
     mode => 0777,
-    source => "/binaries/APIServer/APIServer",
+    source => "/binaries/APIServer",
     alias => "api-binary",
     notify => Service["apiserver"],
 }
@@ -248,7 +248,7 @@ file {"/usr/bin/APIServer":
 file {"/usr/bin/PoolServer":
     ensure => present,
     mode => 0777,
-    source => "/binaries/PoolServer/PoolServer",
+    source => "/binaries/PoolServer",
     alias => "pool-binary",
     notify => Service["poolserver"],
 }
@@ -256,7 +256,7 @@ file {"/usr/bin/PoolServer":
 file {"/usr/bin/PoolWrapper":
     ensure => present,
     mode => 0777,
-    source => "/binaries/PoolWrapper/PoolWrapper",
+    source => "/binaries/PoolWrapper",
     alias => "poolwrapper-binary",
     notify => Service["p2pool"],
 }

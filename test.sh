@@ -1,5 +1,5 @@
 #!/bin/bash
 set -e
-cabal install
+cabal-dev install
 vagrant provision
 py.test testsuite/ -s

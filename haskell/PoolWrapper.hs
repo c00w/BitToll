@@ -8,6 +8,7 @@ import Control.Exception (catch, SomeException)
 import Control.Concurrent (threadDelay)
 
 import qualified Data.ByteString as B
+import qualified Data.ByteString.Char8 as BC
 
 get_mining_address :: PersistentConns -> IO (Maybe B.ByteString)
 get_mining_address conn = get conn "g:" "global" "mining_address"
@@ -47,4 +48,4 @@ main :: IO ()
 main = do
     conn <- makeCons
     addr <- get_addr_safe conn
-    B.putStrLn addr
+    BC.putStrLn addr

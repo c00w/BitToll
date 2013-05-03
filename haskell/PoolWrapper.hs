@@ -5,6 +5,7 @@ import BT.Types
 import BT.ZMQ
 import System.Timeout (timeout)
 import Control.Exception (catch, SomeException)
+import Control.Concurrent (threadDelay)
 
 import qualified Data.ByteString as B
 
@@ -22,7 +23,9 @@ get_addr_btc conn = do
         Nothing -> get_addr conn
 
 get_addr_safe_exc :: PersistentConns -> SomeException -> IO B.ByteString
-get_addr_safe_exc conn _ = get_addr_safe conn
+get_addr_safe_exc conn _ = do
+    threadDelay 1000000
+    get_addr_safe conn
 
 get_addr_safe :: PersistentConns -> IO B.ByteString
 get_addr_safe conn = catch (get_addr conn) (get_addr_safe_exc conn)

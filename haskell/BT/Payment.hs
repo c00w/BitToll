@@ -19,8 +19,8 @@ get_payment_done conn paymentid = do
         Nothing -> return False
         Just _ -> return True
 
-set_payment_amount :: PersistentConns -> B.ByteString -> B.ByteString -> IO (Bool)
-set_payment_amount conn paymentid value = setnx conn "p:" paymentid "amount" value
+set_payment_amount :: PersistentConns -> B.ByteString -> BTC -> IO (Bool)
+set_payment_amount conn paymentid value = setnxbtc conn "p:" paymentid "amount" value
 
 set_payment_user :: PersistentConns -> B.ByteString -> B.ByteString -> IO (Bool)
 set_payment_user conn paymentid value = setnx conn "p:" paymentid "user" value

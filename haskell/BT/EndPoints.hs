@@ -50,12 +50,12 @@ createPayment info conn = do
     al <- getRequestAL info
     verifyAL al
     let username = BC.pack$ getMaybe (UserException "Missing username") $ lookup "username" al
-    let amount = BC.pack $ getMaybe (UserException "Missing amount") $ lookup "amount" al
+    let amount = getMaybe (UserException "Missing amount") $ lookup "amount" al
     paymentid <- random256String
-    resp <- set_payment_amount conn (BC.pack paymentid) amount
+    resp <- set_payment_amount conn (BC.pack paymentid) (read amount :: BTC)
     val <- case resp of
         True -> do
-            _ <- set_payment_user conn (BC.pack paymentid) username 
+            _ <- set_payment_user conn (BC.pack paymentid) username
             return $ [("payment", paymentid)]
         False -> createPayment info conn
     return val

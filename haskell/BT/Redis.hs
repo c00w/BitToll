@@ -37,6 +37,9 @@ getbtc conn itemType item key = do
 setbtc :: PersistentConns -> B.ByteString -> B.ByteString -> B.ByteString -> BTC -> IO (Bool)
 setbtc conn itemType item key value = set conn itemType item key (BC.pack . show $ (truncate (value * 10^^(8 :: Integer)) :: Integer))
 
+setnxbtc :: PersistentConns -> B.ByteString -> B.ByteString -> B.ByteString -> BTC -> IO (Bool)
+setnxbtc conn itemType item key value = setnx conn itemType item key (BC.pack . show $ (truncate (value * 10^^(8 :: Integer)) :: Integer))
+
 incrementbtc :: PersistentConns -> B.ByteString -> B.ByteString -> B.ByteString -> BTC -> IO (BTC)
 incrementbtc conn itemType item key value = do
     r <- increment conn itemType item key (truncate (value * 10^^(8 :: Integer)) :: Integer)

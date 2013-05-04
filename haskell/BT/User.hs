@@ -71,27 +71,15 @@ get_user_address_recieved conn user = BR.getbtc conn "u:" user "address_recieved
 get_user_secret :: PersistentConns -> B.ByteString -> IO (Maybe B.ByteString)
 get_user_secret conn user = BR.get conn "u:" user "secret"
 
-set_user_balance :: PersistentConns -> B.ByteString -> BTC -> IO (Bool)
-set_user_balance conn user key = BR.setbtc conn "u:" user "balance" key
-
 increment_user_balance :: PersistentConns -> B.ByteString -> BTC -> IO (BTC)
 increment_user_balance conn user key = BR.incrementbtc conn "u:" user "balance" key
-
-set_unconfirmed_balance :: PersistentConns -> B.ByteString -> BTC -> IO (Bool)
-set_unconfirmed_balance conn user key = BR.setbtc conn "u:" user "balance_unconfirmed" key
 
 increment_unconfirmed_balance :: PersistentConns -> B.ByteString -> BTC -> IO (BTC)
 increment_unconfirmed_balance conn user key = BR.incrementbtc conn "u:" user "balance_unconfirmed" key
 
 
-set_paid_balance :: PersistentConns -> B.ByteString -> BTC -> IO (Bool)
-set_paid_balance conn user key = BR.setbtc conn "u:" user "balance_paid" key
-
 set_user_address :: PersistentConns -> B.ByteString -> B.ByteString-> IO (Bool)
 set_user_address conn user value = BR.set conn "u:" user "address" value
-
-set_user_address_recieved :: PersistentConns -> B.ByteString -> BTC -> IO (Bool)
-set_user_address_recieved conn user value = BR.setbtc conn "u:" user  "address_recieved" value
 
 increment_user_address_recieved :: PersistentConns -> B.ByteString -> BTC -> IO (BTC)
 increment_user_address_recieved conn user value = BR.incrementbtc conn "u:" user  "address_recieved" value

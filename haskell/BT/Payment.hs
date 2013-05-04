@@ -4,9 +4,10 @@ module BT.Payment where
 import qualified Data.ByteString as B
 import BT.Redis
 import BT.Types
+import Network.Bitcoin (BTC)
 
-get_payment_amount :: PersistentConns -> B.ByteString -> IO (Maybe B.ByteString)
-get_payment_amount conn paymentid = get conn "p:" paymentid "amount"
+get_payment_amount :: PersistentConns -> B.ByteString -> IO (BTC)
+get_payment_amount conn paymentid = getbtc conn "p:" paymentid "amount"
 
 get_payment_user :: PersistentConns -> B.ByteString -> IO (Maybe B.ByteString)
 get_payment_user conn paymentid = get conn "p:" paymentid "user"

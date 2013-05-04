@@ -21,3 +21,6 @@ vagrant up
 
 #Then run the testsuite
 py.test testsuite/ -s
+
+#Random Usefull notes
+# We only lock when we are decrementing. Increments are always safe since balance won't go negative

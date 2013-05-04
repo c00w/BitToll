@@ -43,7 +43,7 @@ getBalance info conn = do
         Nothing -> return ()
 
     resp <- get_user_balance conn username
-    return [("balance", BC.unpack resp)]
+    return [("balance", show resp)]
 
 createPayment :: Request -> PersistentConns -> IO [(String, String)]
 createPayment info conn = do
@@ -72,34 +72,26 @@ makePayment info conn = do
 
     putStrLn "Before lock"
     lock_user conn username
-    when (username /= user) $ lock_user conn user
     putStrLn "After lock"
 
-    str_balance <- get_user_balance conn username
-    let balance = (read. BC.unpack $ str_balance) :: BTC
+    balance <- get_user_balance conn username
 
-    req_amount_wrap <- get_payment_amount conn payment
-    let req_amount = (read .BC.unpack. getMaybe (UserException "No Such Payment") $ req_amount_wrap) :: BTC
-
-    str_user_balance <- get_user_balance conn user
-    let user_balance = read . BC.unpack $ str_user_balance :: BTC
+    req_amount <- get_payment_amount conn payment
 
     putStrLn "Got all info"
 
     when (balance - req_amount < 0) $ do
         unlock_user conn username
-        unlock_user conn user
         throw (UserException "Insufficient Funds")
 
     when (username /= user) $ do
-        _ <- set_user_balance conn username (BC.pack . show $ (balance-req_amount))
-        _ <- set_user_balance conn user (BC.pack . show $ (user_balance+ req_amount))
+        _ <- increment_user_balance conn username (-req_amount)
+        _ <- increment_user_balance conn user req_amount
         return ()
 
     _ <- set_payment_done conn payment
 
     unlock_user conn username
-    when (username /= user) $ unlock_user conn user
 
     return [("code", "hi")]
 
@@ -150,12 +142,8 @@ mine info conn = do
                 let diff = getMaybe (RedisException "Error retrieving merklediff") sdiff
                 payout <- getPayout conn diff
                 lock_user conn username
-                strbalance <- get_user_balance conn username
-                strubalance <- get_unconfirmed_balance conn username
-                let balance = (read . BC.unpack $ strbalance :: BTC) + payout
-                let ubalance = (read . BC.unpack $ strubalance :: BTC) + payout
-                _ <- set_user_balance conn username (BC.pack . show $ balance)
-                _ <- set_unconfirmed_balance conn username (BC.pack . show $ ubalance)
+                _ <- increment_user_balance conn username payout
+                _ <- increment_unconfirmed_balance conn username payout
                 unlock_user conn username
 
             putStrLn "done submitting work"
@@ -177,12 +165,10 @@ sendBTC info conn = do
     lock_user conn username
     putStrLn "Locked"
 
-    raw_balance <- get_user_balance conn username
-    raw_unconfirmed_balance <- get_user_balance conn username
+    balance <- get_user_balance conn username
+    unconfirmed <- get_user_balance conn username
 
     putStrLn "Got Balances"
-    let balance = read . BC.unpack $ raw_balance :: BTC
-    let unconfirmed = read . BC.unpack $ raw_unconfirmed_balance :: BTC
 
     putStrLn "forcing amount"
     let !amount = read. BC.unpack $ rawamount :: BTC
@@ -192,7 +178,7 @@ sendBTC info conn = do
         True -> do
             putStrLn "Can do it"
             putStrLn "Set Balance"
-            _ <- set_user_balance conn username (BC.pack . show $ balance-amount)
+            _ <- increment_user_balance conn username (-amount)
             putStrLn "send_money"
             let arg = (BC.intercalate "|" [address, (BC.pack . show) amount])
 

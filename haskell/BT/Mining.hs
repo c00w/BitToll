@@ -42,3 +42,15 @@ getPayout conn hexdiff = do
     miningDiff <- readIORef . curTarget $ conn
     let diff = (hexDiffToInt hexdiff) :: BTC
     return $ (miningDiff * payout) / diff
+
+--- Make a share object containing a payout, percent paid, username
+makeShare :: PersistentConns -> B.ByteString -> IO B.ByteString
+makeShare conn username = do
+    shareid <- random256String
+    resp <- setnx conn "s:" shareid "username" username of
+    when (resp == True) $ do
+        setbtc conn "s:" shareid "payout" 0
+        set conn "s:" shareid "percentpaid" "0.0"
+    case resp of
+        True -> return shareid
+        False -> return makeShare conn username

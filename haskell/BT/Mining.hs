@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 module BT.Mining where
 import Network.Bitcoin (HashData, blockData, HashData, hdTarget)
-import Data.ByteString as B hiding (head)
+import qualified Data.ByteString as B hiding (head)
 import qualified Data.ByteString.Char8 as BC
 import Prelude hiding (take, drop)
 import Data.Text.Encoding as E
@@ -23,10 +23,10 @@ storeMerkleDiff conn hashData = do
         True  -> return ()
 
 extractMerkle :: HashData -> B.ByteString
-extractMerkle hash = (take 64). (drop 72) .E.encodeUtf8 . blockData $ hash
+extractMerkle hash = (BC.take 64). (BC.drop 72) .E.encodeUtf8 . blockData $ hash
 
 extractMerkleRecieved :: MiningDataResult -> B.ByteString 
-extractMerkleRecieved hash = take(64) . (drop 72) . BC.pack . result_data $ hash
+extractMerkleRecieved hash = (BC.take 64) . (BC.drop 72) . BC.pack . result_data $ hash
 
 setMerkleDiff :: PersistentConns -> B.ByteString -> B.ByteString -> IO Bool
 setMerkleDiff conn merkle diff = set conn "m:" merkle "diff" diff
@@ -54,7 +54,11 @@ setSharePayout conn shareid payout = setbtc conn "s:" shareid "payout" payout
 setSharePercentPaid :: PersistentConns -> B.ByteString -> BTC -> IO Bool
 setSharePercentPaid conn shareid payout = set conn "s:" shareid "percentpaid" (BC.pack . show $ payout)
 
+getUserShares :: PersistentConns -> B.ByteString -> Double -> Double -> IO [B.ByteString]
+getUserShares conn username minscore maxscore = zrangebyscore conn "us:" username minscore maxscore
+
 --- Make a share object containing a payout, percent paid, username
+--- Also adds it to the appropriate indices
 makeShare :: PersistentConns -> B.ByteString -> IO B.ByteString
 makeShare conn username = do
     shareid <- (liftM BC.pack) random256String
@@ -62,18 +66,29 @@ makeShare conn username = do
     when (resp == True) $ do
         _ <- setSharePayout conn shareid 0
         _ <- setSharePercentPaid conn shareid 0.0
+        _ <- addShareUserQueue conn username shareid 0.0
+        _ <- addShareGlobalQueue conn shareid 0.0
         return ()
     case resp of
         True -> return shareid
         False -> makeShare conn username
 
+addShareUserQueue :: PersistentConns -> BC.ByteString -> BC.ByteString -> Double -> IO Integer
+addShareUserQueue conn username shareid payout = zadd conn "us:" username payout shareid
+
+addShareGlobalQueue :: PersistentConns -> BC.ByteString -> Double -> IO Integer
+addShareGlobalQueue conn shareid payout = zadd conn "us:" "global" payout shareid
+
 --- Structure
 --- username set of all share keys sorted by payout
 --- global sorted set of all share keys sorted by payout
 
-
-
 --- Get the current mining share
---- getCurrentMiningShare :: PersistentConns -> B.ByteString -> IO B.ByteString
---- getCurrentMiningShare conn username = do
----     zrangebyscore "username"
+getCurrentMiningShare :: PersistentConns -> B.ByteString -> IO B.ByteString
+getCurrentMiningShare conn username = do
+    shares <- zrangebyscore conn "us:" username 0.0 0.0
+    case Prelude.length shares of
+        0 -> do
+            makeShare conn username
+        _ -> do (return.head) shares
+

@@ -50,3 +50,14 @@ setnx conn itemType item key value = do
     ok <- liftIO $ DR.runRedis (redis conn) $ do
         DR.hsetnx (BC.append itemType item) key value
     return $ (getRightRedis ok)
+
+zrangebyscore :: PersistentConns -> B.ByteString -> B.ByteString -> Double -> Double -> IO [B.ByteString]
+zrangebyscore conn object key minscore maxscore = do
+    ok <- liftIO $ DR.runRedis (redis conn) $ do
+        DR.zrangebyscore (BC.append object key) minscore maxscore
+    return $ (getRightRedis ok)
+
+zadd conn object key score member = do
+    ok <- liftIO $ DR.runRedis (redis conn) $ do
+        DR.zadd (BC.append object key) [(score, member)]
+    return $ getRightRedis ok

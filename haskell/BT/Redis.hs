@@ -56,7 +56,8 @@ zrangebyscore conn object key minscore maxscore = do
     ok <- liftIO $ DR.runRedis (redis conn) $ do
         DR.zrangebyscore (BC.append object key) minscore maxscore
     return $ (getRightRedis ok)
-
+zadd ::PersistentConns -> BC.ByteString -> BC.ByteString
+              -> Double -> BC.ByteString -> IO Integer
 zadd conn object key score member = do
     ok <- liftIO $ DR.runRedis (redis conn) $ do
         DR.zadd (BC.append object key) [(score, member)]

@@ -144,6 +144,8 @@ mine info conn = do
                 lock_user conn username
                 _ <- increment_user_balance conn username payout
                 _ <- increment_unconfirmed_balance conn username payout
+                share <- getCurrentMiningShare conn username
+                _ <- incrementSharePayout conn share payout
                 unlock_user conn username
 
             putStrLn "done submitting work"

@@ -51,6 +51,9 @@ setShareUsername conn shareid username = setnx conn "s:" shareid "username" user
 setSharePayout :: PersistentConns -> B.ByteString -> BTC -> IO Bool
 setSharePayout conn shareid payout = setbtc conn "s:" shareid "payout" payout
 
+incrementSharePayout :: PersistentConns -> B.ByteString -> BTC -> IO BTC
+incrementSharePayout conn shareid payout = incrementbtc conn "s:" shareid "payout" payout
+
 setSharePercentPaid :: PersistentConns -> B.ByteString -> BTC -> IO Bool
 setSharePercentPaid conn shareid payout = set conn "s:" shareid "percentpaid" (BC.pack . show $ payout)
 

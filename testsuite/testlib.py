@@ -41,6 +41,7 @@ def _secret(params, secret):
             md5.update(hash_str)
         except:
             md5.update(hash_str.encode('utf-8'))
+    md5.update(secret)
     return md5.hexdigest()
 
 def register():

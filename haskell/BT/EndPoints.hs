@@ -35,7 +35,7 @@ register info conn = do
 getBalance :: Request -> PersistentConns-> IO [(String, String)] 
 getBalance info conn = do
     requestal <- getRequestAL info
-    verifyAL requestal
+    verifyAL conn requestal
     let username = BC.pack $ getMaybe (UserException "Missing username field") $ lookup "username" requestal
     bitcoinid_wrap <- get_user_address conn username
     case bitcoinid_wrap of
@@ -48,7 +48,7 @@ getBalance info conn = do
 createPayment :: Request -> PersistentConns -> IO [(String, String)]
 createPayment info conn = do
     al <- getRequestAL info
-    verifyAL al
+    verifyAL conn al
     let username = BC.pack$ getMaybe (UserException "Missing username") $ lookup "username" al
     let amount = getMaybe (UserException "Missing amount") $ lookup "amount" al
     paymentid <- random256String
@@ -63,7 +63,7 @@ createPayment info conn = do
 makePayment :: Request -> PersistentConns -> IO [(String, String)]
 makePayment info conn = do
     al <- getRequestAL info
-    verifyAL al
+    verifyAL conn al
     let username = BC.pack $ getMaybe (UserException "Missing username") $ lookup "username" al
     let payment = BC.pack $ getMaybe (UserException "Missing payment") $ lookup "payment" al
 
@@ -98,7 +98,7 @@ makePayment info conn = do
 deposit :: Request -> PersistentConns-> IO [(String, String)]
 deposit info conn = do
     al <- getRequestAL info
-    verifyAL al
+    verifyAL conn al
     let username = BC.pack $ getMaybe (UserException "Missing username") $ lookup "username" al
 
     lock_user conn username
@@ -158,7 +158,7 @@ mine info conn = do
 sendBTC :: Request -> PersistentConns -> IO [(String, String)]
 sendBTC info conn = do
     al <- getRequestAL info
-    verifyAL al
+    verifyAL conn al
     let username = BC.pack$ getMaybe (UserException "Missing username") $ lookup "username" al
     let rawamount = BC.pack $ getMaybe (UserException "Missing amount") $ lookup "amount" al
     let address = BC.pack $ getMaybe (UserException "Missing address") $ lookup "address" al

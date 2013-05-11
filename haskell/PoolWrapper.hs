@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
-import BT.Redis (setnx, get)
 import BT.Global
 import BT.Types
+import BT.Mining
 import BT.ZMQ
 import System.Timeout (timeout)
 import Control.Exception (catch, SomeException)
@@ -9,12 +9,6 @@ import Control.Concurrent (threadDelay)
 
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Char8 as BC
-
-get_mining_address :: PersistentConns -> IO (Maybe B.ByteString)
-get_mining_address conn = get conn "g:" "global" "mining_address"
-
-set_mining_address :: PersistentConns -> B.ByteString -> IO (Bool)
-set_mining_address conn value = setnx conn "g:" "global" "mining_address" value
 
 get_addr_btc :: PersistentConns -> IO (B.ByteString)
 get_addr_btc conn = do

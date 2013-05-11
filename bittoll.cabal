@@ -71,6 +71,7 @@ executable PoolWrapper
                     transformers,
                     resource-pool,
                     wai,
+                    text,
                     conduit
     main-is:        PoolWrapper.hs
     hs-source-dirs: haskell

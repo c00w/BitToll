@@ -13,6 +13,12 @@ import Network.Bitcoin (BTC)
 import Data.IORef (readIORef)
 import Control.Monad (when, liftM)
 
+get_mining_address :: PersistentConns -> IO (Maybe B.ByteString)
+get_mining_address conn = get conn "g:" "global" "mining_address"
+
+set_mining_address :: PersistentConns -> B.ByteString -> IO (Bool)
+set_mining_address conn value = setnx conn "g:" "global" "mining_address" value
+
 storeMerkleDiff :: PersistentConns -> HashData -> IO ()
 storeMerkleDiff conn hashData = do
     let merkle = extractMerkle hashData

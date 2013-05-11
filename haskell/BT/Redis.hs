@@ -26,7 +26,6 @@ increment conn itemType item key value = do
         DR.hincrby (BC.append itemType item) key value
     return $ (getRightRedis ok)
 
-
 getbtc :: PersistentConns -> B.ByteString -> B.ByteString -> B.ByteString -> IO (BTC)
 getbtc conn itemType item key = do
     r <- get conn itemType item key
@@ -56,6 +55,7 @@ zrangebyscore conn object key minscore maxscore = do
     ok <- liftIO $ DR.runRedis (redis conn) $ do
         DR.zrangebyscore (BC.append object key) minscore maxscore
     return $ (getRightRedis ok)
+
 zadd ::PersistentConns -> BC.ByteString -> BC.ByteString
               -> Double -> BC.ByteString -> IO Integer
 zadd conn object key score member = do

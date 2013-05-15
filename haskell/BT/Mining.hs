@@ -54,8 +54,21 @@ getPayout conn hexdiff = do
 setShareUsername :: PersistentConns -> B.ByteString -> B.ByteString -> IO Bool
 setShareUsername conn shareid username = setnx conn "s:" shareid "username" username
 
+getShareUsername :: PersistentConns -> B.ByteString -> IO (Maybe B.ByteString)
+getShareUsername conn shareid = get conn "s:" shareid "username"
+
 setSharePayout :: PersistentConns -> B.ByteString -> BTC -> IO Bool
 setSharePayout conn shareid payout = setbtc conn "s:" shareid "payout" payout
+
+getSharePayout :: PersistentConns -> B.ByteString -> IO BTC 
+getSharePayout conn shareid = getbtc conn "s:" shareid "payout"
+
+
+getMineRecieved :: PersistentConns -> IO BTC
+getMineRecieved conn = getbtc conn "g:" "global" "mine_recieved"
+
+setMineRecieved :: PersistentConns -> BTC -> IO Bool
+setMineRecieved conn amount = setbtc conn "g:" "global" "mine_recieved" amount
 
 incrementSharePayout :: PersistentConns -> B.ByteString -> BTC -> IO BTC
 incrementSharePayout conn shareid payout = incrementbtc conn "s:" shareid "payout" payout
@@ -63,8 +76,25 @@ incrementSharePayout conn shareid payout = incrementbtc conn "s:" shareid "payou
 setSharePercentPaid :: PersistentConns -> B.ByteString -> BTC -> IO Bool
 setSharePercentPaid conn shareid payout = set conn "s:" shareid "percentpaid" (BC.pack . show $ payout)
 
+getSharePercentPaid :: PersistentConns -> B.ByteString -> IO BTC
+getSharePercentPaid conn shareid = do
+    resp <- liftM (getMaybe (RedisException "No share set")) $ get conn "s:" shareid "percentpaid"
+    return $ (read . BC.unpack) resp
+
 getUserShares :: PersistentConns -> B.ByteString -> Double -> Double -> IO [B.ByteString]
 getUserShares conn username minscore maxscore = zrangebyscore conn "us:" username minscore maxscore
+
+getGlobalShares :: PersistentConns -> Double -> Double -> IO [B.ByteString]
+getGlobalShares conn minscore maxscore = zrangebyscore conn "g:" "global" minscore maxscore
+
+
+getNextShareLevel :: PersistentConns -> Double -> IO Double
+getNextShareLevel conn start = do
+    totalwrap <- zrangebyscoreWithscores conn "g:" "global" start 1.0
+    let total = filter (\s -> (snd s > start)) totalwrap
+    case total of
+        x:_ -> return $ snd x
+        [] -> return $ 1.0
 
 --- Make a share object containing a payout, percent paid, username
 --- Also adds it to the appropriate indices
@@ -85,8 +115,18 @@ makeShare conn username = do
 addShareUserQueue :: PersistentConns -> BC.ByteString -> BC.ByteString -> Double -> IO Integer
 addShareUserQueue conn username shareid payout = zadd conn "us:" username payout shareid
 
+remShareUserQueue :: PersistentConns -> BC.ByteString -> BC.ByteString -> IO Integer
+remShareUserQueue conn username shareid = zrem conn "us:" username [shareid]
+
+
 addShareGlobalQueue :: PersistentConns -> BC.ByteString -> Double -> IO Integer
 addShareGlobalQueue conn shareid payout = zadd conn "us:" "global" payout shareid
+
+getCurrentMiningShares :: PersistentConns -> IO [B.ByteString]
+getCurrentMiningShares conn = zrangebyscore conn "us" "global" 0.0 0.0
+
+removeGlobalMiningShares :: PersistentConns -> [B.ByteString] -> IO Integer
+removeGlobalMiningShares conn members = zrem conn "us:" "global" members
 
 --- Structure
 --- username set of all share keys sorted by payout

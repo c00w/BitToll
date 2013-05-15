@@ -12,11 +12,11 @@ import BT.Util
 import BT.ZMQ
 
 update_stored_balance :: B.ByteString -> B.ByteString -> PersistentConns -> IO ()
-update_stored_balance bitcoinid userid conn = do
+update_stored_balance bitcoin_addr userid conn = do
     lock_user conn userid
 
     liftIO $ putStrLn "Updating balance"
-    actual_recv <- liftM (read . BC.unpack) $ send conn $ B.append "recieved" bitcoinid :: IO BTC
+    actual_recv <- liftM (read . BC.unpack) $ send conn $ B.append "recieved" bitcoin_addr :: IO BTC
 
     stored_recv <- get_user_address_recieved conn userid
 

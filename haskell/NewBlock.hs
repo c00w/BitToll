@@ -50,7 +50,7 @@ handle_mine conn mine_addr = do
         _ <- removeGlobalMiningShares conn mine_keys
         mapM_ (removeUserQueue conn) mine_keys
 
-        next_level <- (liftM realToFrac) $ getNextShareLevel conn 1.0
+        next_level <- (liftM realToFrac) $ getNextShareLevel conn 0.0
 
         amount_owed <- liftM sum $ mapM (getKeyOwed conn next_level) mine_keys
         payout_fraction <- case payout_amount / amount_owed >1.0 of
@@ -59,7 +59,7 @@ handle_mine conn mine_addr = do
 
         mapM_ (payKeyOwed conn payout_fraction) mine_keys
 
-        payout conn next_level (payout_amount - amount_owed)
+        payout conn next_level (payout_amount - amount_owed * payout_fraction)
 
         return ()
     return ()
@@ -71,7 +71,7 @@ payout conn startlevel payout_amount = when (payout_amount > 0) $ do
 
     mine_keys <- getGlobalShares conn (fromRat $ toRational startlevel) (fromRat $ toRational startlevel)
 
-    next_level <- (liftM realToFrac) $ getNextShareLevel conn 1.0
+    next_level <- (liftM realToFrac) $ getNextShareLevel conn (fromRat $ toRational startlevel)
 
     amount_owed <- liftM sum $ mapM (getKeyOwed conn next_level) mine_keys
     payout_fraction <- case payout_amount / amount_owed > 1.0 of
@@ -80,7 +80,7 @@ payout conn startlevel payout_amount = when (payout_amount > 0) $ do
 
     mapM_ (payKeyOwed conn payout_fraction) mine_keys
 
-    payout conn next_level (payout_amount - amount_owed)
+    payout conn next_level (payout_amount - amount_owed * payout_fraction)
 
 main :: IO ()
 main = do

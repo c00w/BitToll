@@ -85,12 +85,12 @@ getUserShares :: PersistentConns -> B.ByteString -> Double -> Double -> IO [B.By
 getUserShares conn username minscore maxscore = zrangebyscore conn "us:" username minscore maxscore
 
 getGlobalShares :: PersistentConns -> Double -> Double -> IO [B.ByteString]
-getGlobalShares conn minscore maxscore = zrangebyscore conn "g:" "global" minscore maxscore
+getGlobalShares conn minscore maxscore = zrangebyscore conn "us:" "global_" minscore maxscore
 
 
 getNextShareLevel :: PersistentConns -> Double -> IO Double
 getNextShareLevel conn start = do
-    totalwrap <- zrangebyscoreWithscores conn "g:" "global" start 1.0
+    totalwrap <- zrangebyscoreWithscores conn "us:" "global" start 1.0
     let total = filter (\s -> (snd s > start)) totalwrap
     case total of
         x:_ -> return $ snd x

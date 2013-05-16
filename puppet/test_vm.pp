@@ -261,6 +261,13 @@ file {"/usr/bin/PoolWrapper":
     notify => Service["p2pool"],
 }
 
+file {"/usr/bin/NewBlock":
+    ensure => present,
+    mode => 0777,
+    source => "/binaries/NewBlock",
+    alias => "newblock-binary",
+}
+
 file {"/etc/init/apiserver.conf":
     ensure => present,
     mode => 0644,

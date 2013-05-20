@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 echo "# Puppetlabs products
 deb http://apt.puppetlabs.com precise main
 deb-src http://apt.puppetlabs.com precise main

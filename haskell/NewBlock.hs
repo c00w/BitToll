@@ -53,9 +53,11 @@ handle_mine conn mine_addr = do
         next_level <- (liftM realToFrac) $ getNextShareLevel conn 0.0
 
         amount_owed <- liftM sum $ mapM (getKeyOwed conn next_level) mine_keys
-        payout_fraction <- case payout_amount / amount_owed >1.0 of
-            True -> return 1.0
-            False -> return $ payout_amount / amount_owed
+
+        payout_fraction <- case (amount_owed, payout_amount / amount_owed >1.0) of
+            (0, _) -> return 1.0
+            (_, True) -> return 1.0
+            (_, False) -> return $ payout_amount / amount_owed
 
         mapM_ (payKeyOwed conn payout_fraction) mine_keys
 

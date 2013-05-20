@@ -123,7 +123,7 @@ addShareGlobalQueue :: PersistentConns -> BC.ByteString -> Double -> IO Integer
 addShareGlobalQueue conn shareid payout = zadd conn "us:" "global" payout shareid
 
 getCurrentMiningShares :: PersistentConns -> IO [B.ByteString]
-getCurrentMiningShares conn = zrangebyscore conn "us" "global" 0.0 0.0
+getCurrentMiningShares conn = zrangebyscore conn "us:" "global" 0.0 0.0
 
 removeGlobalMiningShares :: PersistentConns -> [B.ByteString] -> IO Integer
 removeGlobalMiningShares conn members = zrem conn "us:" "global" members

@@ -31,6 +31,7 @@ payKeyOwed conn increment key = do
     _ <- setSharePercentPaid conn key (percent + increment)
     let amount_increment = (-1) * amount * increment
     username <- (liftM (getMaybe (RedisException "no share Username"))) $ getShareUsername conn key
+    BC.putStrLn $ B.concat ["Paying unconfirmed user:", username, " amount:", (BC.pack.show$ amount_increment), " percent:", (BC.pack.show$ increment)]
     _ <- increment_unconfirmed_balance conn username amount_increment
     return ()
 
@@ -42,6 +43,8 @@ handle_mine conn mine_addr = do
     stored_recv <- getMineRecieved conn
 
     when (stored_recv < actual_recv) $ do
+
+        BC.putStrLn . B.concat $ ["amount to payout ", (BC.pack.show) $ actual_recv - stored_recv]
         _ <- setMineRecieved conn actual_recv
 
         let payout_amount = actual_recv - stored_recv
@@ -50,7 +53,11 @@ handle_mine conn mine_addr = do
         _ <- removeGlobalMiningShares conn mine_keys
         mapM_ (removeUserQueue conn) mine_keys
 
+        BC.putStrLn . B.concat $ ["mine_keys", (BC.pack.show) $ mine_keys]
+
         next_level <- (liftM realToFrac) $ getNextShareLevel conn 0.0
+
+        BC.putStrLn . B.concat $ ["nextsharelevel", (BC.pack.show) $ next_level]
 
         amount_owed <- liftM sum $ mapM (getKeyOwed conn next_level) mine_keys
 
@@ -58,6 +65,8 @@ handle_mine conn mine_addr = do
             (0, _) -> return 1.0
             (_, True) -> return 1.0
             (_, False) -> return $ payout_amount / amount_owed
+
+        BC.putStrLn . B.concat $ ["amount owed ", (BC.pack.show) $ amount_owed]
 
         mapM_ (payKeyOwed conn payout_fraction) mine_keys
 
@@ -73,12 +82,20 @@ payout conn startlevel payout_amount = when (payout_amount > 0) $ do
 
     mine_keys <- getGlobalShares conn (fromRat $ toRational startlevel) (fromRat $ toRational startlevel)
 
+    BC.putStrLn . B.concat $ ["mine_keys ", (BC.pack.show) $ mine_keys]
+
     next_level <- (liftM realToFrac) $ getNextShareLevel conn (fromRat $ toRational startlevel)
 
+    BC.putStrLn . B.concat $ ["next_level", (BC.pack.show) $ next_level]
+
     amount_owed <- liftM sum $ mapM (getKeyOwed conn next_level) mine_keys
-    payout_fraction <- case payout_amount / amount_owed > 1.0 of
-        True -> return 1.0
-        False -> return $ payout_amount / amount_owed
+
+    BC.putStrLn . B.concat $ ["amount owed ", (BC.pack.show) $ amount_owed]
+
+    payout_fraction <- case (amount_owed, payout_amount / amount_owed > 1.0) of
+        (0, _) -> return 1.0
+        (_, True) -> return 1.0
+        (_, False) -> return $ payout_amount / amount_owed
 
     mapM_ (payKeyOwed conn payout_fraction) mine_keys
 

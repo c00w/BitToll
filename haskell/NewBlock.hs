@@ -57,7 +57,7 @@ handle_mine conn mine_addr = do
 
         next_level <- (liftM realToFrac) $ getNextShareLevel conn 0.0
 
-        BC.putStrLn . B.concat $ ["nextsharelevel", (BC.pack.show) $ next_level]
+        BC.putStrLn . B.concat $ ["nextsharelevel ", (BC.pack.show) $ next_level]
 
         amount_owed <- liftM sum $ mapM (getKeyOwed conn next_level) mine_keys
 

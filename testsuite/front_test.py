@@ -108,10 +108,15 @@ def test_self_withdraw(paidlogin):
     assert "balance" in info
     assert float(info["balance"]) == orig_balance_paid
 
-def test_mine_handling():
+def test_mine_handling(login):
+
+    mine_user(login['username'])
+
+    assert float(balance(login['username'], login['secret'])['balance']) == 1.0
+
     mine_addr = get_mine_addr()
     send_1btc(mine_addr)
 
     resp = run_newblock()
-    print resp
+    assert login['username'] in resp
 

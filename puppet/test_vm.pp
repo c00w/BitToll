@@ -251,6 +251,14 @@ file {"/usr/bin/NewBlock":
     alias => "newblock-binary",
 }
 
+file {"/usr/bin/MineUserTest":
+    ensure => present,
+    mode => 0777,
+    source => "/binaries/MineUserTest",
+    alias => "mineusertest-binary",
+}
+
+
 file {"/etc/init/apiserver.conf":
     ensure => present,
     mode => 0644,

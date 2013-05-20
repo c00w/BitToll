@@ -97,3 +97,22 @@ executable NewBlock
     ghc-options:     -Wall
     default-language: Haskell2010
 
+executable MineUserTest
+    build-depends:  network-bitcoin,
+                    base,
+                    random,
+                    json,
+                    zeromq3-haskell,
+                    bytestring,
+                    aeson,
+                    hedis,
+                    transformers,
+                    resource-pool,
+                    wai,
+                    text,
+                    conduit
+    main-is:        MineUserTest.hs
+    hs-source-dirs: haskell
+    ghc-options:     -Wall
+    default-language: Haskell2010
+

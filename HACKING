@@ -13,8 +13,8 @@ sudo pip2 install py-test
 
 #How to actually test
 
-#1st build your changes
-cabal-dev install
+#1st set the vm host name
+echo "192.168.56.2    vm  " >> /etc/hosts
 
 #then bring up the vagrant box
 vagrant up
@@ -22,5 +22,5 @@ vagrant up
 #Then run the testsuite
 py.test testsuite/ -s
 
-#Random Usefull notes
+#Random Useful notes
 # We only lock when we are decrementing. Increments are always safe since balance won't go negative

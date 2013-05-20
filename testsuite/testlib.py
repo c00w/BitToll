@@ -27,6 +27,10 @@ def _newblock():
     return run("/usr/bin/NewBlock gobbledygook")
 
 @task
+def _mine_user(username):
+    return run("/usr/bin/MineUserTest %s" % username)
+
+@task
 def _flush_db():
     run("redis-cli FLUSHALL")
 
@@ -37,7 +41,10 @@ def get_mine_addr():
     return execute(_get_mine_address, host='vm')['vm']
 
 def run_newblock():
-    return execute(_newblock, host='vm')
+    return execute(_newblock, host='vm')['vm']
+
+def mine_user(username):
+    return execute(_mine_user, username, host='vm')['vm']
 
 def flushdb():
     execute(_flush_db, host='vm')

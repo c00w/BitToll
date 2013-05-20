@@ -1,5 +1,4 @@
 $test_packages = [
-    "python-software-properties",
     "python-zope.interface",
     "python-twisted",
     "python-twisted-web",
@@ -10,49 +9,32 @@ $test_packages = [
 
 package { $test_packages:
     ensure  =>  latest,
-    require =>  Exec["apt_update"]
 }
 
-exec {"/usr/bin/apt-get update && /usr/bin/touch /var/tmp/updated":
-    alias => "apt_update",
-    creates => "/var/tmp/updated"
+apt::ppa {
+    'bitcoin':
+        alias   => "ppa_bitcoin",
+        ensure  => present,
+        key     => "8842CE5E",
+        ppa     => "bitcoin";
+    'chris-lea':
+        alias   => "ppa_zeromq_redis",
+        ensure  => present,
+        key     => "C7917B12",
+        ppa     => ["zeromq", "redis-server"]
 }
 
-exec { "/usr/bin/apt-add-repository ppa:bitcoin/bitcoin && /usr/bin/apt-get update":
-    alias   => "ppa_bitcoin",
-    require => Package["python-software-properties"],
-    creates => "/etc/apt/sources.list.d/bitcoin-bitcoin-precise.list",
-}
-
-exec { "/usr/bin/apt-add-repository ppa:chris-lea/zeromq && /usr/bin/apt-get update":
-    alias   => "ppa_zeromq",
-    require => Package["python-software-properties"],
-    creates => "/etc/apt/sources.list.d/chris-lea-zeromq-precise.list",
-}
-
-exec { "/usr/bin/apt-add-repository ppa:chris-lea/redis-server && /usr/bin/apt-get update":
-    alias   => "ppa_redis",
-    require => Package["python-software-properties"],
-    creates => "/etc/apt/sources.list.d/chris-lea-redis-server-precise.list",
-}
-
-package {"redis-server":
-    require => [
-        Exec["ppa_redis"],
-    ],
-    ensure => latest,
-}
-
-
-package {"bitcoind":
-    require => Exec["ppa_bitcoin"],
-    ensure => latest,
-}
-
-package {"libzmq1":
-    require => Exec["ppa_zeromq"],
-    ensure => latest,
-    alias => "zeromq",
+package {
+    "redis-server":
+        require => Apt::Ppa["ppa_zeromq_redis"],
+        ensure  => latest;
+    "bitcoind":
+        require => Apt::Ppa["ppa_bitcoin"],
+        ensure => latest;
+    "libzmq1":
+        require => Apt::Ppa["ppa_zeromq_redis"],
+        ensure => latest,
+        alias => "zeromq";
 }
 
 vcsrepo {"/home/p2pool/p2pool":
@@ -62,17 +44,6 @@ vcsrepo {"/home/p2pool/p2pool":
     ensure   => "present",
     provider => git,
     alias    => "p2pool",
-}
-
-service {"redis-server":
-    require => [
-        Package["redis-server"],
-        File["/etc/redis/redis.conf"],
-    ],
-    ensure => running,
-    enable => true,
-    hasstatus => true,
-    hasrestart => true,
 }
 
 User {
@@ -94,12 +65,13 @@ user {
 }
 
 file {"/etc/redis/redis.conf":
-    alias => "redis.conf",
-    ensure => present,
-    mode => 0644,
-    owner => root,
-    source => "/configs/redis.conf",
-    notify => Service["redis-server"],
+    alias   => "redis.conf",
+    ensure  => present,
+    mode    => 0644,
+    owner   => root,
+    source  => "/configs/redis.conf",
+    require => Apt::Ppa["ppa_zeromq_redis"],
+    notify  => Service["redis-server"],
 }
 
 file {"/home/bitcoind/.bitcoin":
@@ -197,6 +169,17 @@ file {"/etc/init/p2pool.conf":
     source => "/configs/p2pool.conf",
     alias => "p2pool.conf",
     notify => Service["p2pool"],
+}
+
+service {"redis-server":
+    require => [
+        Package["redis-server"],
+        File["/etc/redis/redis.conf"],
+    ],
+    ensure => running,
+    enable => true,
+    hasstatus => true,
+    hasrestart => true,
 }
 
 service {"bitcoind":

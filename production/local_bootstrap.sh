@@ -2,13 +2,11 @@
 
 set -e
 
-echo "# Puppetlabs products
-deb http://apt.puppetlabs.com precise main
-deb-src http://apt.puppetlabs.com precise main
+cd /tmp
+wget http://apt.puppetlabs.com/puppetlabs-release-precise.deb
+dpkg -i puppetlabs-release-precise.deb
+rm puppetlabs-release-precise.deb
+apt-key adv --recv-key --keyserver pool.sks-keyservers.net 4BD6EC30
+apt-get update
 
-# Puppetlabs dependencies
-deb http://apt.puppetlabs.com precise dependencies
-deb-src http://apt.puppetlabs.com precise dependencies
-" > /etc/apt/sources.list.d/puppetlabs.list
-apt-get -y update
-apt-get -y install puppet
+~/BitToll/production/puppet_run.sh

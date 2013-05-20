@@ -17,12 +17,27 @@ env.password = 'vagrant'
 @task
 def _send_bc(address):
     run("bitcoind sendtoaddress %s 1" % address)
+
+@task
+def _get_mine_address():
+    return run("/usr/bin/PoolWrapper")
+
+@task
+def _newblock():
+    return run("/usr/bin/NewBlock gobbledygook")
+
 @task
 def _flush_db():
     run("redis-cli FLUSHALL")
 
 def send_1btc(address):
     execute(_send_bc,address, host='vm')
+
+def get_mine_addr():
+    return execute(_get_mine_address, host='vm')['vm']
+
+def run_newblock():
+    return execute(_newblock, host='vm')
 
 def flushdb():
     execute(_flush_db, host='vm')

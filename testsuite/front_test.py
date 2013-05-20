@@ -1,5 +1,5 @@
 #!/usr/bin/env python2
-from testlib import register, balance, mine, request, deposit, pay, apicall, send_1btc, withdraw
+from testlib import *
 
 ip_address = "vm"
 port = "3000"
@@ -107,4 +107,11 @@ def test_self_withdraw(paidlogin):
     info = balance(paidlogin['username'], paidlogin['secret'])
     assert "balance" in info
     assert float(info["balance"]) == orig_balance_paid
+
+def test_mine_handling():
+    mine_addr = get_mine_addr()
+    send_1btc(mine_addr)
+
+    resp = run_newblock()
+    print resp
 

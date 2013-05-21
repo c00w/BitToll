@@ -6,7 +6,7 @@ sudo pacman -S cabal-install
 cabal-install cabal-dev
 # Python for the testsuite
 sudo pacman -S python2-pip cabal-dev python2-fabric python2-requests
-sudo pip2 install py-test
+sudo pip2 install pytest
 
 #Also need vagrant. If you have aura this might work
 #sudo aura -Ak vagrant

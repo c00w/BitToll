@@ -1,3 +1,7 @@
+import "redis.pp"
+
+class {"redis_server":}
+
 $test_packages = [
     "python-zope.interface",
     "python-twisted",
@@ -17,16 +21,11 @@ apt::ppa {
         ensure  => present,
         key     => "8842CE5E",
         ppa     => "bitcoin";
-    'chris-lea':
-        alias   => "ppa_zeromq_redis",
-        ensure  => present,
-        key     => "C7917B12",
-        ppa     => ["zeromq", "redis-server"]
 }
 
 exec {"apt-get update && touch /var/tmp/apt_update":
     require => [
-        Apt::Ppa["ppa_zeromq_redis"],
+        Class["redis_server"],
         Apt::Ppa["ppa_bitcoin"],
     ],
     path    => "/usr/bin",
@@ -35,12 +34,6 @@ exec {"apt-get update && touch /var/tmp/apt_update":
 }
 
 package {
-    "redis-server":
-        require => [
-            Apt::Ppa["ppa_zeromq_redis"],
-            Exec["apt_update"],
-        ],
-        ensure  => latest;
     "bitcoind":
         require => [
             Apt::Ppa["ppa_bitcoin"],
@@ -49,8 +42,7 @@ package {
         ensure => latest;
     "libzmq1":
         require => [
-            Apt::Ppa["ppa_zeromq_redis"],
-            Exec["apt_update"],
+            Class["redis_server"]
         ],
         ensure => latest,
         alias => "zeromq";
@@ -81,16 +73,6 @@ user {
         home => "/home/poolserver";
     "p2pool":
         home => "/home/p2pool";
-}
-
-file {"/etc/redis/redis.conf":
-    alias   => "redis.conf",
-    ensure  => present,
-    mode    => 0644,
-    owner   => root,
-    source  => "/configs/redis.conf",
-    require => Apt::Ppa["ppa_zeromq_redis"],
-    notify  => Service["redis-server"],
 }
 
 file {"/home/bitcoind/.bitcoin":
@@ -188,17 +170,6 @@ file {"/etc/init/p2pool.conf":
     source => "/configs/p2pool.conf",
     alias => "p2pool.conf",
     notify => Service["p2pool"],
-}
-
-service {"redis-server":
-    require => [
-        Package["redis-server"],
-        File["/etc/redis/redis.conf"],
-    ],
-    ensure => running,
-    enable => true,
-    hasstatus => true,
-    hasrestart => true,
 }
 
 service {"bitcoind":

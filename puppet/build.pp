@@ -89,3 +89,7 @@ class build_depends( $deploy_user = 'deploy') {
         alias   => "cabal_dev"
     }
 }
+
+class build inherits build_depends {
+
+}

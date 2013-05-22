@@ -12,7 +12,7 @@ class bitcoind ($test = false) {
             Apt::Ppa["ppa_bitcoin"], 
         ],
         alias   => "bitcoind_apt_update",
-        creates => "/var/tmp/apt_update"
+        creates => "/var/tmp/bitcoind_apt_update"
     }
 
     package {"bitcoind":

@@ -1,7 +1,9 @@
 import "redis.pp"
 import "bitcoind.pp"
 class {"redis_server":}
-class {"bitcoind":}
+class {"bitcoind":
+    test    => true
+}
 
 $test_packages = [
     "python-zope.interface",

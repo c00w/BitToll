@@ -30,9 +30,6 @@ node "atlantis.m.bittoll.com" {
 }
 
 node "test.m.bittoll.com" {
-    class {"build_depends":}
-    class {"build":}
-
     class {"redis_server":}
     class {"bitcoind":  test => true}
     class {"p2pool":    test => true}

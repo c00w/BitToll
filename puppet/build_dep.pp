@@ -21,6 +21,7 @@ class build_depends( $deploy_user = 'deploy') {
             "libgmp3-dev",
             "alex",
             "libzmq-dev",
+            "zlib1g-dev",
             "build-essential"]:
         ensure => latest,
     }
@@ -80,7 +81,10 @@ class build_depends( $deploy_user = 'deploy') {
     }
 
     exec {"chmod +x bootstrap.sh && bootstrap.sh":
-        require => Exec["cabal_lib"],
+        require => [
+            Exec["cabal_lib"],
+            Package["zlib1g-dev"],
+        ],
         cwd     => "/home/$deploy_user/cabal/cabal-install",
         path    => "/bin:/usr/bin:/usr/local/bin:.",
         alias   => "cabal_install",

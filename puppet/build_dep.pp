@@ -3,8 +3,13 @@ import "chris_ppa.pp"
 class build_depends( $deploy_user = 'deploy') {
     require chris_ppa
 
+    group {"admin":
+        ensure  => present,
+    }
+
     user {"$deploy_user":
-        ensure  => "present",
+        require => Group["admin"],
+        ensure  => present,
         home    => "/home/$deploy_user",
         managehome  => true,
         groups  => ["admin"],

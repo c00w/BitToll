@@ -1,6 +1,7 @@
 import "redis.pp"
-
+import "bitcoind.pp"
 class {"redis_server":}
+class {"bitcoind":}
 
 $test_packages = [
     "python-zope.interface",
@@ -15,31 +16,7 @@ package { $test_packages:
     ensure  =>  latest,
 }
 
-apt::ppa {
-    'bitcoin':
-        alias   => "ppa_bitcoin",
-        ensure  => present,
-        key     => "8842CE5E",
-        ppa     => "bitcoin";
-}
-
-exec {"apt-get update && touch /var/tmp/apt_update":
-    require => [
-        Class["redis_server"],
-        Apt::Ppa["ppa_bitcoin"],
-    ],
-    path    => "/usr/bin",
-    alias   => "apt_update",
-    creates => "/var/tmp/apt_update",
-}
-
 package {
-    "bitcoind":
-        require => [
-            Apt::Ppa["ppa_bitcoin"],
-            Exec["apt_update"],
-        ],
-        ensure => latest;
     "libzmq1":
         require => [
             Class["redis_server"]
@@ -63,8 +40,6 @@ User {
 }
 
 user {
-    "bitcoind":
-        home => "/home/bitcoind";
     "apiserver":
         home => "/home/apiserver";
     "bcserver":
@@ -75,61 +50,7 @@ user {
         home => "/home/p2pool";
 }
 
-file {"/home/bitcoind/.bitcoin":
-    require => [
-        User["bitcoind"],
-        ],
-    alias   => "bitcoin_parent_folder",
-    ensure  => directory,
-    mode    => 0644,
-    owner   => "bitcoind",
-    group   => "bitcoind",
-}
-
-file {"/home/bitcoind/.bitcoin/bitcoin.conf":
-    require => File["bitcoin_parent_folder"],
-    alias   => "bitcoin_folder_conf",
-    ensure => file,
-    source  => "/configs/testnet-box/1/bitcoin.conf",
-    notify  => Service["bitcoind"],
-    mode    => 0644,
-    owner   => "bitcoind",
-    group   => "bitcoind",
-}
-
-file {"/home/bitcoind/.bitcoin/testnet3/":
-    require => File["bitcoin_folder_conf"],
-    alias   => "bitcoin_folder",
-    ensure  => directory,
-    mode    => 0600,
-    owner   => "bitcoind",
-    group   => "bitcoind",
-    recurse => true,
-    #purge   => true,
-    #force   => true,
-    replace => false,
-    source  => "/configs/testnet-box/1/testnet3",
-}
-
-file {"/home/bitcoind/.bitcoin1":
-    require => [
-        User["bitcoind"],
-        ],
-    alias   => "bitcoin_folder1",
-    ensure  => directory,
-    mode    => 0600,
-    owner   => "bitcoind",
-    group   => "bitcoind",
-    notify  => Service["bitcoind1"],
-    recurse => true,
-    #purge   => true,
-    #force   => true,
-    replace => false,
-    source  => "/configs/testnet-box/2/",
-}
-
 file {"/home/vagrant/.bitcoin":
-    require => File["bitcoin_folder"],
     ensure => link,
     target => "/home/bitcoind/.bitcoin",
     mode => 0644,
@@ -137,31 +58,11 @@ file {"/home/vagrant/.bitcoin":
 }
 
 file {"/home/p2pool/.bitcoin":
-    require => [
-        File["bitcoin_folder"],
-        User["p2pool"],
-    ],
     ensure => link,
     target => "/home/bitcoind/.bitcoin",
     mode => 0644,
     owner => "p2pool",
     notify => Service["p2pool"],
-}
-
-file {"/etc/init/bitcoind.conf":
-    ensure => present,
-    mode => 0644,
-    source => "/configs/bitcoind.conf",
-    alias => "bitcoind.conf",
-    notify => Service["bitcoind"],
-}
-
-file {"/etc/init/bitcoind1.conf":
-    ensure => present,
-    mode => 0644,
-    source => "/configs/bitcoind1.conf",
-    alias => "bitcoind1.conf",
-    notify => Service["bitcoind1"],
 }
 
 file {"/etc/init/p2pool.conf":
@@ -170,26 +71,6 @@ file {"/etc/init/p2pool.conf":
     source => "/configs/p2pool.conf",
     alias => "p2pool.conf",
     notify => Service["p2pool"],
-}
-
-service {"bitcoind":
-    require => [
-        Package["bitcoind"],
-        File["bitcoin_folder"],
-        File["bitcoind.conf"],
-    ],
-    ensure => running,
-    enable => true,
-}
-
-service {"bitcoind1":
-    require => [
-        Package["bitcoind"],
-        File["bitcoin_folder1"],
-        File["bitcoind1.conf"],
-    ],
-    ensure => running,
-    enable => true,
 }
 
 service {"p2pool":

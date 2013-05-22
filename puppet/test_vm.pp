@@ -24,15 +24,34 @@ apt::ppa {
         ppa     => ["zeromq", "redis-server"]
 }
 
+exec {"apt-get update && touch /var/tmp/apt_update":
+    require => [
+        Apt::Ppa["ppa_zeromq_redis"],
+        Apt::Ppa["ppa_bitcoin"],
+    ],
+    path    => "/usr/bin",
+    alias   => "apt_update",
+    creates => "/var/tmp/apt_update",
+}
+
 package {
     "redis-server":
-        require => Apt::Ppa["ppa_zeromq_redis"],
+        require => [
+            Apt::Ppa["ppa_zeromq_redis"],
+            Exec["apt_update"],
+        ],
         ensure  => latest;
     "bitcoind":
-        require => Apt::Ppa["ppa_bitcoin"],
+        require => [
+            Apt::Ppa["ppa_bitcoin"],
+            Exec["apt_update"],
+        ],
         ensure => latest;
     "libzmq1":
-        require => Apt::Ppa["ppa_zeromq_redis"],
+        require => [
+            Apt::Ppa["ppa_zeromq_redis"],
+            Exec["apt_update"],
+        ],
         ensure => latest,
         alias => "zeromq";
 }

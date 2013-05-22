@@ -12,7 +12,11 @@ node "atlantis.m.bittoll.com" {
     import "test_vm.pp"
 }
 
-node default {
+node "test.m.bittoll.net" {
     import "test_vm.pp"
+}
+
+node default {
+
 }
 

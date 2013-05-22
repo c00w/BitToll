@@ -14,14 +14,19 @@ class {"apt":}
 class {"apt::unattended-upgrade::automatic":}
 
 node "atlantis.m.bittoll.com" {
-    class {"build_depends":}
-    class {"build":}
-    class {"links":}
+    stage {"build":}
+    stage {"install":}
 
-    class {"redis_server":}
-    class {"bitcoind":}
-    class {"p2pool":}
-    class {"bittoll":}
+    class {"build_depends": stage=>build}
+    class {"build":         stage=>build}
+    class {"links":         stage=>build}
+
+    class {"redis_server":  stage=>install}
+    class {"bitcoind":      stage=>install}
+    class {"p2pool":        stage=>install}
+    class {"bittoll":       stage=>install}
+
+    Stage["build"] -> Stage["install"]
 }
 
 node "test.m.bittoll.com" {

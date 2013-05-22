@@ -11,4 +11,6 @@ echo \"$1   $2.m.bittoll.com $2\" >> /etc/hosts
 apt-get -y install git
 rm -r ~/*
 git clone git://github.com/c00w/BitToll.git -b production --recursive
-~/BitToll/production/setup_puppet.sh"
+~/BitToll/production/setup_puppet.sh
+~/BitToll/production/run_puppet.sh
+"

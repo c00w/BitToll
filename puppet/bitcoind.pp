@@ -115,20 +115,33 @@ class bitcoind ($test = false) {
         }
     }
 
+    File {ensure    => present}
+
     file {"/etc/init/bitcoind.conf":
-        ensure => present,
-        mode => 0644,
-        source => "/configs/bitcoind.conf",
-        alias => "bitcoind.conf",
-        notify => Service["bitcoind"],
+        mode    => 0644,
+        source  => "/configs/bitcoind.conf",
+        alias   => "bitcoind.conf",
+        notify  => Service["bitcoind"],
     }
 
+    $mode = $test ? {
+        true    => 0777,
+        false   => 0700,
+    }
+
+    file {"/usr/bin/NewBlock":
+        mode    => 0777,
+        source  => "/binaries/NewBlock",
+        alias   => "newblock-binary",
+        owner   => "bitcoind";
+    }
 
     service {"bitcoind":
         require => [
             Package["bitcoind"],
             File["bitcoin_folder"],
             File["bitcoind.conf"],
+            File["newblock-binary"],
         ],
         ensure => running,
         enable => true,

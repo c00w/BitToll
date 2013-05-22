@@ -1,9 +1,11 @@
 import "redis.pp"
 import "bitcoind.pp"
+import "p2pool.pp"
 
 class bittoll ($test = false) {
     require redis_server
     require bitcoind
+    require p2pool
 
     package {
         "libzmq1":
@@ -51,15 +53,6 @@ class bittoll ($test = false) {
             alias   => "pool-binary",
             notify  => Service["poolserver"],
             owner   => "poolserver";
-        "/usr/bin/PoolWrapper":
-            source  => "/binaries/PoolWrapper",
-            alias   => "poolwrapper-binary",
-            notify  => Service["p2pool"],
-            owner   => "poolserver";
-        "/usr/bin/NewBlock":
-            source  => "/binaries/NewBlock",
-            alias   => "newblock-binary",
-            owner   => "bitcoind";
     }
 
     if ($test) {

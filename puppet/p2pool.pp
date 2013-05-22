@@ -1,10 +1,8 @@
 import "bitcoind.pp"
-import "redis.pp"
 
 class p2pool ($test = false) {
 
     require bitcoind
-    require redis_server
 
     $p2pool_packages= [
         "python-zope.interface",

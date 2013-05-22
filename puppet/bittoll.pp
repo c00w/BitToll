@@ -1,11 +1,8 @@
-import "redis.pp"
-import "bitcoind.pp"
-import "p2pool.pp"
+import "chris_ppa.pp"
 
 class bittoll ($test = false) {
-    require redis_server
-    require bitcoind
-    require p2pool
+
+    require chris_ppa
 
     package {
         "libzmq1":

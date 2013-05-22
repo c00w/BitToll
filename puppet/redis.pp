@@ -1,24 +1,9 @@
-class redis_server {
-    apt::ppa {
-        'chris-lea':
-            alias   => "ppa_redis",
-            ensure  => present,
-            key     => "C7917B12",
-            ppa     => ["redis-server", "zeromq"]
-    }
+import "chris_ppa"
 
-    exec {"apt-get update && touch /var/tmp/redis_apt_update":
-        require => Apt::Ppa["ppa_redis"],
-        path    => "/usr/bin",
-        alias   => "redis_apt_update",
-        creates => "/var/tmp/redis_apt_update"
-    }
+class redis_server {
+    require chris_ppa
 
     package {"redis-server":
-        require => [
-            Apt::Ppa["ppa_redis"],
-            Exec["redis_apt_update"],
-        ],
         ensure  => latest
     }
 

@@ -1,21 +1,3 @@
-import "redis.pp"
-import "bitcoind.pp"
-import "bittoll.pp"
-import "p2pool.pp"
-
-class {"redis_server":}
-class {"bitcoind":
-    test    => true
-}
-class {"p2pool":
-    test    => true
-}
-
-
-class {"bittoll":
-    test    => true
-}
-
 $test_packages = [
     "git",
     "vim",

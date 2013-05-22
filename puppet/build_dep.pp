@@ -1,4 +1,7 @@
+import "chris_ppa.pp"
+
 class build_depends( $deploy_user = 'deploy') {
+    require chris_ppa
 
     user {"$deploy_user":
         ensure  => "present",
@@ -11,6 +14,8 @@ class build_depends( $deploy_user = 'deploy') {
             "libgmp3c2",
             "bzip2",
             "libgmp3-dev",
+            "alex",
+            "libzmq-dev",
             "build-essential"]:
         ensure => latest,
     }
@@ -88,8 +93,4 @@ class build_depends( $deploy_user = 'deploy') {
         creates => "/home/$deploy_user/.cabal/bin/cabal-dev",
         alias   => "cabal_dev"
     }
-}
-
-class build inherits build_depends {
-
 }

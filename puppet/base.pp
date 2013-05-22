@@ -6,13 +6,17 @@ import "redis.pp"
 import "bitcoind.pp"
 import "p2pool.pp"
 import "bittoll.pp"
+import "build.pp"
+import "links.pp"
 
-class {'ntp':}
-class {'apt':}
-class {'apt::unattended-upgrade::automatic':}
+class {"ntp":}
+class {"apt":}
+class {"apt::unattended-upgrade::automatic":}
 
 node "atlantis.m.bittoll.com" {
-    class {'build_depends':}
+    class {"build_depends":}
+    class {"build":}
+    class {"links":}
 
     class {"redis_server":}
     class {"bitcoind":}
@@ -21,6 +25,9 @@ node "atlantis.m.bittoll.com" {
 }
 
 node "test.m.bittoll.com" {
+    class {"build_depends":}
+    class {"build":}
+
     class {"redis_server":}
     class {"bitcoind":  test => true}
     class {"p2pool":    test => true}

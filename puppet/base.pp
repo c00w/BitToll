@@ -8,6 +8,7 @@ import "p2pool.pp"
 import "bittoll.pp"
 import "build.pp"
 import "links.pp"
+import "test_vm.pp"
 
 class {"ntp":}
 class {"apt":}
@@ -35,7 +36,7 @@ node "test.m.bittoll.com" {
     class {"p2pool":    test => true}
     class {"bittoll":   test => true}
 
-    import "test_vm.pp"
+    class {"test_vm":}
 }
 
 node default {

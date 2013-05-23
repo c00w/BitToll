@@ -4,7 +4,7 @@ class redis_server {
     require chris_ppa
 
     package {"redis-server":
-        ensure  => latest
+        ensure  => "2:2.6.13-1chl1~precise1"
     }
 
     file {"/etc/redis/redis.conf":

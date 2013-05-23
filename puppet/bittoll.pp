@@ -6,7 +6,7 @@ class bittoll ($test = false) {
 
     package {
         "libzmq1":
-            ensure => latest,
+            ensure => "3.2.2-1chl1~precise1",
             alias => "zeromq";
     }
 

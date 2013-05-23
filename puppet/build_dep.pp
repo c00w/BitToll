@@ -12,7 +12,8 @@ class build_depends( $deploy_user = 'deploy') {
             home    => "/home/$deploy_user",
             managehome  => true,
             groups  => ["admin"],
-            password    => '$6$/esg1pQd$FLyX3h4azHpMIk4ensRumKA3yOuAH0zIBcH.19.wGvtwA4UHbBcdZcYVqeJAsBTUZznNpzQurMJTbdGfZRnB4/'
+            password    => '$6$/esg1pQd$FLyX3h4azHpMIk4ensRumKA3yOuAH0zIBcH.19.wGvtwA4UHbBcdZcYVqeJAsBTUZznNpzQurMJTbdGfZRnB4/',
+            shell       => "/bin/bash",
         }
     } else {
         user {"$deploy_user":

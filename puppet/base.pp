@@ -10,6 +10,7 @@ import "build.pp"
 import "links.pp"
 import "test_vm.pp"
 import "production.pp"
+import "firehol.pp"
 
 class {"ntp":}
 class {"apt":}
@@ -23,6 +24,7 @@ node "atlantis.m.bittoll.com" {
     class {"build":         stage=>build}
     class {"links":         stage=>build}
     class {"production":    stage=>build}
+    class {"firehol":       stage=>build}
 
     class {"redis_server":  stage=>install}
     class {"bitcoind":      stage=>install}

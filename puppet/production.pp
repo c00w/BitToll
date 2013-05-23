@@ -26,4 +26,18 @@ class production {
         ensure      => present,
         password    => '*',
     }
+
+    file {'/etc/ssh/sshd_config':
+        ensure  => present,
+        owner   => root,
+        group   => root,
+        contents=> '/configs/sshd_config',
+        mode    => 0600,
+        notify  => Service['ssh']
+    }
+
+    service {'ssh':
+        ensure  => running,
+        enable  => true,
+    }
 }

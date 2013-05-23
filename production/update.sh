@@ -2,8 +2,8 @@
 
 set -e
 
-ssh root@$1 "
+ssh -t deploy@$1 "
 cd /home/deploy/BitToll
-sudo -u deploy git pull origin production
-/home/deploy/BitToll/production/run_puppet.sh
+git pull origin production
+sudo /home/deploy/BitToll/production/run_puppet.sh
 "

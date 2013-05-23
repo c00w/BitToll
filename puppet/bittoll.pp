@@ -11,8 +11,9 @@ class bittoll ($test = false) {
     }
 
     User {
-        ensure => present,
-        managehome => true,
+        ensure      => present,
+        managehome  => true,
+        password    => '*',
     }
 
     user {

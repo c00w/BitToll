@@ -21,4 +21,9 @@ class production {
         user    => "deploy",
         type    => "ssh-rsa",
     }
+
+    user {'root':
+        ensure      => present,
+        password    => '*',
+    }
 }

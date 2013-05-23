@@ -1,4 +1,4 @@
-class firehold {
+class firehol {
     package {"firehol":
         ensure  => latest
     }

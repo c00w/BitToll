@@ -107,6 +107,7 @@ class bittoll ($test = false) {
             File["bcserver.conf"],
             File["bc-binary"],
         ],
+        subscribe => Service["bitcoind"],
     }
 
     service {"poolserver":

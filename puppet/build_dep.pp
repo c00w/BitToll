@@ -85,21 +85,22 @@ class build_depends( $deploy_user = 'deploy') {
             Exec["cabal_lib"],
             Package["zlib1g-dev"],
         ],
-        cwd     => "/home/$deploy_user/cabal/cabal-install",
-        path    => "/bin:/usr/bin:/usr/local/bin:.",
-        alias   => "cabal_install",
-        creates => "/home/$deploy_user/.cabal/bin/cabal",
+        cwd         => "/home/$deploy_user/cabal/cabal-install",
+        path        => "/bin:/usr/bin:/usr/local/bin:.",
+        alias       => "cabal_install",
+        creates     => "/home/$deploy_user/.cabal/bin/cabal",
         environment => "HOME=/home/$deploy_user",
         provider    => "shell",
-        user    => "$deploy_user",
+        user        => "$deploy_user",
     }
 
     exec {"cabal update && cabal install cabal-dev":
-        require => Exec["cabal_install"],
-        path    => "/bin:/usr/bin:/usr/local/bin:/home/$deploy_user/.cabal/bin/",
-        user    => "$deploy_user",
+        require     => Exec["cabal_install"],
+        path        => "/bin:/usr/bin:/usr/local/bin:/home/$deploy_user/.cabal/bin/",
+        user        => "$deploy_user",
         environment => "HOME=/home/$deploy_user",
-        creates => "/home/$deploy_user/.cabal/bin/cabal-dev",
-        alias   => "cabal_dev"
+        creates     => "/home/$deploy_user/.cabal/bin/cabal-dev",
+        alias       => "cabal_dev",
+        provider    => "shell",
     }
 }

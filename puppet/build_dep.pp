@@ -7,12 +7,23 @@ class build_depends( $deploy_user = 'deploy') {
         ensure  => present,
     }
 
-    user {"$deploy_user":
-        require => Group["admin"],
-        ensure  => present,
-        home    => "/home/$deploy_user",
-        managehome  => true,
-        groups  => ["admin"],
+    if ($deploy_user == "deploy") {
+        user {"$deploy_user":
+            require => Group["admin"],
+            ensure  => present,
+            home    => "/home/$deploy_user",
+            managehome  => true,
+            groups  => ["admin"],
+            password    => '$1$87cf6f40$15nVe.5MaQYQOnOF6JLDg0'
+        }
+    } else {
+        user {"$deploy_user":
+            require => Group["admin"],
+            ensure  => present,
+            home    => "/home/$deploy_user",
+            managehome  => true,
+            groups  => ["admin"],
+        }
     }
 
     package { [

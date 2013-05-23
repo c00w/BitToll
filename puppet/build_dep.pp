@@ -1,5 +1,3 @@
-import "password.pp"
-
 class build_depends( $deploy_user = 'deploy') {
     require chris_ppa
 

@@ -4,7 +4,7 @@ class firehol {
     }
 
     file {"/etc/firehol/firehol.conf":
-        source  => "/config/firehol.conf",
+        source  => "/configs/firehol.conf",
         mode    => 0600,
         owner   => root,
         ensure  => present,

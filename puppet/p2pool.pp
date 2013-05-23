@@ -42,10 +42,15 @@ class p2pool ($test = false) {
         mode    => 0777
     }
 
+    $source = $test ? {
+        true    => "/configs/test/p2pool.conf",
+        false   => "/configs/p2pool.conf",
+    }
+
     file {
         "/etc/init/p2pool.conf":
             mode    => 0644,
-            source  => "/configs/p2pool.conf",
+            source  => $source,
             alias   => "p2pool.conf",
             notify  => Service["p2pool"];
         "/usr/bin/PoolWrapper":

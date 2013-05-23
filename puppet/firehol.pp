@@ -7,6 +7,7 @@ class firehol {
         source  => "/configs/firehol.conf",
         mode    => 0600,
         owner   => root,
+        group   => root,
         ensure  => present,
     }
 

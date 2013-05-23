@@ -9,6 +9,7 @@ import "bittoll.pp"
 import "build.pp"
 import "links.pp"
 import "test_vm.pp"
+import "production.pp"
 
 class {"ntp":}
 class {"apt":}
@@ -21,6 +22,7 @@ node "atlantis.m.bittoll.com" {
     class {"build_depends": stage=>build}
     class {"build":         stage=>build}
     class {"links":         stage=>build}
+    class {"production":    stage=>build}
 
     class {"redis_server":  stage=>install}
     class {"bitcoind":      stage=>install}

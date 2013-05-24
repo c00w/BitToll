@@ -41,8 +41,43 @@
         </div>
 
         <div class="span9">
-            <section>
-                Content
+            <section id="general">
+            <div class="page-header">
+                <h1> General </h1>
+            </div>
+            <h2> Format </h2>
+            <p>
+            Our API is based on http posts to specific URL's. The body of the http post must be a <a href="http://www.json.org/">JSON</a> encoded object. There are three fields in the object which all endpoints require unless otherwise noted. The first field is the username field. This is a unique string identifying the account you are accessing. The second field is a time field. It should have a value of the time in seconds in unix format. The third is the sign field which acts as a password authorizing the API action.</p>
+            <p>
+            For example the following is a valid http post body.
+            </p>
+<pre>{
+    "username": "6f681f4d183923dba72783311ade639b2c04455013da8f1cd4bbb201864110a7",
+    "sign": "402dab5937984dc3a96afc120c4c358a",
+    "time": "1369431889.55"
+}</pre>
+            <h2> Time Field </h2>
+            <p>
+            This field is the unix time, which is the time in seconds since the first second of January 1st 1970. Requests are not accepted if the time field indicates they were sent more than 30 seconds in the past. This is to prevent replay attacks in the unlikely event that someone is intercepting your post to the bittoll server.
+
+            <h2> Sign Field</h2>
+            <p>
+            The sign field which is the hex encoded md5 hash of the concatenation of the values of all other fields on the object, sorted alphabetically by key, followed by the accounts secret.
+            </p>
+            <p>
+            For example for the following json object
+            </p>
+            <pre>
+{
+    "username":"bob",
+    "target":"seattle",
+}</pre>
+            <p>
+            The signature should be <code>md5("seattle"+"bob"+"secret")</code> where "secret" is the bob account secret.
+            </p>
+
+            <h2> Bittoll Servers </h2>
+            Currently there is one bittoll server up <code>us.bittoll.com</code>. In the future others nodes will be brought up. When we refer to an endpoint such as <code>/register</code>, the http post should actually be made to <code>http://us.bittoll.com/register</code>
             </section>
         </div>
     </div>

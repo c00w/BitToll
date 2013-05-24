@@ -79,6 +79,25 @@
             <h2> Bittoll Servers </h2>
             Currently there is one bittoll server up <code>us.bittoll.com</code>. In the future others nodes will be brought up. When we refer to an endpoint such as <code>/register</code>, the http post should actually be made to <code>http://us.bittoll.com/register</code>
             </section>
+            <section id="register">
+            <div class="page-header">
+                <h1> /register</h1>
+            </div>
+
+            <h2> Purpose </h2>
+            <p>
+            This endpoint is what you call to create a new bittoll account. It generates a username and a password.
+            </p>
+            
+            <h2> Format </h2>
+            <p> This endpoint accepts anything as its post body and returns a message of the following format
+            </p>
+<pre>
+{
+    "username":"6f681f4d183923dba72783311ade639b2c04455013da8f1cd4bbb201864110a7"
+    "secret":"4a3b2c5e1f7aabcaa7654128495e639b2c04455013da8f1cd4bbb201864110a7"
+}</pre>
+            </section>
         </div>
     </div>
 </div>

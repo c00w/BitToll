@@ -41,7 +41,7 @@ class production {
         enable  => true,
     }
 
-    file {"/etc/cron.daily/bitcoind":
+    file {"/etc/cron.hourly/bitcoind":
         ensure  => present,
         owner   => root,
         group   => root,

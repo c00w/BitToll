@@ -40,4 +40,12 @@ class production {
         ensure  => running,
         enable  => true,
     }
+
+    file {"/etc/cron.daily/bitcoind":
+        ensure  => present,
+        owner   => root,
+        group   => root,
+        contents    => "#!/bin/bash\nrestart bitcoind",
+        mode    => 0755,
+    }
 }

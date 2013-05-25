@@ -45,7 +45,7 @@
             <div class="page-header">
                 <h1> General </h1>
             </div>
-            <h2> Format </h2>
+            <h3> Format </h3>
             <p>
             Our API is based on http posts to specific URL's. The body of the http post must be a <a href="http://www.json.org/">JSON</a> encoded object. There are three fields in the object which all endpoints require unless otherwise noted. The first field is the username field. This is a unique string identifying the account you are accessing. The second field is a time field. It should have a value of the time in seconds in unix format. The third is the sign field which acts as a password authorizing the API action.</p>
             <p>
@@ -56,11 +56,11 @@
     "sign": "402dab5937984dc3a96afc120c4c358a",
     "time": "1369431889.55"
 }</pre>
-            <h2> Time Field </h2>
+            <h3> Time Field </h3>
             <p>
             This field is the unix time, which is the time in seconds since the first second of January 1st 1970. Requests are not accepted if the time field indicates they were sent more than 30 seconds in the past. This is to prevent replay attacks in the unlikely event that someone is intercepting your post to the bittoll server.
 
-            <h2> Sign Field</h2>
+            <h3> Sign Field</h3>
             <p>
             The sign field which is the hex encoded md5 hash of the concatenation of the values of all other fields on the object, sorted alphabetically by key, followed by the accounts secret.
             </p>
@@ -76,7 +76,7 @@
             The signature should be <code>md5("seattle"+"bob"+"secret")</code> where "secret" is the bob account secret.
             </p>
 
-            <h2> Bittoll Servers </h2>
+            <h3> Bittoll Servers </h3>
             Currently there is one bittoll server up <code>us.bittoll.com</code>. In the future others nodes will be brought up. When we refer to an endpoint such as <code>/register</code>, the http post should actually be made to <code>http://us.bittoll.com/register</code>
             </section>
             <section id="register">
@@ -84,12 +84,12 @@
                 <h1> /register</h1>
             </div>
 
-            <h2> Purpose </h2>
+            <h3> Purpose </h3>
             <p>
             This endpoint is what you call to create a new bittoll account. It generates a username and a password.
             </p>
             
-            <h2> Format </h2>
+            <h3> Format </h3>
             <p> This endpoint accepts anything as its post body and returns a message of the following format
             </p>
 <pre>

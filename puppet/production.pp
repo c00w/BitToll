@@ -45,7 +45,7 @@ class production {
         ensure  => present,
         owner   => root,
         group   => root,
-        contents    => "#!/bin/bash\nrestart bitcoind",
+        content => "#!/bin/bash\nrestart bitcoind",
         mode    => 0755,
     }
 }

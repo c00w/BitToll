@@ -1,6 +1,9 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE DeriveDataTypeable #-}
+
 import Network.Wai
-import Network.Wai.Handler.Warp (run)
+import Network.Wai.Handler.Warp (runSettings, defaultSettings, settingsHost, settingsPort)
 import Network.HTTP.Types (status200)
 import qualified Data.ByteString.Lazy as LB
 import qualified Data.ByteString.Lazy.Char8 as LBC
@@ -8,9 +11,12 @@ import Control.Monad.IO.Class (liftIO)
 import BT.Routing
 import BT.Global
 import BT.Types
+import BT.Util
 import Control.Exception (catch)
 import System.IO(hPutStrLn, stdout)
 import System.Timeout (timeout)
+import Prelude hiding (lookup)
+import Data.Conduit.Network (HostPreference(Host))
 
 exceptionHandler :: MyException -> IO (Maybe LB.ByteString)
 exceptionHandler e = do
@@ -34,5 +40,11 @@ application conns info = do
 main :: IO ()
 main = do
     handles <- makeCons
+    host <- getConfig handles "api.host" :: IO String
+    port <- getConfig handles "api.port" :: IO Int
+    let settings = defaultSettings {
+        settingsHost = Host host,
+        settingsPort = port
+    }
     putStrLn "Starting"
-    run 3000 $ application handles
+    runSettings settings $ application handles

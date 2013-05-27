@@ -23,6 +23,7 @@ executable APIServer
                     http-types,
                     json,
                     network-bitcoin,
+                    network-conduit,
                     resource-pool,
                     random,
                     transformers,

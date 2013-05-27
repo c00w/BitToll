@@ -121,7 +121,31 @@
 
 <pre>
 {
-    "balance":1.00000000
+    "balance":"1.00000000"
+}</pre>
+            </section>
+
+            <section>
+            <div class="page-header">
+                <h1> /deposit </h1>
+            </div>
+
+            <h3> Purpose </h3>
+            <p>
+            This endpoint gives you a bitcoind address which you can use to send bitcoins into a bittoll account. This should not be used to accept payments from other users. This is one of two methods to deposit bitcoins into a bittoll account that you control. The other is via the <code>/mine</code> endpoint.
+            </p>
+
+            <h3> Format </h3>
+            <p>
+            This endpoint requires a json encoded object to be posted to it with the sign, username and time field as described under the general section. There are no endpoint specific fields required.
+            </p>
+
+            <p>
+            This field returns a json encoded object with a address field containing a bitcoin address. An example is below.
+            </p>
+<pre>
+{
+    "address":"n4j5iCuhaAFE6sr8x4e81yBFqjgqP5MsDz"
 }</pre>
             </section>
         </div>

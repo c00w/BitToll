@@ -8,8 +8,10 @@ class bittoll ($test = false) {
 
     package {
         "libzmq1":
-            ensure => "3.2.2-1chl1~precise1",
-            alias => "zeromq";
+            ensure  => "3.2.2-1chl1~precise1",
+            alias   => "zeromq";
+        "libcap2-bin":
+            ensure  => "present"
     }
 
     User {
@@ -47,8 +49,7 @@ class bittoll ($test = false) {
             source  => "/binaries/APIServer",
             alias   => "api-binary",
             notify  => Service["apiserver"],
-            owner   => "root",
-            mode    => 0711;
+            owner   => "apiserver";
         "/usr/bin/PoolServer":
             source  => "/binaries/PoolServer",
             alias   => "pool-binary",
@@ -95,12 +96,18 @@ class bittoll ($test = false) {
         enable => true,
     }
 
+    exec {"/sbin/setcap 'cap_net_bind_service=+ep' /usr/bin/APIServer":
+        require => File["api-binary"],
+        alias   => "api_bind",
+    }
+
     service {"apiserver":
         require => [
             User["apiserver"],
             Package["zeromq"],
             File["apiserver.conf"],
             File["api-binary"],
+            Exec["api_bind"],
         ],
     }
 

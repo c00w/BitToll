@@ -11,3 +11,4 @@ haskell/PoolWrapper
 __pycache__
 .vagrant
 cabal-dev
+*~

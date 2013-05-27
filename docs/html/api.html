@@ -207,6 +207,22 @@
             </p>
 
             </section>
+
+            <section id="mine">
+            <div class="page-header">
+                <h1> /mine </h1>
+            </div>
+
+            <h3> Purpose </h3>
+            <p>
+            This endpoint allows you to generate bitcoins by mining through the bittoll server. These balances can be used to pay other bittoll users, but cannot be withdrawn until the mining operations return has been sent to the server. Essentially it produces money than can be spent on the server now, and withdrawn at some point in the future.
+            </p>
+
+            <h3> Format </h3>
+            <p>
+            This endpoint acts as a jsonrpc mining endpoint following the bitcoin mining protocol. It does require that the http basic authentication username match a bittoll username. Additionally the root endpoint <code>/</code> is an alias for this endpoint since some miners do not support mining on a non root http address.
+            </p>
+            </section>
         </div>
     </div>
 </div>

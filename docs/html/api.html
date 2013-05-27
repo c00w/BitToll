@@ -167,6 +167,26 @@
             <p> The response is a json object with an id field containing the transaction id </p>
             </section>
 
+            <section id="request">
+            <div class="page-header">
+                <h1> /request </h1>
+            </div>
+
+            <h3> Purpose </h3>
+            <p>
+            This endpoint creates a request which someone else can pay. It can be thought of as creating a bill. This is the primary way to exchange money via bittoll
+            </p>
+
+            <h3> Format </h3>
+            <p>
+            This endpoint requires a json encoded object to be posted to it with the sign, username, and time field as described under the general section. It also requires a amount field indicating the amount you wish to request
+            </p>
+
+            <p>
+            The response is a json object with a payment field containing the paymentid. This id can be given to someone else which they can pay via the <code>/pay</code> endpoint.
+            </p>
+            </section>
+
         </div>
     </div>
 </div>

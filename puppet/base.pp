@@ -11,6 +11,7 @@ import "links.pp"
 import "test_vm.pp"
 import "production.pp"
 import "firehol.pp"
+import "config.pp"
 
 class {"ntp":}
 class {"apt":}
@@ -25,6 +26,7 @@ node "atlantis.m.bittoll.com" {
     class {"links":         stage=>build}
     class {"production":    stage=>build}
     class {"firehol":       stage=>build}
+    class {"config":        stage=>build}
 
     class {"redis_server":  stage=>install}
     class {"bitcoind":      stage=>install}
@@ -35,12 +37,18 @@ node "atlantis.m.bittoll.com" {
 }
 
 node "test.m.bittoll.com" {
-    class {"redis_server":}
-    class {"bitcoind":  test => true}
-    class {"p2pool":    test => true}
-    class {"bittoll":   test => true}
+    stage {"build":}
+    stage {"install":}
 
-    class {"test_vm":}
+    class {"config":    test => true, stage=>build}
+    class {"redis_server":            stage=>install}
+    class {"bitcoind":  test => true, stage=>install}
+    class {"p2pool":    test => true, stage=>install}
+    class {"bittoll":   test => true, stage=>install}
+
+    class {"test_vm":                 stage=>install}
+
+    Stage["build"] -> Stage["install"]
 }
 
 node default {

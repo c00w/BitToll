@@ -11,9 +11,9 @@ class test_vm {
     }
 
     file {"/home/vagrant/.bitcoin":
-        ensure => link,
-        target => "/home/bitcoind/.bitcoin",
-        mode => 0644,
-        owner => "vagrant",
+        ensure  => link,
+        target  => "/home/bitcoind/.bitcoin",
+        mode    => 0644,
+        owner   => "vagrant",
     }
 }

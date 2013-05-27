@@ -1,8 +1,10 @@
 import "chris_ppa.pp"
+import "config.pp"
 
 class bittoll ($test = false) {
 
     require chris_ppa
+    require config
 
     package {
         "libzmq1":

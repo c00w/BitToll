@@ -12,13 +12,15 @@ import Control.Applicative
 import Control.Monad (mzero)
 import Data.IORef (IORef)
 import Network.Bitcoin (BTC)
+import Data.Configurator.Types (Config)
 
 data PersistentConns = PersistentConns {
-    redis     :: RD.Connection,
-    pool      :: Pool (ZMQ.Socket ZMQ.Req),
-    mine_pool :: Pool (ZMQ.Socket ZMQ.Req),
-    curPayout    :: IORef BTC,
-    curTarget    :: IORef BTC
+    redis       :: RD.Connection,
+    pool        :: Pool (ZMQ.Socket ZMQ.Req),
+    mine_pool   :: Pool (ZMQ.Socket ZMQ.Req),
+    curPayout   :: IORef BTC,
+    curTarget   :: IORef BTC,
+    config      :: Config
 }
 
 data MyException = RedisException String | BackendException String | UserException String | SomeException

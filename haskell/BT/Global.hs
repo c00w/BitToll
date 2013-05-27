@@ -7,6 +7,8 @@ import BT.Types
 import BT.Polling
 import Data.IORef (newIORef)
 import Control.Concurrent (forkIO)
+import Data.Configurator (Worth(Required), load)
+import Data.Configurator.Types (Config)
 
 makeZMQSocket :: ZMQ.Context -> IO (ZMQ.Socket ZMQ.Req)
 makeZMQSocket ctx = do
@@ -22,6 +24,9 @@ makemineZMQSocket ctx = do
     ZMQ.connect s connectTo
     return s
 
+makeConfig :: IO (Config)
+makeConfig = load [Required "/etc/bittoll/bittoll.conf"]
+
 makeCons :: IO PersistentConns
 makeCons = do
     ctx <- ZMQ.context
@@ -31,12 +36,14 @@ makeCons = do
     conn <- RD.connect defaultConnectInfo{connectPort = UnixSocket "/tmp/redis.sock", connectMaxConnections=500}
     payout <- newIORef 0
     target <- newIORef 0
+    configuration <- makeConfig
     let p = PersistentConns{
         redis=conn,
         pool=zmq_pool,
         mine_pool=mine_zmq_pool,
         curPayout=payout,
-        curTarget=target
+        curTarget=target,
+        config=configuration
         }
     _ <- forkIO $ poll p
     return p

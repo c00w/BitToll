@@ -10,107 +10,108 @@ cabal-version:  >= 1.14
 build-type:     Simple
 
 executable APIServer
-    build-depends:  base,
-                    bytestring,
-                    zeromq3-haskell,
-                    resource-pool,
-                    hedis,
-                    wai,
-                    random,
-                    json,
-                    containers,
-                    transformers,
-                    http-types,
-                    warp,
-                    conduit,
-                    cryptohash,
-                    hex,
-                    network-bitcoin,
-                    aeson,
+    build-depends:  aeson,
+                    base,
                     base64-bytestring,
-                    text
+                    bytestring,
+                    conduit,
+                    configurator,
+                    containers,
+                    cryptohash,
+                    hedis,
+                    hex,
+                    http-types,
+                    json,
+                    network-bitcoin,
+                    resource-pool,
+                    random,
+                    transformers,
+                    text,
+                    wai,
+                    warp,
+                    zeromq3-haskell
     main-is:        APIServer.hs
     hs-source-dirs: haskell
     ghc-options:     -Wall
     default-language: Haskell2010
 
 executable BCServer 
-    build-depends:  network-bitcoin,
-                    text,
-                    base,
-                    zeromq3-haskell,
+    build-depends:  base,
+                    bytestring,
                     containers,
-                    bytestring
+                    network-bitcoin,
+                    text,
+                    zeromq3-haskell
     main-is:        BCServer.hs
     hs-source-dirs: haskell
     ghc-options:     -Wall
     default-language: Haskell2010
 
 executable PoolServer
-    build-depends:  network-bitcoin,
-                    text,
+    build-depends:  aeson,
                     base,
-                    zeromq3-haskell,
+                    bytestring,
                     containers,
-                    aeson,
-                    bytestring
+                    network-bitcoin,
+                    text,
+                    zeromq3-haskell
     main-is:        PoolServer.hs
     hs-source-dirs: haskell
     ghc-options:     -Wall
     default-language: Haskell2010
 
 executable PoolWrapper
-    build-depends:  network-bitcoin,
+    build-depends:  aeson,
                     base,
-                    random,
-                    json,
-                    zeromq3-haskell,
                     bytestring,
-                    aeson,
+                    conduit,
                     hedis,
-                    transformers,
+                    json,
+                    network-bitcoin,
+                    random,
                     resource-pool,
-                    wai,
                     text,
-                    conduit
+                    transformers,
+                    wai,
+                    zeromq3-haskell
     main-is:        PoolWrapper.hs
     hs-source-dirs: haskell
     ghc-options:     -Wall
     default-language: Haskell2010
 
 executable NewBlock
-    build-depends:  network-bitcoin,
+    build-depends:  aeson,
                     base,
-                    random,
-                    json,
-                    zeromq3-haskell,
                     bytestring,
-                    aeson,
+                    conduit,
                     hedis,
-                    transformers,
+                    json,
+                    network-bitcoin,
+                    random,
                     resource-pool,
-                    wai,
                     text,
-                    conduit
+                    transformers,
+                    wai,
+                    zeromq3-haskell
     main-is:        NewBlock.hs
     hs-source-dirs: haskell
     ghc-options:     -Wall
     default-language: Haskell2010
 
 executable MineUserTest
-    build-depends:  network-bitcoin,
+    build-depends:  aeson,
                     base,
-                    random,
-                    json,
-                    zeromq3-haskell,
                     bytestring,
-                    aeson,
+                    conduit,
                     hedis,
-                    transformers,
+                    json,
+                    network-bitcoin,
+                    random,
                     resource-pool,
-                    wai,
                     text,
-                    conduit
+                    transformers,
+                    wai,
+                    zeromq3-haskell
     main-is:        MineUserTest.hs
     hs-source-dirs: haskell
     ghc-options:     -Wall

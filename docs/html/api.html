@@ -100,7 +100,7 @@
 }</pre>
             </section>
 
-            <section>
+            <section id="balance">
             <div class="page-header">
                 <h1> /balance </h1>  
             </div>
@@ -125,7 +125,7 @@
 }</pre>
             </section>
 
-            <section>
+            <section id="deposit">
             <div class="page-header">
                 <h1> /deposit </h1>
             </div>
@@ -148,6 +148,25 @@
     "address":"n4j5iCuhaAFE6sr8x4e81yBFqjgqP5MsDz"
 }</pre>
             </section>
+
+            <section id="withdraw">
+            <div class="page-header">
+                <h1> /withdraw </h1>
+            </div>
+
+            <h3> Purpose </h3>
+            <p>
+            This endpoint allows you to withdraw money from your bittoll account to an address on the bitcoin network.
+            </p>
+
+            <h3> Format </h3>
+            <p>
+            This endpoints requires a json encoded object to be posted to it with the sign, username and time field as described under the general section. It also requires a amount field which is the amount you wish to withdraw in bitcoins encoded as a utf8 string. The address field is the address you wish to send the bitcoins to stored as a utf8 string.
+            </p>
+
+            <p> The response is a json object with an id field containing the transaction id </p>
+            </section>
+
         </div>
     </div>
 </div>

@@ -47,7 +47,8 @@ class bittoll ($test = false) {
             source  => "/binaries/APIServer",
             alias   => "api-binary",
             notify  => Service["apiserver"],
-            owner   => "apiserver";
+            owner   => "root",
+            mode    => 0711;
         "/usr/bin/PoolServer":
             source  => "/binaries/PoolServer",
             alias   => "pool-binary",

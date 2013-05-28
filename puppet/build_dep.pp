@@ -67,6 +67,7 @@ class build_depends( $deploy_user = 'deploy') {
         creates => "/home/$deploy_user/ghc-7.6.3",
         alias   => "ghc_source",
         returns => [0, 2],
+        timeout => 0,
         require => [
             Package["build-essential"],
             Package["bzip2"],]

@@ -1,0 +1,30 @@
+/* arrows */
+.sidenav .icon-chevron-right {
+    opacity: .4;
+    float: right;
+}
+
+/* Border */
+.sidenav > li > a {
+    display: block;
+    width: 190px;
+    border-style: solid;
+    border-color: #dddddd;
+    border-width: 1px 1px 0px 1px;
+}
+.sidenav > li:first-child > a {
+    border-radius:          8px 8px 0 0;
+    -webkit-border-radius:  8px 8px 0 0;
+    -moz-border-radius:     8px 8px 0 0;
+}
+.sidenav > li:last-child > a {
+    border-radius:          0 0 8px 8px;
+    -webkit-border-radius:  0 0 8px 8px;
+    -moz-border-radius:     0 0 8px 8px;
+    border-width: 1px 1px 1px 1px;
+}
+
+/* On Top */
+.sidenav.affix-top {
+    margin: 30px 0px 0px 0px
+}

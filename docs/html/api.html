@@ -7,11 +7,12 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <link href="css/bootstrap.css"            rel="stylesheet">
-    <link href="css/bootstrap-responsive.css" rel="stylesheet">
+    <link href="css/bootstrap.min.css"            rel="stylesheet">
+    <link href="css/bootstrap-responsive.min.css" rel="stylesheet">
+    <link href="css/api.css"                  rel="stylesheet">
 </head>
-<body>
 
+<body data-spy="scroll" data-target=".sidebar">
 
 <div class="navbar navbar-inverse navbar-static-top">
     <div class="navbar-inner">
@@ -36,8 +37,8 @@
 <!--- Main Body ---!>
 <div class="container">
     <div class="row">
-        <div class="span3">
-            <ul class="nav nav-list">
+        <div class="span3 sidebar">
+            <ul class="nav nav-list sidenav" data-spy="affix" data-offset-top="20" data-offset-bottom="20">
               <li><a href="#general"><i class="icon-chevron-right"></i> General</a></li>
               <li><a href="#register"><i class="icon-chevron-right"></i>/register</a></li>
               <li><a href="#balance"><i class="icon-chevron-right"></i>/balance</a></li>

@@ -1,3 +1,5 @@
+import "chris_ppa.pp"
+
 class build_depends( $deploy_user = 'deploy') {
     require chris_ppa
 

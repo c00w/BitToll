@@ -1,6 +1,6 @@
 class chris_ppa {
 
-    require apt;
+    require apt
 
     apt::ppa {"chris-lea":
         ensure  => present,

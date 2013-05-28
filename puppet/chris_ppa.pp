@@ -1,7 +1,5 @@
 class chris_ppa {
 
-    require apt
-
     apt::ppa {"chris-lea":
         ensure  => present,
         key     => "C7917B12",

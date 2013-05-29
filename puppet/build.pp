@@ -5,7 +5,7 @@ class build ($user = 'deploy') {
 
     exec {"cabal-dev install":
         refreshonly => true,
-        subscribe   => Vcsrepo["/home/$user/BitToll"],
+        subscribe   => Class["build_depends"],
         require     => [
             Package["alex"],
             Package["libzmq-dev"],

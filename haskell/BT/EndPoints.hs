@@ -17,6 +17,7 @@ import BT.User
 import BT.Mining
 import BT.ZMQ
 import BT.Payment
+import BT.Log
 import Control.Monad.IO.Class (liftIO)
 import System.Timeout (timeout)
 import Data.Aeson (decode)
@@ -70,15 +71,15 @@ makePayment info conn = do
     user_wrap <- get_payment_user conn payment
     let user = getMaybe (RedisException "Failure getting payment user 225") user_wrap
 
-    putStrLn "Before lock"
+    logMsg "Before lock"
     lock_user conn username
-    putStrLn "After lock"
+    logMsg "After lock"
 
     balance <- get_user_balance conn username
 
     req_amount <- get_payment_amount conn payment
 
-    putStrLn "Got all info"
+    logMsg "Got all info"
 
     when (balance - req_amount < 0) $ do
         unlock_user conn username
@@ -125,10 +126,10 @@ mine info conn = do
     let username = requestUsername info
     case length . getwork $ request of
         0 -> do
-            putStrLn "getwork length = 0"
+            logMsg "getwork length = 0"
             resp <- timeout 1000000 $ sendmine conn "getwork"
             let item = getMaybe (BackendException "Cannot talk to p2pool server") resp
-            putStrLn "done talking backend"
+            logMsg "done talking backend"
             let hashData = ((getMaybe (BackendException "Cannot convert result to hash")) . (decode) . BL.fromStrict $ item) :: HashData
             storeMerkleDiff conn hashData
             return $ jsonRPC (rpcid request) hashData
@@ -148,10 +149,10 @@ mine info conn = do
                 _ <- incrementSharePayout conn share payout
                 unlock_user conn username
 
-            putStrLn "done submitting work"
+            logMsg "done submitting work"
             return $ BL.fromStrict $ item
         _ -> do
-            putStrLn "getwork length != 0"
+            logMsg "getwork length != 0"
             return $ "ERRORRRRRRR"
 
 
@@ -163,34 +164,35 @@ sendBTC info conn = do
     let rawamount = BC.pack $ getMaybe (UserException "Missing amount") $ lookup "amount" al
     let address = BC.pack $ getMaybe (UserException "Missing address") $ lookup "address" al
 
-    putStrLn "Locking"
+    logMsg "Locking"
     lock_user conn username
-    putStrLn "Locked"
+    logMsg "Locked"
 
     balance <- get_user_balance conn username
     unconfirmed <- get_user_balance conn username
 
-    putStrLn "Got Balances"
+    logMsg "Got Balances"
 
-    putStrLn "forcing amount"
+    logMsg "forcing amount"
     let !amount = read. BC.unpack $ rawamount :: BTC
 
-    putStrLn "Handle cases"
+    logMsg "Handle cases"
     resp <- case amount > balance-unconfirmed of
         True -> do
-            putStrLn "Can do it"
-            putStrLn "Set Balance"
+            logMsg "Can do it"
+            logMsg "Set Balance"
             _ <- increment_user_balance conn username (-amount)
-            putStrLn "send_money"
+            logMsg "send_money"
             let arg = (BC.intercalate "|" [address, (BC.pack . show) amount])
 
             resp <- send conn (BC.append "sendto" arg) 
 
-            putStrLn "sent"
+            logMsg "sent"
             return [("id", BC.unpack resp)]
         False -> return [("error", "Insufficient Balance")]
 
-    putStrLn "unlocking"
+    logMsg "unlocking"
+
     unlock_user conn username
-    putStrLn "Unlocked"
+    logMsg "Unlocked"
     return resp

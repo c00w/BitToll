@@ -11,6 +11,7 @@ import Control.Monad.IO.Class (liftIO)
 import BT.Routing
 import BT.Global
 import BT.Types
+import BT.Log
 import Control.Exception (catch)
 import System.IO(hPutStrLn, stdout)
 import System.Timeout (timeout)
@@ -30,12 +31,12 @@ application :: PersistentConns -> Application
 application conns info = do
     let path = rawPathInfo info
     responsew <- liftIO $ catch (timeout 30000000 ( BT.Routing.route path info conns )) exceptionHandler
-    liftIO $ putStrLn $ show responsew
+    liftIO $ logMsg $ show responsew
     case responsew of
         Just response -> return $
             responseLBS status200 [("Content-Type", "text/plain")] response
         Nothing -> do
-            liftIO $ putStrLn "Api call timed out"
+            liftIO $ logMsg "Api call timed out"
             return $ responseLBS status200 [] "{\"error\":\"Server Error\"}"
 
 main :: IO ()
@@ -47,5 +48,5 @@ main = do
         settingsHost = Host host,
         settingsPort = port
     }
-    putStrLn "Starting"
+    logMsg $ "Starting " ++ host ++ ":" ++ (show port)
     runSettings settings $ application handles

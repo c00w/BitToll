@@ -11,6 +11,7 @@ import Network.Bitcoin as BTC
 import Data.Text.Encoding (encodeUtf8, decodeUtf8)
 
 import BT.Config
+import BT.Log
 
 bcd :: Auth
 bcd = BTC.Auth "http://127.0.0.1:19001" "FGHJUYTUJKNMBVCCDFSTRdfyhydsaoiuyaustdyutyoiurewri" "jakhdkjahslkjdhlkjfhdskjlhflkjHJITYUIOTRRRRYII"
@@ -38,7 +39,7 @@ router = Data.Map.fromList $ [
 
 route :: ByteString -> Int -> IO ByteString
 route request minconf = do
-    putStrLn $ unpack (append "Handling " request)
+    logMsg $ unpack (append "Handling " request)
     resp <- case Data.Map.lookup (take 6 request) router of
         Just a -> a (drop 6 request) minconf
         Nothing -> case Data.Map.lookup (take 7 request) router of
@@ -46,7 +47,7 @@ route request minconf = do
             Nothing -> case Data.Map.lookup (take 8 request) router of
                 Just a -> a (drop 8 request) minconf
                 Nothing -> return "Error"
-    putStrLn $ unpack resp
+    logMsg $ unpack resp
     return resp
 
 getrecieved :: BTC.Auth -> ByteString -> Int -> IO ByteString

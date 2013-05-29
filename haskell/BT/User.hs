@@ -10,20 +10,21 @@ import qualified BT.Redis as BR
 import BT.Types
 import BT.Util
 import BT.ZMQ
+import BT.Log
 
 update_stored_balance :: B.ByteString -> B.ByteString -> PersistentConns -> IO ()
 update_stored_balance bitcoin_addr userid conn = do
     lock_user conn userid
 
-    liftIO $ putStrLn "Updating balance"
+    liftIO $ logMsg "Updating balance"
     actual_recv <- liftM (read . BC.unpack) $ send conn $ B.append "recieved" bitcoin_addr :: IO BTC
 
     stored_recv <- get_user_address_recieved conn userid
 
-    _ <- putStrLn. show$ actual_recv
+    _ <- logMsg. show$ actual_recv
 
     when (stored_recv /= actual_recv) $ do
-        liftIO $ BC.putStrLn "Updating balance"
+        liftIO $ logMsg "Updating balance"
         let diff = actual_recv - stored_recv
         _ <- increment_user_address_recieved conn userid diff
         _ <- increment_user_balance conn userid diff
@@ -41,13 +42,13 @@ lock_user conn user = do
         True -> do
             _ <- liftIO $ runRedis (redis conn) $ do
                 expire ( BC.append "user_lock_" user ) 1
-            putStrLn $ "lock add " ++ show user
+            logMsg $ "lock add " ++ show user
             return ()
         _ -> lock_user conn user
 
 unlock_user :: PersistentConns -> B.ByteString -> IO ()
 unlock_user conn user = do
-    putStrLn $ "lock del " ++ show user
+    logMsg $ "lock del " ++ show user
     ok <- liftIO $ runRedis (redis conn) $ do
         del [ BC.append "user_lock_" user ]
     case getRightRedis ok of

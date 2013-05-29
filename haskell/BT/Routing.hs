@@ -8,6 +8,7 @@ import qualified Data.ByteString.Lazy as BL
 import Network.Wai (Request)
 import BT.Types (PersistentConns)
 import Data.Aeson.Encode (encode)
+import BT.Log
 
 jstostring :: (Request -> PersistentConns -> IO [(String, String)]) -> Request -> PersistentConns -> IO BL.ByteString
 jstostring obj r p= do
@@ -29,7 +30,7 @@ route :: B.ByteString -> Request -> PersistentConns -> IO BL.ByteString
 route path info conns = case Data.Map.lookup path router of
                 Nothing -> return "{\"error\":\"No Such Method\"}"
                 Just a -> do
-                    putStrLn $ "Handling" ++ (show path)
+                    logMsg $ "Handling" ++ (show path)
                     resp <- a info conns
-                    putStrLn $ "Handled" ++ (show resp)
+                    logMsg $ "Handled" ++ (show resp)
                     return resp

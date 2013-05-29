@@ -7,6 +7,14 @@ import readline
 class BittollClient(cmd.Cmd):
     login = None
     prompt = "bt>"
+    def do_server(self, arg):
+        set_server(arg)
+        print('Set server to %s' % arg)
+
+    def do_port(self, arg):
+        set_port(arg)
+        print ('Set server to %s' % arg)
+
     def do_register(self, arg):
         print('Registering')
         info = register()

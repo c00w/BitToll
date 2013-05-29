@@ -14,6 +14,18 @@ from fabric.tasks import execute
 env.user = 'vagrant'
 env.password = 'vagrant'
 
+def set_port(new_port):
+    global port, url
+
+    port = new_port
+    url = ''.join(['http://', ip_address, ':', port])
+
+def set_server(new_server):
+    global ip_address, url
+
+    ip_address = new_server
+    url = ''.join(['http://', ip_address, ':', port])
+
 @task
 def _send_bc(address):
     run("bitcoind sendtoaddress %s 1" % address)

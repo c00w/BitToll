@@ -3,7 +3,7 @@ import Text.JSON
 import BT.Types
 import BT.Util
 import BT.User
-import Control.Applicative 
+import Control.Applicative
 import Control.Exception (throw)
 import Crypto.Hash.MD5
 import Data.List (sortBy)

@@ -4,8 +4,10 @@ class build ($user = 'deploy') {
     require build_depends
 
     exec {"cabal-dev install":
-        refreshonly => true,
-        subscribe   => Class["build_depends"],
+        # The right thing to do, but our bash scripts do a pull
+        # hiding the event essentially
+        #refreshonly => true,
+        #subscribe   => Class["build_depends"],
         require     => [
             Package["alex"],
             Package["libzmq-dev"],

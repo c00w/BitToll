@@ -126,7 +126,7 @@ mine info conn = do
     case length . getwork $ request of
         0 -> do
             putStrLn "getwork length = 0"
-            resp <- timeout 30000000 $ sendmine conn "getwork"
+            resp <- timeout 1000000 $ sendmine conn "getwork"
             let item = getMaybe (BackendException "Cannot talk to p2pool server") resp
             putStrLn "done talking backend"
             let hashData = ((getMaybe (BackendException "Cannot convert result to hash")) . (decode) . BL.fromStrict $ item) :: HashData
@@ -135,7 +135,7 @@ mine info conn = do
         1 -> do
             let sub_hash = head . getwork $ request
             let merkle_root = extractMerkleRecieved (getMaybe (UserException "Invalid result") . (decode) . BLC.pack $ sub_hash)
-            resp <- liftIO $ timeout 30000000 $ sendmine conn (BC.pack ("recvwork"++ sub_hash))
+            resp <- liftIO $ timeout 1000000 $ sendmine conn (BC.pack ("recvwork"++ sub_hash))
             let item = getMaybe (BackendException "Cannot talk to p2pool server") resp
             when (item == "true") $ do
                 sdiff <- getMerkleDiff conn merkle_root

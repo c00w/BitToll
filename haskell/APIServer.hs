@@ -30,12 +30,12 @@ application :: PersistentConns -> Application
 application conns info = do
     let path = rawPathInfo info
     responsew <- liftIO $ catch (timeout 30000000 ( BT.Routing.route path info conns )) exceptionHandler
-    liftIO $ PutStrLn $ show responsew
+    liftIO $ putStrLn $ show responsew
     case responsew of
         Just response -> return $
             responseLBS status200 [("Content-Type", "text/plain")] response
         Nothing -> do
-            liftIO $ PutStrLn "Api call timed out"
+            liftIO $ putStrLn "Api call timed out"
             return $ responseLBS status200 [] "{\"error\":\"Server Error\"}"
 
 main :: IO ()

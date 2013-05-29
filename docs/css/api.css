@@ -28,3 +28,12 @@
 .sidenav.affix-top {
     margin: 30px 0px 0px 0px
 }
+
+/* Don't affix when small */
+@media (max-width: 979px) {
+    .sidenav.affix {
+        position: static;
+        width: auto;
+        top: 0;
+    }
+}

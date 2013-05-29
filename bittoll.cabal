@@ -37,11 +37,26 @@ executable APIServer
     default-language: Haskell2010
 
 executable BCServer 
-    build-depends:  base,
+    build-depends:  aeson,
+                    base,
+                    base64-bytestring,
                     bytestring,
+                    conduit,
+                    configurator,
                     containers,
+                    cryptohash,
+                    hedis,
+                    hex,
+                    http-types,
+                    json,
                     network-bitcoin,
+                    network-conduit,
+                    resource-pool,
+                    random,
+                    transformers,
                     text,
+                    wai,
+                    warp,
                     zeromq3-haskell
     main-is:        BCServer.hs
     hs-source-dirs: haskell

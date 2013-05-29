@@ -11,7 +11,6 @@ import Control.Monad.IO.Class (liftIO)
 import BT.Routing
 import BT.Global
 import BT.Types
-import BT.Util
 import Control.Exception (catch)
 import System.IO(hPutStrLn, stdout)
 import System.Timeout (timeout)
@@ -40,8 +39,8 @@ application conns info = do
 main :: IO ()
 main = do
     handles <- makeCons
-    host <- getConfig handles "api.host" :: IO String
-    port <- getConfig handles "api.port" :: IO Int
+    host <- getConfigP handles "api.host" :: IO String
+    port <- getConfigP handles "api.port" :: IO Int
     let settings = defaultSettings {
         settingsHost = Host host,
         settingsPort = port

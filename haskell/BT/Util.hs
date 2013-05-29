@@ -14,9 +14,6 @@ import Control.Applicative
 import Network.Wai (Request, requestBody)
 import Data.Monoid (mconcat)
 import Data.String (IsString)
-import Data.Configurator (lookup)
-import Data.Configurator.Types (Configured)
-import Data.Text (pack)
 
 randomNum :: IO Word64 
 randomNum = randomIO 
@@ -67,11 +64,7 @@ getRequestBody :: Request -> IO BL.ByteString
 getRequestBody req = BL.fromStrict <$> mconcat <$> runResourceT (requestBody req $$ consume)
 
 jsonRPC :: A.ToJSON a => A.Value -> a -> BL.ByteString 
-jsonRPC rid mess = A.encode . A.object $ ["result" A..= (A.toJSON mess),
-                          "error" A..= A.Null,
-                          "id" A..= rid]
-
-getConfig :: Configured a => PersistentConns -> String -> IO a
-getConfig c k = do
-    t <- Data.Configurator.lookup (config c) (pack k)
-    return $ getMaybe (BackendException (k ++ " lookup failed")) t
+jsonRPC rid mess = A.encode . A.object $ [
+                        "result" A..= (A.toJSON mess),
+                        "error" A..= A.Null,
+                        "id" A..= rid]

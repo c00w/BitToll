@@ -1,14 +1,14 @@
-module BT.Global(makeCons) where
+module BT.Global(makeCons, getConfigP) where
 
 import Database.Redis as RD
 import System.ZMQ3 as ZMQ hiding (poll)
 import Data.Pool
 import BT.Types
 import BT.Polling
+import BT.Config
 import Data.IORef (newIORef)
 import Control.Concurrent (forkIO)
-import Data.Configurator (Worth(Required), load)
-import Data.Configurator.Types (Config)
+import Data.Configurator.Types (Configured)
 
 makeZMQSocket :: ZMQ.Context -> IO (ZMQ.Socket ZMQ.Req)
 makeZMQSocket ctx = do
@@ -24,8 +24,8 @@ makemineZMQSocket ctx = do
     ZMQ.connect s connectTo
     return s
 
-makeConfig :: IO (Config)
-makeConfig = load [Required "/etc/bittoll/bittoll.conf"]
+getConfigP :: Configured a => PersistentConns -> String -> IO a
+getConfigP p k = getConfig (config p) k
 
 makeCons :: IO PersistentConns
 makeCons = do

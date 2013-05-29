@@ -15,4 +15,7 @@ vagrant:
 test_us:
 	py.test testsuite/node_test.py -s
 
+deploy_us:
+	production/update.sh atlantis.m.bittoll.com
+
 .PHONY: docs test serve_docs vagrant

@@ -98,6 +98,10 @@ class bitcoind ($test = false) {
                 File["bitcoin_folder1"],
                 File["bitcoind1.conf"],
             ],
+            subscribe => [
+                Package["bitcoind"],
+                File["bitcoind1.conf"]
+            ],
             ensure => running,
             enable => true,
         }

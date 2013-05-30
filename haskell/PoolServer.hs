@@ -13,6 +13,7 @@ import Data.Text (pack)
 import Data.Aeson
 
 import BT.Config
+import BT.Log
 
 makebcd :: IO Auth
 makebcd = do
@@ -55,6 +56,9 @@ getwork auth _ = do
 
 recvwork :: BTC.Auth -> ByteString -> IO ByteString
 recvwork auth req = do
+    logMsg "recvwork"
     resp <- BTC.solveBlock auth (decodeUtf8 req)
+    logMsg $ "resp" ++ (show resp)
+    logMsg $ "resp enc" ++ (show.encode $ resp)
     return . toStrict . encode $ resp
 

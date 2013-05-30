@@ -135,6 +135,9 @@ mine info conn = do
             return $ jsonRPC (rpcid request) hashData
         1 -> do
             let sub_hash = head . getwork $ request
+
+            logMsg $ "recieved hash" ++ (show sub_hash)
+
             let merkle_root = extractMerkleRecieved (getMaybe (UserException "Invalid result") . (decode) . BLC.pack $ sub_hash)
             resp <- liftIO $ timeout 1000000 $ sendmine conn (BC.pack ("recvwork"++ sub_hash))
             let item = getMaybe (BackendException "Cannot talk to p2pool server") resp

@@ -153,6 +153,8 @@ mine info conn = do
                 unlock_user conn username
 
             logMsg "done submitting work"
+
+            logMsg $ "returning" ++ (show item)
             return $ BL.fromStrict $ item
         _ -> do
             logMsg "getwork length != 0"

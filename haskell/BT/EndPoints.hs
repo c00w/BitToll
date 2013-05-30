@@ -4,7 +4,6 @@ module BT.EndPoints(register, deposit, getBalance, makePayment, createPayment, m
 import qualified Data.ByteString.Char8 as BC
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL
-import qualified Data.ByteString.Lazy.Char8 as BLC
 import Network.Wai (Request, requestHeaders)
 import Network.HTTP.Types.Header (hAuthorization)
 import Data.ByteString.Base64 (decodeLenient)
@@ -139,7 +138,7 @@ mine info conn = do
 
             logMsg $ "recieved hash" ++ (show sub_hash)
 
-            let merkle_root = extractMerkleRecieved (getMaybe (UserException "Invalid result") . (decode) . BLC.pack $ sub_hash)
+            let merkle_root = extractMerkleRecieved sub_hash
             resp <- liftIO $ timeout 1000000 $ sendmine conn (BC.pack ("recvwork"++ sub_hash))
             let item = getMaybe (BackendException "Cannot talk to p2pool server") resp
             when (item == "true") $ do

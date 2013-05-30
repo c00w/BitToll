@@ -31,8 +31,8 @@ storeMerkleDiff conn hashData = do
 extractMerkle :: HashData -> B.ByteString
 extractMerkle hash = (BC.take 64). (BC.drop 72) .E.encodeUtf8 . blockData $ hash
 
-extractMerkleRecieved :: MiningDataResult -> B.ByteString 
-extractMerkleRecieved hash = (BC.take 64) . (BC.drop 72) . BC.pack . result_data $ hash
+extractMerkleRecieved :: String -> B.ByteString
+extractMerkleRecieved hash = (BC.take 64) . (BC.drop 72) . BC.pack $ hash
 
 setMerkleDiff :: PersistentConns -> B.ByteString -> B.ByteString -> IO Bool
 setMerkleDiff conn merkle diff = set conn "m:" merkle "diff" diff

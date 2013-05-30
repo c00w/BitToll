@@ -32,7 +32,7 @@ def _send_bc(address):
 
 @task
 def _get_mine_address():
-    return run("/usr/bin/PoolWrapper")
+    return run("RDTSC_FREQUENCY=2500 /usr/bin/PoolWrapper")
 
 @task
 def _newblock():

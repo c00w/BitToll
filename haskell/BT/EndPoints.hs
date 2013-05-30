@@ -155,7 +155,7 @@ mine info conn = do
             logMsg "done submitting work"
 
             logMsg $ "returning" ++ (show item)
-            return $ BL.fromStrict $ item
+            return $ jsonRPC (rpcid request) item
         _ -> do
             logMsg "getwork length != 0"
             return $ "ERRORRRRRRR"

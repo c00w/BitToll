@@ -134,6 +134,7 @@ mine info conn = do
             storeMerkleDiff conn hashData
             return $ jsonRPC (rpcid request) hashData
         1 -> do
+            logMsg "getwork length = 1"
             let sub_hash = head . getwork $ request
 
             logMsg $ "recieved hash" ++ (show sub_hash)

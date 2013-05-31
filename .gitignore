@@ -12,3 +12,4 @@ __pycache__
 .vagrant
 cabal-dev
 *~
+report.html

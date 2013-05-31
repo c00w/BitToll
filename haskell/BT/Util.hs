@@ -13,6 +13,7 @@ import Control.Applicative
 import Network.Wai (Request, requestBody)
 import Data.Monoid (mconcat)
 import Data.String (IsString)
+import Data.Maybe (fromMaybe)
 
 randomNum :: IO Word64
 randomNum = randomIO
@@ -36,9 +37,7 @@ getMaybe b may = case may of
     _ -> throw b
 
 zeroMaybe :: IsString a => Maybe a -> a
-zeroMaybe a = case a of
-    Just b  -> b
-    Nothing -> "0"
+zeroMaybe = fromMaybe "0"
 
 getRight :: (a -> MyException) -> Either a b -> b
 getRight exc i = case i of
@@ -46,13 +45,13 @@ getRight exc i = case i of
     Left b -> throw (exc b)
 
 getRightRedis :: Show a => Either a b -> b
-getRightRedis = getRight (\s -> RedisException (show s))
+getRightRedis = getRight (RedisException . show)
 
 getRequestBody :: Request -> IO BL.ByteString
 getRequestBody req = BL.fromStrict <$> mconcat <$> runResourceT (requestBody req $$ consume)
 
 jsonRPC :: A.ToJSON a => A.Value -> a -> BL.ByteString 
 jsonRPC rid mess = A.encode . A.object $ [
-                        "result" A..= (A.toJSON mess),
+                        "result" A..= A.toJSON mess,
                         "error" A..= A.Null,
                         "id" A..= rid]

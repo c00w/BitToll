@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 module BT.Mining where
-import Network.Bitcoin (HashData, blockData, HashData, hdTarget)
+import Network.Bitcoin (HashData, blockData, HashData, hdTarget, BTC)
 import qualified Data.ByteString as B hiding (head)
 import qualified Data.ByteString.Char8 as BC
 import Prelude hiding (take, drop)
@@ -9,7 +9,6 @@ import BT.Types
 import BT.Redis
 import BT.Util
 import Numeric (readHex)
-import Network.Bitcoin (BTC)
 import Data.IORef (readIORef)
 import Control.Monad (when, liftM)
 
@@ -102,7 +101,7 @@ makeShare :: PersistentConns -> B.ByteString -> IO B.ByteString
 makeShare conn username = do
     shareid <- (liftM BC.pack) random256String
     resp <- setShareUsername conn shareid username
-    when (resp == True) $ do
+    when (resp) $ do
         _ <- setSharePayout conn shareid 0
         _ <- setSharePercentPaid conn shareid 0.0
         _ <- addShareUserQueue conn username shareid 0.0

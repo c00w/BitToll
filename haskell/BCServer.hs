@@ -27,10 +27,10 @@ main = do
             forever $ do
                 request <- ZMQ.receive s
                 resp <- route request minconf
-                ZMQ.send s [] $ resp
+                ZMQ.send s [] resp
 
 router :: Data.Map.Map ByteString (ByteString -> Int -> IO ByteString)
-router = Data.Map.fromList $ [
+router = Data.Map.fromList [
     ("recieved", getrecieved bcd),
     ("payout", getpayout bcd),
     ("target", gettarget bcd),
@@ -78,4 +78,4 @@ getpayout auth _ _ = do
     blockcount  <- BTC.getBlockCount auth
     let blockmult = blockcount % 210000 :: Rational -- forms fraction not mod
     let halves = truncate blockmult :: Int
-    return $ (pack . show) (50 * ((1/2 :: Double) ^ (halves)))
+    return $ (pack . show) (50 * ((1/2 :: Double) ^ halves))

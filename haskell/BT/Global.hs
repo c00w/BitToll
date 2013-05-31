@@ -25,7 +25,7 @@ makemineZMQSocket ctx = do
     return s
 
 getConfigP :: Configured a => PersistentConns -> String -> IO a
-getConfigP p k = getConfig (config p) k
+getConfigP p = getConfig (config p)
 
 makeCons :: IO PersistentConns
 makeCons = do

@@ -14,7 +14,7 @@ import qualified Data.ByteString.Char8 as BC
 
 removeUserQueue :: PersistentConns -> B.ByteString -> IO ()
 removeUserQueue conn share = do
-    username <- (liftM (getMaybe (RedisException "no share Username"))) $ getShareUsername conn share
+    username <- liftM (getMaybe (RedisException "no share Username")) $ getShareUsername conn share
     _ <- remShareUserQueue conn username share
     return ()
 
@@ -30,13 +30,13 @@ payKeyOwed conn increment key = do
     percent <- getSharePercentPaid conn key
     _ <- setSharePercentPaid conn key (percent + increment)
     let amount_increment = (-1) * amount * increment
-    username <- (liftM (getMaybe (RedisException "no share Username"))) $ getShareUsername conn key
-    BC.putStrLn $ B.concat ["Paying unconfirmed user:", username, " amount:", (BC.pack.show$ amount_increment), " percent:", (BC.pack.show$ increment)]
+    username <- liftM (getMaybe (RedisException "no share Username")) $ getShareUsername conn key
+    BC.putStrLn $ B.concat ["Paying unconfirmed user:", username, " amount:", BC.pack.show $ amount_increment, " percent:", BC.pack.show $ increment]
     _ <- increment_unconfirmed_balance conn username amount_increment
     return ()
 
-handle_mine :: PersistentConns -> B.ByteString -> IO ()
-handle_mine conn mine_addr = do
+handleMine :: PersistentConns -> B.ByteString -> IO ()
+handleMine conn mine_addr = do
 
     actual_recv <- liftM (read . BC.unpack) $ send conn $ B.append "recieved" mine_addr :: IO BTC
 
@@ -55,7 +55,7 @@ handle_mine conn mine_addr = do
 
         BC.putStrLn . B.concat $ ["mine_keys", (BC.pack.show) $ mine_keys]
 
-        next_level <- (liftM realToFrac) $ getNextShareLevel conn 0.0
+        next_level <- liftM realToFrac $ getNextShareLevel conn 0.0
 
         BC.putStrLn . B.concat $ ["nextsharelevel ", (BC.pack.show) $ next_level]
 
@@ -106,5 +106,5 @@ main = do
     conn <- makeCons
     addr <- get_mining_address conn
     case addr of
-        Just a -> handle_mine conn a
+        Just a -> handleMine conn a
         Nothing -> return ()

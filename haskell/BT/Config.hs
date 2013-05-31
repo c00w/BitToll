@@ -8,7 +8,7 @@ import Data.Text (pack)
 import BT.Util
 import BT.Types
 
-makeConfig :: IO (Config)
+makeConfig :: IO Config
 makeConfig = load [Required "/etc/bittoll/bittoll.conf"]
 
 getConfig :: Configured a => Config -> String -> IO a

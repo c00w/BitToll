@@ -11,7 +11,7 @@ import Control.Monad (liftM)
 main :: IO ()
 main = do
     conn <- makeCons
-    username <- (liftM (BC.pack . head)) getArgs
+    username <- liftM (BC.pack . head) getArgs
     BC.putStrLn username
 
     share <- getCurrentMiningShare conn username

@@ -6,14 +6,12 @@ import Data.Pool (withResource, Pool)
 import BT.Types
 
 sendraw :: Data.Pool.Pool (ZMQ.Socket ZMQ.Req) -> B.ByteString -> IO B.ByteString
-sendraw conn msg = do
-    resp <- liftIO $ withResource conn (\s -> do
+sendraw conn msg = liftIO $ withResource conn (\s -> do
         liftIO $ ZMQ.send s [] msg
         liftIO $ ZMQ.receive s)
-    return resp
 
 send :: PersistentConns -> B.ByteString -> IO B.ByteString
-send conn msg = sendraw (pool conn) msg
+send conn = sendraw (pool conn)
 
 sendmine :: PersistentConns -> B.ByteString -> IO B.ByteString
-sendmine conn msg = sendraw (mine_pool conn) msg
+sendmine conn = sendraw (mine_pool conn)

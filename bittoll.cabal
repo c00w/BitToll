@@ -35,7 +35,7 @@ executable APIServer
     ghc-options:     -Wall
     default-language: Haskell2010
 
-executable BCServer 
+executable BCServer
     build-depends:  aeson,
                     base,
                     base64-bytestring,
@@ -66,21 +66,11 @@ executable PoolServer
                     base,
                     base64-bytestring,
                     bytestring,
-                    conduit,
                     configurator,
                     containers,
-                    cryptohash,
-                    hedis,
-                    hex,
-                    http-types,
                     network-bitcoin,
-                    network-conduit,
-                    resource-pool,
-                    random,
                     transformers,
                     text,
-                    wai,
-                    warp,
                     zeromq3-haskell
     main-is:        PoolServer.hs
     hs-source-dirs: haskell
@@ -140,6 +130,15 @@ executable MineUserTest
                     wai,
                     zeromq3-haskell
     main-is:        MineUserTest.hs
+    hs-source-dirs: haskell
+    ghc-options:     -Wall
+    default-language: Haskell2010
+
+executable ReadConfig
+    build-depends:  base,
+                    configurator,
+                    text
+    main-is:        ReadConfig.hs
     hs-source-dirs: haskell
     ghc-options:     -Wall
     default-language: Haskell2010

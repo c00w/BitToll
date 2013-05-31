@@ -21,4 +21,10 @@ class config ($test = false) {
         require => File["/etc/bittoll"]
     }
 
+    file {"/usr/bin/ReadConfig":
+        ensure  => present,
+        source  => "/binaries/ReadConfig",
+        mode    => 0111,
+        owner   => "root",
+    }
 }

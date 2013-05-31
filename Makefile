@@ -3,6 +3,7 @@ docs:
 
 test:
 	cabal-dev install
+	vagrant up
 	vagrant provision
 	py.test testsuite/front_test.py -s
 

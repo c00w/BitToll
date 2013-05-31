@@ -104,7 +104,7 @@ payout conn startlevel payout_amount = when (payout_amount > 0) $ do
 main :: IO ()
 main = do
     conn <- makeCons
-    addr <- get_mining_address conn
+    addr <- getMiningAddress conn
     case addr of
         Just a -> handleMine conn a
         Nothing -> return ()

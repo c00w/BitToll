@@ -27,13 +27,13 @@ getAddrSafe conn = catch (getAddr conn) (getAddrSafeExc conn)
 
 getAddr :: PersistentConns -> IO B.ByteString
 getAddr conn = do
-    mine_addr <- get_mining_address conn
+    mine_addr <- getMiningAddress conn
     case mine_addr of
         Just a  -> return a
         Nothing -> do
             raw_addr <- getAddrBTC conn
-            _ <- set_mining_address conn raw_addr
-            resp <- get_mining_address conn
+            _ <- setMiningAddress conn raw_addr
+            resp <- getMiningAddress conn
             case resp of
                 Just a -> return a
                 Nothing -> getAddr conn

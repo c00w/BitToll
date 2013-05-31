@@ -27,15 +27,15 @@ verifyMap conn mapd = do
     let username = BC.pack $ getMaybe (UserException "Missing username field") $ lookup "username" al
     secretWrap <- get_user_secret conn username
     let secret = BC.unpack $ getMaybe (UserException "Invalid User") secretWrap
-    if not $ validate_sign al_minus_sign sign secret
+    if not $ validateSign al_minus_sign sign secret
     then throw $ UserException "Invalid Sign"
     else return ()
 
-key_comp :: (String, String) -> (String, String) -> Ordering
-key_comp a b = compare (fst a) (fst b)
+keyComp :: (String, String) -> (String, String) -> Ordering
+keyComp a b = compare (fst a) (fst b)
 
-validate_sign :: [(String, String)] -> String -> String -> Bool
-validate_sign sec_rec sign secret = (BC.pack $ map toUpper sign) == (hex $ hash $ BC.pack $ concat $ (map snd sort_sec_rec) ++ [secret])
-    where sort_sec_rec = sortBy key_comp sec_rec
+validateSign :: [(String, String)] -> String -> String -> Bool
+validateSign sec_rec sign secret = (BC.pack $ map toUpper sign) == (hex $ hash $ BC.pack $ concat $ (map snd sort_sec_rec) ++ [secret])
+    where sort_sec_rec = sortBy keyComp sec_rec
 
 

@@ -36,11 +36,11 @@ def _get_mine_address():
 
 @task
 def _newblock():
-    return run("/usr/bin/NewBlock gobbledygook")
+    return run("RDTSC_FREQUENCY=2500 /usr/bin/NewBlock gobbledygook")
 
 @task
 def _mine_user(username):
-    return run("/usr/bin/MineUserTest %s" % username)
+    return run("RDTSC_FREQUENCY=2500 /usr/bin/MineUserTest %s" % username)
 
 @task
 def _flush_db():

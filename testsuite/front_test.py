@@ -66,6 +66,7 @@ def test_payment(paidlogin):
 
     info = pay(paidlogin['username'], paidlogin['secret'], paymentid)
     assert 'code' in info
+    assert info['code'].encode('utf-8') == md5(paymentid + paidlogin['secret'])
 
     info = balance(paidlogin['username'], paidlogin['secret'])
     assert orig_b == info['balance']

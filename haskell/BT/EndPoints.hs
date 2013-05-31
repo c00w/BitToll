@@ -7,7 +7,7 @@ import qualified Data.ByteString.Lazy as BL
 import Network.Wai (Request, requestHeaders)
 import Network.HTTP.Types.Header (hAuthorization)
 import Data.ByteString.Base64 (decodeLenient)
-import Control.Monad (when)
+import Control.Monad (when, liftM)
 import Control.Exception (throw)
 import BT.Types
 import BT.Util
@@ -21,6 +21,9 @@ import Control.Monad.IO.Class (liftIO)
 import System.Timeout (timeout)
 import Data.Aeson (decode)
 import Network.Bitcoin (HashData, BTC)
+import Crypto.Hash.MD5 (hash)
+import Data.Hex (hex)
+import Data.Char (toLower)
 
 register :: Request -> PersistentConns-> IO [(String, String)]
 register info conn = do
@@ -93,7 +96,11 @@ makePayment info conn = do
 
     unlock_user conn username
 
-    return [("code", "hi")]
+    secret <- (liftM $ getMaybe (RedisException "unknown user for secret")) $ get_user_secret conn user
+
+    let code = (BC.map toLower).hex.hash $ BC.append payment secret
+
+    return [("code", BC.unpack code)]
 
 deposit :: Request -> PersistentConns-> IO [(String, String)]
 deposit info conn = do

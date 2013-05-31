@@ -64,6 +64,11 @@ def flushdb():
 def send_to_address():
     env.hosts = [ip_address]
 
+def md5(value):
+    if isinstance(value, unicode):
+        value = value.encode('utf-8')
+    return hashlib.md5(value).hexdigest()
+
 def _secret(params, secret):
     keys = list(params.keys())
     keys.sort()

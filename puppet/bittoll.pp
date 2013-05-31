@@ -1,10 +1,14 @@
 import "chris_ppa.pp"
 import "config.pp"
+import "p2pool.pp"
+import "bitcoind.pp"
 
 class bittoll ($test = false) {
 
     require chris_ppa
     require config
+    require p2pool
+    require bitcoind
 
     package {
         "libzmq1":
@@ -130,5 +134,6 @@ class bittoll ($test = false) {
             File["poolserver.conf"],
             File["pool-binary"],
         ],
+        subscribe => Service["p2pool"],
     }
 }

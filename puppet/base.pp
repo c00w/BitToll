@@ -26,7 +26,8 @@ node "atlantis.m.bittoll.com" {
     class {"links":         stage=>build}
     class {"production":    stage=>build}
     class {"firehol":       stage=>build}
-    class {"config":        stage=>build}
+
+    class {"config":}
 
     class {"redis_server":  stage=>install}
     class {"bitcoind":      stage=>install}
@@ -34,13 +35,15 @@ node "atlantis.m.bittoll.com" {
     class {"bittoll":       stage=>install}
 
     Stage["build"] -> Stage["install"]
+    Stage["build"] -> Class["config"]
+    Class["config"] -> Stage["install"]
 }
 
 node "test.m.bittoll.com" {
     stage {"build":}
     stage {"install":}
 
-    class {"config":    test => true, stage=>build}
+    class {"config":    test => true}
     class {"redis_server":            stage=>install}
     class {"bitcoind":  test => true, stage=>install}
     class {"p2pool":    test => true, stage=>install}
@@ -49,6 +52,8 @@ node "test.m.bittoll.com" {
     class {"test_vm":                 stage=>install}
 
     Stage["build"] -> Stage["install"]
+    Stage["build"] -> Class["config"]
+    Class["config"] -> Stage["install"]
 }
 
 node default {

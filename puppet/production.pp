@@ -42,6 +42,10 @@ class production {
     }
 
     file {"/etc/cron.hourly/bitcoind":
-        ensure  => absent,
+        ensure  => present,
+        owner   => root,
+        group   => root,
+        content => "#!/bin/bash\nrestart bitcoind",
+        mode    => 0755,
     }
 }

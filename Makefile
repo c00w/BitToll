@@ -20,6 +20,6 @@ deploy_us:
 	production/update.sh atlantis.m.bittoll.com
 
 lint:
-	hlint haskell --report.html
+	hlint haskell --report
 
 .PHONY: docs test serve_docs vagrant lint test_us deploy_us

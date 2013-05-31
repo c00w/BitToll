@@ -24,6 +24,7 @@ import Network.Bitcoin (HashData, BTC)
 import Crypto.Hash.MD5 (hash)
 import Data.Hex (hex)
 import Data.Char (toLower)
+import qualified Data.Map
 
 register :: Request -> PersistentConns-> IO [(String, String)]
 register info conn = do
@@ -37,9 +38,9 @@ register info conn = do
 
 getBalance :: Request -> PersistentConns-> IO [(String, String)] 
 getBalance info conn = do
-    requestal <- getRequestAL info
-    verifyAL conn requestal
-    let username = BC.pack $ getMaybe (UserException "Missing username field") $ lookup "username" requestal
+    requestal <- getRequestMap info
+    verifyMap conn requestal
+    let username = BC.pack $ getMaybe (UserException "Missing username field") $ Data.Map.lookup "username" requestal
     bitcoinid_wrap <- get_user_address conn username
     case bitcoinid_wrap of
         Just bitcoinid -> update_stored_balance bitcoinid username conn
@@ -50,10 +51,10 @@ getBalance info conn = do
 
 createPayment :: Request -> PersistentConns -> IO [(String, String)]
 createPayment info conn = do
-    al <- getRequestAL info
-    verifyAL conn al
-    let username = BC.pack$ getMaybe (UserException "Missing username") $ lookup "username" al
-    let amount = getMaybe (UserException "Missing amount") $ lookup "amount" al
+    al <- getRequestMap info
+    verifyMap conn al
+    let username = BC.pack$ getMaybe (UserException "Missing username") $ Data.Map.lookup "username" al
+    let amount = getMaybe (UserException "Missing amount") $ Data.Map.lookup "amount" al
     paymentid <- random256String
     resp <- set_payment_amount conn (BC.pack paymentid) (read amount :: BTC)
     val <- case resp of
@@ -65,10 +66,10 @@ createPayment info conn = do
 
 makePayment :: Request -> PersistentConns -> IO [(String, String)]
 makePayment info conn = do
-    al <- getRequestAL info
-    verifyAL conn al
-    let username = BC.pack $ getMaybe (UserException "Missing username") $ lookup "username" al
-    let payment = BC.pack $ getMaybe (UserException "Missing payment") $ lookup "payment" al
+    al <- getRequestMap info
+    verifyMap conn al
+    let username = BC.pack $ getMaybe (UserException "Missing username") $ Data.Map.lookup "username" al
+    let payment = BC.pack $ getMaybe (UserException "Missing payment") $ Data.Map.lookup "payment" al
 
     user_wrap <- get_payment_user conn payment
     let user = getMaybe (RedisException "Failure getting payment user 225") user_wrap
@@ -104,9 +105,9 @@ makePayment info conn = do
 
 deposit :: Request -> PersistentConns-> IO [(String, String)]
 deposit info conn = do
-    al <- getRequestAL info
-    verifyAL conn al
-    let username = BC.pack $ getMaybe (UserException "Missing username") $ lookup "username" al
+    al <- getRequestMap info
+    verifyMap conn al
+    let username = BC.pack $ getMaybe (UserException "Missing username") $ Data.Map.lookup "username" al
 
     lock_user conn username
 
@@ -170,11 +171,11 @@ mine info conn = do
 
 sendBTC :: Request -> PersistentConns -> IO [(String, String)]
 sendBTC info conn = do
-    al <- getRequestAL info
-    verifyAL conn al
-    let username = BC.pack$ getMaybe (UserException "Missing username") $ lookup "username" al
-    let rawamount = BC.pack $ getMaybe (UserException "Missing amount") $ lookup "amount" al
-    let address = BC.pack $ getMaybe (UserException "Missing address") $ lookup "address" al
+    al <- getRequestMap info
+    verifyMap conn al
+    let username = BC.pack$ getMaybe (UserException "Missing username") $ Data.Map.lookup "username" al
+    let rawamount = BC.pack $ getMaybe (UserException "Missing amount") $ Data.Map.lookup "amount" al
+    let address = BC.pack $ getMaybe (UserException "Missing address") $ Data.Map.lookup "address" al
 
     logMsg "Locking"
     lock_user conn username

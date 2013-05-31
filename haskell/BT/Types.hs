@@ -39,15 +39,3 @@ instance FromJSON MiningData where
                                       <*> o .: "id"
                                       <*> o .: "params"
     parseJSON _ = mzero
-
-data MiningDataResult = MiningDataResult {
-    result_data :: String
-}
-
-instance FromJSON MiningDataResult where
-    parseJSON (Object o) = do
-        result <- o .: "result"
-        case result of
-            Object ob -> MiningDataResult <$> ob .: "data"
-            _ -> mzero
-    parseJSON _ = mzero

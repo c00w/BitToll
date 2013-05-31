@@ -14,4 +14,4 @@ send :: PersistentConns -> B.ByteString -> IO B.ByteString
 send conn = sendraw (pool conn)
 
 sendmine :: PersistentConns -> B.ByteString -> IO B.ByteString
-sendmine conn = sendraw (mine_pool conn)
+sendmine conn = sendraw (minePool conn)

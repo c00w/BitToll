@@ -53,11 +53,11 @@ handleMine conn mine_addr = do
         _ <- removeGlobalMiningShares conn mine_keys
         mapM_ (removeUserQueue conn) mine_keys
 
-        BC.putStrLn . B.concat $ ["mine_keys", (BC.pack.show) $ mine_keys]
+        BC.putStrLn . B.concat $ ["mine_keys", BC.pack.show $ mine_keys]
 
         next_level <- liftM realToFrac $ getNextShareLevel conn 0.0
 
-        BC.putStrLn . B.concat $ ["nextsharelevel ", (BC.pack.show) $ next_level]
+        BC.putStrLn . B.concat $ ["nextsharelevel ", BC.pack.show $ next_level]
 
         amount_owed <- liftM sum $ mapM (getKeyOwed conn next_level) mine_keys
 
@@ -66,7 +66,7 @@ handleMine conn mine_addr = do
             (_, True) -> return 1.0
             (_, False) -> return $ payout_amount / amount_owed
 
-        BC.putStrLn . B.concat $ ["amount owed ", (BC.pack.show) $ amount_owed]
+        BC.putStrLn . B.concat $ ["amount owed ", BC.pack.show $ amount_owed]
 
         mapM_ (payKeyOwed conn payout_fraction) mine_keys
 
@@ -82,15 +82,15 @@ payout conn startlevel payout_amount = when (payout_amount > 0) $ do
 
     mine_keys <- getGlobalShares conn (fromRat $ toRational startlevel) (fromRat $ toRational startlevel)
 
-    BC.putStrLn . B.concat $ ["mine_keys ", (BC.pack.show) $ mine_keys]
+    BC.putStrLn . B.concat $ ["mine_keys ", BC.pack.show $ mine_keys]
 
-    next_level <- (liftM realToFrac) $ getNextShareLevel conn (fromRat $ toRational startlevel)
+    next_level <- liftM realToFrac $ getNextShareLevel conn (fromRat $ toRational startlevel)
 
-    BC.putStrLn . B.concat $ ["next_level", (BC.pack.show) $ next_level]
+    BC.putStrLn . B.concat $ ["next_level", BC.pack.show $ next_level]
 
     amount_owed <- liftM sum $ mapM (getKeyOwed conn next_level) mine_keys
 
-    BC.putStrLn . B.concat $ ["amount owed ", (BC.pack.show) $ amount_owed]
+    BC.putStrLn . B.concat $ ["amount owed ", BC.pack.show $ amount_owed]
 
     payout_fraction <- case (amount_owed, payout_amount / amount_owed > 1.0) of
         (0, _) -> return 1.0

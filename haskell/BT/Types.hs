@@ -17,7 +17,7 @@ import Data.Configurator.Types (Config)
 data PersistentConns = PersistentConns {
     redis       :: RD.Connection,
     pool        :: Pool (ZMQ.Socket ZMQ.Req),
-    mine_pool   :: Pool (ZMQ.Socket ZMQ.Req),
+    minePool   :: Pool (ZMQ.Socket ZMQ.Req),
     curPayout   :: IORef BTC,
     curTarget   :: IORef BTC,
     config      :: Config

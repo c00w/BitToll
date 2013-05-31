@@ -20,7 +20,7 @@ import Data.Conduit.Network (HostPreference(Host))
 
 exceptionHandler :: MyException -> IO (Maybe LB.ByteString)
 exceptionHandler e = do
-    hPutStrLn stdout $ show e
+    print e
     case e of
         RedisException _ -> return $ Just "{\"error\":\"Server Error\"}"
         BackendException _ -> return $ Just "{\"error\":\"Server Error\"}"
@@ -48,5 +48,5 @@ main = do
         settingsHost = Host host,
         settingsPort = port
     }
-    logMsg $ "Starting " ++ host ++ ":" ++ (show port)
+    logMsg $ "Starting " ++ host ++ ":" ++ show port
     runSettings settings $ application handles

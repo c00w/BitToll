@@ -20,7 +20,7 @@ makebcd = do
     config <- makeConfig
     host <- getConfig config "p2pool.host" :: IO String
     port <- getConfig config "p2pool.port" :: IO Int
-    let url = pack $ "http://" ++ host ++ ":" ++ (show port)
+    let url = pack $ "http://" ++ host ++ ":" ++ show port
     return $ BTC.Auth url "x" "x"
 
 main :: IO ()
@@ -34,15 +34,15 @@ main = do
             forever $ do
                 request <- ZMQ.receive s
                 resp <- route routes request
-                ZMQ.send s [] $ resp
+                ZMQ.send s [] resp
 
 makeRouter :: Auth -> Map ByteString (ByteString -> IO ByteString)
-makeRouter bcdmine = Data.Map.fromList $ [
+makeRouter bcdmine = Data.Map.fromList [
     ("getwork", getwork bcdmine),
     ("recvwork", recvwork bcdmine)
     ]
 
-route :: (Map ByteString (ByteString -> IO ByteString)) -> ByteString -> IO ByteString
+route :: Map ByteString (ByteString -> IO ByteString) -> ByteString -> IO ByteString
 route router request = case Data.Map.lookup (take 7 request) router of
     Just a -> a (drop 7 request)
     Nothing -> case Data.Map.lookup (take 8 request) router of
@@ -58,7 +58,7 @@ recvwork :: BTC.Auth -> ByteString -> IO ByteString
 recvwork auth req = do
     logMsg "recvwork"
     resp <- BTC.solveBlock auth (decodeUtf8 req)
-    logMsg $ "resp" ++ (show resp)
-    logMsg $ "resp enc" ++ (show.encode $ resp)
+    logMsg $ "resp" ++ show resp
+    logMsg $ "resp enc" ++ (show.encode) resp
     return . toStrict . encode $ resp
 

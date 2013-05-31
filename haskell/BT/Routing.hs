@@ -16,7 +16,7 @@ jstostring obj r p= do
     return . encode . Data.Map.fromList $ resp
 
 router :: Map B.ByteString (Request -> PersistentConns -> IO BL.ByteString)
-router = Data.Map.fromList $ [
+router = Data.Map.fromList [
         ("/register",   jstostring BT.EndPoints.register),
         ("/balance",    jstostring BT.EndPoints.getBalance),
         ("/withdraw",   jstostring BT.EndPoints.sendBTC),
@@ -30,7 +30,7 @@ route :: B.ByteString -> Request -> PersistentConns -> IO BL.ByteString
 route path info conns = case Data.Map.lookup path router of
                 Nothing -> return "{\"error\":\"No Such Method\"}"
                 Just a -> do
-                    logMsg $ "Handling" ++ (show path)
+                    logMsg $ "Handling" ++ show path
                     resp <- a info conns
-                    logMsg $ "Handled" ++ (show resp)
+                    logMsg $ "Handled" ++ show resp
                     return resp

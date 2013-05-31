@@ -4,6 +4,7 @@ import BT.Util
 import BT.User
 import Control.Exception (throw)
 import Crypto.Hash.MD5
+import Control.Monad (unless)
 import Data.Aeson (decode)
 import Data.List (sortBy)
 import Data.Hex (hex)
@@ -27,15 +28,13 @@ verifyMap conn mapd = do
     let username = BC.pack $ getMaybe (UserException "Missing username field") $ lookup "username" al
     secretWrap <- get_user_secret conn username
     let secret = BC.unpack $ getMaybe (UserException "Invalid User") secretWrap
-    if not $ validateSign al_minus_sign sign secret
-    then throw $ UserException "Invalid Sign"
-    else return ()
+    unless (validateSign al_minus_sign sign secret) (throw $ UserException "Invalid Sign")
 
 keyComp :: (String, String) -> (String, String) -> Ordering
 keyComp a b = compare (fst a) (fst b)
 
 validateSign :: [(String, String)] -> String -> String -> Bool
-validateSign sec_rec sign secret = (BC.pack $ map toUpper sign) == (hex $ hash $ BC.pack $ concat $ (map snd sort_sec_rec) ++ [secret])
+validateSign sec_rec sign secret = BC.pack (map toUpper sign) == (hex . hash . BC.pack . concat $ map snd sort_sec_rec ++ [secret])
     where sort_sec_rec = sortBy keyComp sec_rec
 
 

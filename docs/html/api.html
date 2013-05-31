@@ -213,7 +213,7 @@
             </p>
 
             <p>
-            This endpoint returns <code>md5(paymentid + usersecret)</code> where paymentid is the payment id and usersecret is the secret for the user who is being paid. This is to allow the other user to verify the payment without having to query the server.
+            This endpoint returns <code>md5(paymentid + usersecret)</code> where paymentid is the payment id and usersecret is the secret for the user who is being paid. The md5 function returns the lower case hex encoded md5 hash of the input value. This code is to allow the other user who is being paid to verify the payment without having to query the server.
             </p>
 
             </section>

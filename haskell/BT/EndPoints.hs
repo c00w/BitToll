@@ -32,9 +32,8 @@ register info conn = do
     salt <- random256String
     ok <- set_user_secret conn (BC.pack user) (BC.pack salt)
 
-    case ok of
-        True -> return [("username"::String, user), ("secret", salt)]
-        _ -> register info conn
+    if ok then return [("username"::String, user), ("secret", salt)]
+      else register info conn
 
 getBalance :: Request -> PersistentConns-> IO [(String, String)] 
 getBalance info conn = do
@@ -57,12 +56,10 @@ createPayment info conn = do
     let amount = getMaybe (UserException "Missing amount") $ Data.Map.lookup "amount" al
     paymentid <- random256String
     resp <- set_payment_amount conn (BC.pack paymentid) (read amount :: BTC)
-    val <- case resp of
-        True -> do
+    if resp then do
             _ <- set_payment_user conn (BC.pack paymentid) username
-            return $ [("payment", paymentid)]
-        False -> createPayment info conn
-    return val
+            return [("payment", paymentid)]
+      else createPayment info conn
 
 makePayment :: Request -> PersistentConns -> IO [(String, String)]
 makePayment info conn = do
@@ -97,9 +94,9 @@ makePayment info conn = do
 
     unlock_user conn username
 
-    secret <- (liftM $ getMaybe (RedisException "unknown user for secret")) $ get_user_secret conn user
+    secret <- liftM ( getMaybe (RedisException "unknown user for secret")) $ get_user_secret conn user
 
-    let code = (BC.map toLower).hex.hash $ BC.append payment secret
+    let code = BC.map toLower.hex.hash $ BC.append payment secret
 
     return [("code", BC.unpack code)]
 
@@ -113,17 +110,17 @@ deposit info conn = do
 
     addr <- get_user_address conn username
     resp <- case addr of
-        (Just a) -> return $ [("address",BC.unpack a)]
+        (Just a) -> return [("address",BC.unpack a)]
         _ -> do
             resp <- send conn "address"
             _ <- set_user_address conn username resp
-            return $ [("address", BC.unpack resp)]
+            return [("address", BC.unpack resp)]
 
     unlock_user conn username
     return resp
 
 requestUsername :: Request -> B.ByteString
-requestUsername req = head . (BC.split ':') . decodeLenient . last. (BC.split ' ') $ authstring
+requestUsername req = head . BC.split ':' . decodeLenient . last. BC.split ' ' $ authstring
     where authstring = getMaybe (UserException "Missing username header") . lookup hAuthorization . requestHeaders $ req
 
 mine :: Request -> PersistentConns -> IO BL.ByteString
@@ -137,14 +134,14 @@ mine info conn = do
             resp <- timeout 1000000 $ sendmine conn "getwork"
             let item = getMaybe (BackendException "Cannot talk to p2pool server") resp
             logMsg "done talking backend"
-            let hashData = ((getMaybe (BackendException "Cannot convert result to hash")) . (decode) . BL.fromStrict $ item) :: HashData
+            let hashData = getMaybe (BackendException "Cannot convert result to hash") . decode . BL.fromStrict $ item :: HashData
             storeMerkleDiff conn hashData
             return $ jsonRPC (rpcid request) hashData
         1 -> do
             logMsg "getwork length = 1"
             let sub_hash = head . getwork $ request
 
-            logMsg $ "recieved hash" ++ (show sub_hash)
+            logMsg $ "recieved hash" ++ show sub_hash
 
             let merkle_root = extractMerkleRecieved sub_hash
             resp <- liftIO $ timeout 1000000 $ sendmine conn (BC.pack ("recvwork"++ sub_hash))
@@ -162,11 +159,11 @@ mine info conn = do
 
             logMsg "done submitting work"
 
-            logMsg $ "returning" ++ (show item)
+            logMsg $ "returning" ++ show item
             return $ jsonRPC (rpcid request) (item == "true")
         _ -> do
             logMsg "getwork length != 0"
-            return $ "ERRORRRRRRR"
+            return "ERRORRRRRRR"
 
 
 sendBTC :: Request -> PersistentConns -> IO [(String, String)]
@@ -196,7 +193,7 @@ sendBTC info conn = do
             logMsg "Set Balance"
             _ <- increment_user_balance conn username (-amount)
             logMsg "send_money"
-            let arg = (BC.intercalate "|" [address, (BC.pack . show) amount])
+            let arg = BC.intercalate "|" [address, (BC.pack . show) amount]
 
             resp <- send conn (BC.append "sendto" arg) 
 

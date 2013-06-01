@@ -4,7 +4,7 @@ import Database.Redis (runRedis, setnx, del, expire, )
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Char8 as BC
 import Control.Monad.IO.Class (liftIO)
-import Control.Monad (liftM, when)
+import Control.Monad (liftM, when, unless)
 import Network.Bitcoin (BTC)
 import qualified BT.Redis as BR
 import BT.Types
@@ -51,39 +51,39 @@ unlockUser conn user = do
     logMsg $ "lock del " ++ show user
     ok <- liftIO $ runRedis (redis conn) $ do
         del [ BC.append "user_lock_" user ]
-    case getRightRedis ok of
-        _ -> return ()
+    unless (getRightRedis ok == 1) (logMsg "Odd unlock failed")
+    return ()
 
-getUserBalance :: PersistentConns -> B.ByteString -> IO (BTC)
+getUserBalance :: PersistentConns -> B.ByteString -> IO BTC
 getUserBalance conn user = BR.getbtc conn "u:" user "balance"
 
-getUnconfirmedBalance :: PersistentConns -> B.ByteString -> IO (BTC)
+getUnconfirmedBalance :: PersistentConns -> B.ByteString -> IO BTC
 getUnconfirmedBalance conn user = BR.getbtc conn "u:" user "balance_unconfirmed"
 
-getPaidBalance :: PersistentConns -> B.ByteString -> IO (BTC)
+getPaidBalance :: PersistentConns -> B.ByteString -> IO BTC
 getPaidBalance conn user = BR.getbtc conn "u:" user "balance_paid"
 
 getUserAddress :: PersistentConns -> B.ByteString -> IO (Maybe B.ByteString)
 getUserAddress conn user = BR.get conn "u:" user "address"
 
-getUserAddressRecieved :: PersistentConns -> B.ByteString -> IO (BTC)
+getUserAddressRecieved :: PersistentConns -> B.ByteString -> IO BTC
 getUserAddressRecieved conn user = BR.getbtc conn "u:" user "address_recieved"
 
 getUserSecret :: PersistentConns -> B.ByteString -> IO (Maybe B.ByteString)
 getUserSecret conn user = BR.get conn "u:" user "secret"
 
-incrementUserBalance :: PersistentConns -> B.ByteString -> BTC -> IO (BTC)
+incrementUserBalance :: PersistentConns -> B.ByteString -> BTC -> IO BTC
 incrementUserBalance conn user key = BR.incrementbtc conn "u:" user "balance" key
 
-incrementUnconfirmedBalance :: PersistentConns -> B.ByteString -> BTC -> IO (BTC)
+incrementUnconfirmedBalance :: PersistentConns -> B.ByteString -> BTC -> IO BTC
 incrementUnconfirmedBalance conn user key = BR.incrementbtc conn "u:" user "balance_unconfirmed" key
 
 
-setUserAddress :: PersistentConns -> B.ByteString -> B.ByteString-> IO (Bool)
+setUserAddress :: PersistentConns -> B.ByteString -> B.ByteString-> IO Bool
 setUserAddress conn user value = BR.set conn "u:" user "address" value
 
-incrementUserAddressRecieved :: PersistentConns -> B.ByteString -> BTC -> IO (BTC)
+incrementUserAddressRecieved :: PersistentConns -> B.ByteString -> BTC -> IO BTC
 incrementUserAddressRecieved conn user value = BR.incrementbtc conn "u:" user  "address_recieved" value
 
-setUserSecret :: PersistentConns -> B.ByteString -> B.ByteString -> IO (Bool)
+setUserSecret :: PersistentConns -> B.ByteString -> B.ByteString -> IO Bool
 setUserSecret conn user value = BR.setnx conn "u:" user "secret" value

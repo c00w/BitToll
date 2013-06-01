@@ -14,37 +14,37 @@ get conn itemType item key = do
         DR.hget (BC.append itemType item) key
     return $ getRightRedis ok
 
-set :: PersistentConns -> B.ByteString -> B.ByteString -> B.ByteString -> B.ByteString -> IO (Bool)
+set :: PersistentConns -> B.ByteString -> B.ByteString -> B.ByteString -> B.ByteString -> IO Bool
 set conn itemType item key value = do
     ok <- liftIO $ DR.runRedis (redis conn) $ do
         DR.hset (BC.append itemType item) key value
     return $ (getRightRedis ok)
 
-increment :: PersistentConns -> B.ByteString -> B.ByteString -> B.ByteString -> Integer -> IO (Integer)
+increment :: PersistentConns -> B.ByteString -> B.ByteString -> B.ByteString -> Integer -> IO Integer
 increment conn itemType item key value = do
     ok <- liftIO $ DR.runRedis (redis conn) $ do
         DR.hincrby (BC.append itemType item) key value
     return $ (getRightRedis ok)
 
-getbtc :: PersistentConns -> B.ByteString -> B.ByteString -> B.ByteString -> IO (BTC)
+getbtc :: PersistentConns -> B.ByteString -> B.ByteString -> B.ByteString -> IO BTC
 getbtc conn itemType item key = do
     r <- get conn itemType item key
     case r of
         Nothing -> return 0
         Just a -> return $ (read . BC.unpack $  a :: BTC) * (10^^(-8 :: Integer))
 
-setbtc :: PersistentConns -> B.ByteString -> B.ByteString -> B.ByteString -> BTC -> IO (Bool)
+setbtc :: PersistentConns -> B.ByteString -> B.ByteString -> B.ByteString -> BTC -> IO Bool
 setbtc conn itemType item key value = set conn itemType item key (BC.pack . show $ (truncate (value * 10^^(8 :: Integer)) :: Integer))
 
-setnxbtc :: PersistentConns -> B.ByteString -> B.ByteString -> B.ByteString -> BTC -> IO (Bool)
+setnxbtc :: PersistentConns -> B.ByteString -> B.ByteString -> B.ByteString -> BTC -> IO Bool
 setnxbtc conn itemType item key value = setnx conn itemType item key (BC.pack . show $ (truncate (value * 10^^(8 :: Integer)) :: Integer))
 
-incrementbtc :: PersistentConns -> B.ByteString -> B.ByteString -> B.ByteString -> BTC -> IO (BTC)
+incrementbtc :: PersistentConns -> B.ByteString -> B.ByteString -> B.ByteString -> BTC -> IO BTC
 incrementbtc conn itemType item key value = do
     r <- increment conn itemType item key (truncate (value * 10^^(8 :: Integer)) :: Integer)
     return $ ((fromIntegral r) :: BTC)
 
-setnx :: PersistentConns -> B.ByteString -> B.ByteString -> B.ByteString -> B.ByteString -> IO (Bool)
+setnx :: PersistentConns -> B.ByteString -> B.ByteString -> B.ByteString -> B.ByteString -> IO Bool
 setnx conn itemType item key value = do
     ok <- liftIO $ DR.runRedis (redis conn) $ do
         DR.hsetnx (BC.append itemType item) key value

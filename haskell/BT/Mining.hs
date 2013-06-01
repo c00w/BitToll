@@ -15,7 +15,7 @@ import Control.Monad (when, liftM)
 getMiningAddress :: PersistentConns -> IO (Maybe B.ByteString)
 getMiningAddress conn = get conn "g:" "global" "mining_address"
 
-setMiningAddress :: PersistentConns -> B.ByteString -> IO (Bool)
+setMiningAddress :: PersistentConns -> B.ByteString -> IO Bool
 setMiningAddress conn value = setnx conn "g:" "global" "mining_address" value
 
 storeMerkleDiff :: PersistentConns -> HashData -> IO ()
@@ -28,10 +28,10 @@ storeMerkleDiff conn hashData = do
         True  -> return ()
 
 extractMerkle :: HashData -> B.ByteString
-extractMerkle hash = (BC.take 64). (BC.drop 72) .E.encodeUtf8 . blockData $ hash
+extractMerkle hash = BC.take 64 . BC.drop 72 .E.encodeUtf8 . blockData $ hash
 
 extractMerkleRecieved :: String -> B.ByteString
-extractMerkleRecieved hash = (BC.take 64) . (BC.drop 72) . BC.pack $ hash
+extractMerkleRecieved hash = BC.take 64 . BC.drop 72 . BC.pack $ hash
 
 setMerkleDiff :: PersistentConns -> B.ByteString -> B.ByteString -> IO Bool
 setMerkleDiff conn merkle diff = set conn "m:" merkle "diff" diff
@@ -47,7 +47,7 @@ getPayout :: PersistentConns -> B.ByteString -> IO BTC
 getPayout conn hexdiff = do
     payout <- readIORef . curPayout $ conn
     miningDiff <- readIORef . curTarget $ conn
-    let diff = (hexDiffToInt hexdiff) :: BTC
+    let diff = hexDiffToInt hexdiff :: BTC
     return $ (miningDiff * payout) / diff
 
 setShareUsername :: PersistentConns -> B.ByteString -> B.ByteString -> IO Bool
@@ -90,7 +90,7 @@ getGlobalShares conn minscore maxscore = zrangebyscore conn "us:" "global_" mins
 getNextShareLevel :: PersistentConns -> Double -> IO Double
 getNextShareLevel conn start = do
     totalwrap <- zrangebyscoreWithscores conn "us:" "global" start 1.0
-    let total = filter (\s -> (snd s > start)) totalwrap
+    let total = filter (\s -> snd s > start) totalwrap
     case total of
         x:_ -> return $ snd x
         [] -> return $ 1.0
@@ -99,9 +99,9 @@ getNextShareLevel conn start = do
 --- Also adds it to the appropriate indices
 makeShare :: PersistentConns -> B.ByteString -> IO B.ByteString
 makeShare conn username = do
-    shareid <- (liftM BC.pack) random256String
+    shareid <- liftM BC.pack random256String
     resp <- setShareUsername conn shareid username
-    when (resp) $ do
+    when resp $ do
         _ <- setSharePayout conn shareid 0
         _ <- setSharePercentPaid conn shareid 0.0
         _ <- addShareUserQueue conn username shareid 0.0

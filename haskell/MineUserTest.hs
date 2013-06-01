@@ -15,7 +15,7 @@ main = do
     BC.putStrLn username
 
     share <- getCurrentMiningShare conn username
-    _ <- increment_user_balance conn username 1.0
-    _ <- increment_unconfirmed_balance conn username 1.0
+    _ <- incrementUserBalance conn username 1.0
+    _ <- incrementUnconfirmedBalance conn username 1.0
     _ <- incrementSharePayout conn share 1.0
     return ()

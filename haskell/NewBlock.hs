@@ -32,7 +32,7 @@ payKeyOwed conn increment key = do
     let amount_increment = (-1) * amount * increment
     username <- liftM (getMaybe (RedisException "no share Username")) $ getShareUsername conn key
     BC.putStrLn $ B.concat ["Paying unconfirmed user:", username, " amount:", BC.pack.show $ amount_increment, " percent:", BC.pack.show $ increment]
-    _ <- increment_unconfirmed_balance conn username amount_increment
+    _ <- incrementUnconfirmedBalance conn username amount_increment
     return ()
 
 handleMine :: PersistentConns -> B.ByteString -> IO ()

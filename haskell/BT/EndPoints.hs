@@ -37,7 +37,7 @@ register :: Request -> PersistentConns-> IO [(String, String)]
 register info conn = do
     user <- random256String
     salt <- random256String
-    ok <- set_user_secret conn (BC.pack user) (BC.pack salt)
+    ok <- setUserSecret conn (BC.pack user) (BC.pack salt)
 
     if ok then return [("username"::String, user), ("secret", salt)]
       else register info conn
@@ -45,12 +45,12 @@ register info conn = do
 getBalance :: Request -> PersistentConns-> IO [(String, String)] 
 getBalance info conn = do
     (_, username) <- usernameALShort conn info
-    bitcoinid_wrap <- get_user_address conn username
+    bitcoinid_wrap <- getUserAddress conn username
     case bitcoinid_wrap of
-        Just bitcoinid -> update_stored_balance bitcoinid username conn
+        Just bitcoinid -> updateStoredBalance bitcoinid username conn
         Nothing -> return ()
 
-    resp <- get_user_balance conn username
+    resp <- getUserBalance conn username
     return [("balance", show resp)]
 
 createPayment :: Request -> PersistentConns -> IO [(String, String)]
@@ -60,9 +60,9 @@ createPayment info conn = do
     let username = BC.pack$ getMaybe (UserException "Missing username") $ Data.Map.lookup "username" al
     let amount = getMaybe (UserException "Missing amount") $ Data.Map.lookup "amount" al
     paymentid <- random256String
-    resp <- set_payment_amount conn (BC.pack paymentid) (read amount :: BTC)
+    resp <- setPaymentAmount conn (BC.pack paymentid) (read amount :: BTC)
     if resp then do
-            _ <- set_payment_user conn (BC.pack paymentid) username
+            _ <- setPaymentUser conn (BC.pack paymentid) username
             return [("payment", paymentid)]
       else createPayment info conn
 
@@ -71,33 +71,33 @@ makePayment info conn = do
     (al, username) <- usernameALShort conn info
     let payment = BC.pack $ getMaybe (UserException "Missing payment") $ Data.Map.lookup "payment" al
 
-    user_wrap <- get_payment_user conn payment
+    user_wrap <- getPaymentUser conn payment
     let user = getMaybe (RedisException "Failure getting payment user 225") user_wrap
 
     logMsg "Before lock"
-    lock_user conn username
+    lockUser conn username
     logMsg "After lock"
 
-    balance <- get_user_balance conn username
+    balance <- getUserBalance conn username
 
-    req_amount <- get_payment_amount conn payment
+    req_amount <- getPaymentAmount conn payment
 
     logMsg "Got all info"
 
     when (balance - req_amount < 0) $ do
-        unlock_user conn username
+        unlockUser conn username
         throw (UserException "Insufficient Funds")
 
     when (username /= user) $ do
-        _ <- increment_user_balance conn username (-req_amount)
-        _ <- increment_user_balance conn user req_amount
+        _ <- incrementUserBalance conn username (-req_amount)
+        _ <- incrementUserBalance conn user req_amount
         return ()
 
-    _ <- set_payment_done conn payment
+    _ <- setPaymentDone conn payment
 
-    unlock_user conn username
+    unlockUser conn username
 
-    secret <- liftM ( getMaybe (RedisException "unknown user for secret")) $ get_user_secret conn user
+    secret <- liftM ( getMaybe (RedisException "unknown user for secret")) $ getUserSecret conn user
 
     let code = BC.map toLower.hex.hash $ BC.append payment secret
 
@@ -107,17 +107,17 @@ deposit :: Request -> PersistentConns-> IO [(String, String)]
 deposit info conn = do
     (_, username) <- usernameALShort conn info
 
-    lock_user conn username
+    lockUser conn username
 
-    addr <- get_user_address conn username
+    addr <- getUserAddress conn username
     resp <- case addr of
         (Just a) -> return [("address",BC.unpack a)]
         _ -> do
             resp <- send conn "address"
-            _ <- set_user_address conn username resp
+            _ <- setUserAddress conn username resp
             return [("address", BC.unpack resp)]
 
-    unlock_user conn username
+    unlockUser conn username
     return resp
 
 requestUsername :: Request -> B.ByteString
@@ -151,12 +151,12 @@ mine info conn = do
                 sdiff <- getMerkleDiff conn merkle_root
                 let diff = getMaybe (RedisException "Error retrieving merklediff") sdiff
                 payout <- getPayout conn diff
-                lock_user conn username
-                _ <- increment_user_balance conn username payout
-                _ <- increment_unconfirmed_balance conn username payout
+                lockUser conn username
+                _ <- incrementUserBalance conn username payout
+                _ <- incrementUnconfirmedBalance conn username payout
                 share <- getCurrentMiningShare conn username
                 _ <- incrementSharePayout conn share payout
-                unlock_user conn username
+                unlockUser conn username
 
             logMsg "done submitting work"
 
@@ -174,11 +174,11 @@ sendBTC info conn = do
     let address = BC.pack $ getMaybe (UserException "Missing address") $ Data.Map.lookup "address" al
 
     logMsg "Locking"
-    lock_user conn username
+    lockUser conn username
     logMsg "Locked"
 
-    balance <- get_user_balance conn username
-    unconfirmed <- get_user_balance conn username
+    balance <- getUserBalance conn username
+    unconfirmed <- getUserBalance conn username
 
     logMsg "Got Balances"
 
@@ -190,7 +190,7 @@ sendBTC info conn = do
         (do
             logMsg "Can do it"
             logMsg "Set Balance"
-            _ <- increment_user_balance conn username (-amount)
+            _ <- incrementUserBalance conn username (-amount)
             logMsg "send_money"
             let arg = BC.intercalate "|" [address, (BC.pack . show) amount]
 
@@ -202,6 +202,6 @@ sendBTC info conn = do
 
     logMsg "unlocking"
 
-    unlock_user conn username
+    unlockUser conn username
     logMsg "Unlocked"
     return resp

@@ -26,7 +26,7 @@ verifyMap conn mapd = do
     let sign = getMaybe (UserException "no sign") signWrap
     let al_minus_sign = filter (\s -> fst s /= "sign") al
     let username = BC.pack $ getMaybe (UserException "Missing username field") $ lookup "username" al
-    secretWrap <- get_user_secret conn username
+    secretWrap <- getUserSecret conn username
     let secret = BC.unpack $ getMaybe (UserException "Invalid User") secretWrap
     unless (validateSign al_minus_sign sign secret) (throw $ UserException "Invalid Sign")
 

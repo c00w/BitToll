@@ -34,7 +34,8 @@ class build_depends( $deploy_user = 'deploy') {
             "alex",
             "libzmq-dev",
             "zlib1g-dev",
-            "build-essential"]:
+            "build-essential",
+            "llvm"]:
         ensure => latest,
     }
 

@@ -10,22 +10,20 @@ import BT.Redis
 import BT.Util
 import Numeric (readHex)
 import Data.IORef (readIORef)
-import Control.Monad (when, liftM)
+import Control.Monad (when, liftM, unless)
 
 getMiningAddress :: PersistentConns -> IO (Maybe B.ByteString)
 getMiningAddress conn = get conn "g:" "global" "mining_address"
 
 setMiningAddress :: PersistentConns -> B.ByteString -> IO Bool
-setMiningAddress conn value = setnx conn "g:" "global" "mining_address" value
+setMiningAddress conn = setnx conn "g:" "global" "mining_address"
 
 storeMerkleDiff :: PersistentConns -> HashData -> IO ()
 storeMerkleDiff conn hashData = do
     let merkle = extractMerkle hashData
     let diffstring = encodeUtf8 $ hdTarget hashData
     res <- setMerkleDiff conn merkle diffstring
-    case res of
-        False -> storeMerkleDiff conn hashData
-        True  -> return ()
+    unless res (storeMerkleDiff conn hashData)
 
 extractMerkle :: HashData -> B.ByteString
 extractMerkle hash = BC.take 64 . BC.drop 72 .E.encodeUtf8 . blockData $ hash
@@ -93,7 +91,7 @@ getNextShareLevel conn start = do
     let total = filter (\s -> snd s > start) totalwrap
     case total of
         x:_ -> return $ snd x
-        [] -> return $ 1.0
+        [] -> return 1.0
 
 --- Make a share object containing a payout, percent paid, username
 --- Also adds it to the appropriate indices

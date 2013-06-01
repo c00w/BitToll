@@ -33,7 +33,7 @@ application conns info = do
     liftIO $ logMsg $ show responsew
     case responsew of
         Just response -> return $
-            responseLBS status200 [("Content-Type", "text/plain")] response
+            responseLBS status200 [("Content-Type", "application/json")] response
         Nothing -> do
             liftIO $ logMsg "Api call timed out"
             return $ responseLBS status200 [] "{\"error\":\"Server Error\"}"

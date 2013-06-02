@@ -34,6 +34,9 @@ node "atlantis.m.bittoll.com" {
     class {"bitcoind":      stage=>install}
     class {"p2pool":        stage=>install}
     class {"bittoll":       stage=>install}
+    class {"nginx":         stage=>install}
+
+    Class["bittoll"] -> Class["nginx"]
 
     Stage["build"] -> Stage["install"]
     Stage["build"] -> Class["config"]

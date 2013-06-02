@@ -1,5 +1,8 @@
 
 class nginx ($test = false) {
+
+    require apt
+
     package {"nginx":
         ensure  => latest
     }

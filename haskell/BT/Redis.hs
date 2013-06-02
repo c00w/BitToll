@@ -42,7 +42,7 @@ setnxbtc conn itemType item key value = setnx conn itemType item key (BC.pack . 
 incrementbtc :: PersistentConns -> B.ByteString -> B.ByteString -> B.ByteString -> BTC -> IO BTC
 incrementbtc conn itemType item key value = do
     r <- increment conn itemType item key (truncate (value * 10^^(8 :: Integer)) :: Integer)
-    return $ fromIntegral r :: BTC
+    return $ fromIntegral r
 
 setnx :: PersistentConns -> B.ByteString -> B.ByteString -> B.ByteString -> B.ByteString -> IO Bool
 setnx conn itemType item key value = do

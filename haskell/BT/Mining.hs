@@ -32,7 +32,7 @@ extractMerkleRecieved :: String -> B.ByteString
 extractMerkleRecieved hash = BC.take 64 . BC.drop 72 . BC.pack $ hash
 
 setMerkleDiff :: PersistentConns -> B.ByteString -> B.ByteString -> IO Bool
-setMerkleDiff conn merkle diff = set conn "m:" merkle "diff" diff
+setMerkleDiff conn merkle = set conn "m:" merkle "diff"
 
 getMerkleDiff :: PersistentConns -> B.ByteString -> IO (Maybe B.ByteString)
 getMerkleDiff conn merkle = get conn "m:" merkle "diff"
@@ -49,13 +49,13 @@ getPayout conn hexdiff = do
     return $ (miningDiff * payout) / diff
 
 setShareUsername :: PersistentConns -> B.ByteString -> B.ByteString -> IO Bool
-setShareUsername conn shareid username = setnx conn "s:" shareid "username" username
+setShareUsername conn shareid = setnx conn "s:" shareid "username"
 
 getShareUsername :: PersistentConns -> B.ByteString -> IO (Maybe B.ByteString)
 getShareUsername conn shareid = get conn "s:" shareid "username"
 
 setSharePayout :: PersistentConns -> B.ByteString -> BTC -> IO Bool
-setSharePayout conn shareid payout = setbtc conn "s:" shareid "payout" payout
+setSharePayout conn shareid = setbtc conn "s:" shareid "payout"
 
 getSharePayout :: PersistentConns -> B.ByteString -> IO BTC 
 getSharePayout conn shareid = getbtc conn "s:" shareid "payout"
@@ -65,10 +65,10 @@ getMineRecieved :: PersistentConns -> IO BTC
 getMineRecieved conn = getbtc conn "g:" "global" "mine_recieved"
 
 setMineRecieved :: PersistentConns -> BTC -> IO Bool
-setMineRecieved conn amount = setbtc conn "g:" "global" "mine_recieved" amount
+setMineRecieved conn = setbtc conn "g:" "global" "mine_recieved"
 
 incrementSharePayout :: PersistentConns -> B.ByteString -> BTC -> IO BTC
-incrementSharePayout conn shareid payout = incrementbtc conn "s:" shareid "payout" payout
+incrementSharePayout conn shareid = incrementbtc conn "s:" shareid "payout"
 
 setSharePercentPaid :: PersistentConns -> B.ByteString -> BTC -> IO Bool
 setSharePercentPaid conn shareid payout = set conn "s:" shareid "percentpaid" (BC.pack . show $ payout)
@@ -79,10 +79,10 @@ getSharePercentPaid conn shareid = do
     return $ (read . BC.unpack) resp
 
 getUserShares :: PersistentConns -> B.ByteString -> Double -> Double -> IO [B.ByteString]
-getUserShares conn username minscore maxscore = zrangebyscore conn "us:" username minscore maxscore
+getUserShares conn = zrangebyscore conn "us:"
 
 getGlobalShares :: PersistentConns -> Double -> Double -> IO [B.ByteString]
-getGlobalShares conn minscore maxscore = zrangebyscore conn "us:" "global_" minscore maxscore
+getGlobalShares conn = zrangebyscore conn "us:" "global_"
 
 
 getNextShareLevel :: PersistentConns -> Double -> IO Double
@@ -105,9 +105,8 @@ makeShare conn username = do
         _ <- addShareUserQueue conn username shareid 0.0
         _ <- addShareGlobalQueue conn shareid 0.0
         return ()
-    case resp of
-        True -> return shareid
-        False -> makeShare conn username
+    if resp then return shareid
+       else makeShare conn username
 
 addShareUserQueue :: PersistentConns -> BC.ByteString -> BC.ByteString -> Double -> IO Integer
 addShareUserQueue conn username shareid payout = zadd conn "us:" username payout shareid
@@ -123,7 +122,7 @@ getCurrentMiningShares :: PersistentConns -> IO [B.ByteString]
 getCurrentMiningShares conn = zrangebyscore conn "us:" "global" 0.0 0.0
 
 removeGlobalMiningShares :: PersistentConns -> [B.ByteString] -> IO Integer
-removeGlobalMiningShares conn members = zrem conn "us:" "global" members
+removeGlobalMiningShares conn = zrem conn "us:" "global"
 
 --- Structure
 --- username set of all share keys sorted by payout
@@ -134,7 +133,6 @@ getCurrentMiningShare :: PersistentConns -> B.ByteString -> IO B.ByteString
 getCurrentMiningShare conn username = do
     shares <- zrangebyscore conn "us:" username 0.0 0.0
     case Prelude.length shares of
-        0 -> do
-            makeShare conn username
-        _ -> do (return.head) shares
+        0 -> makeShare conn username
+        _ -> (return.head) shares
 

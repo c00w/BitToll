@@ -7,3 +7,6 @@
 [submodule "puppet_modules/puppet-apt"]
 	path = puppet_modules/puppet-apt
 	url = git://github.com/c00w/puppet-apt.git
+[submodule "configs/testnet-box"]
+	path = configs/testnet-box
+	url = git://github.com/c00w/bitcoin-testnet-box.git

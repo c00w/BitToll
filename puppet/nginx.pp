@@ -1,16 +1,15 @@
 
 class nginx ($test = false) {
 
-    require apt
-
-    package {"nginx":
-        ensure  => latest
+    apt::ppa {"nginx-openresty":
+        ensure  => present,
+        key     => "39AB0BFD",
+        ppa     => "stable",
     }
 
-    File {
-        require => Package["nginx"],
-        notify  => Service["nginx"],
-        mode    => 0400,
+    package {"nginx":
+        ensure  => latest,
+        require  => Apt::Ppa["nginx-openresty"],
     }
 
     $config = $test ? {
@@ -19,25 +18,37 @@ class nginx ($test = false) {
     }
 
     file {"/etc/nginx/sites-available/default":
+        notify  => Service["nginx"],
+        require => Package["nginx"],
         ensure  => absent,
     }
 
     file {"/etc/nginx/sites-enabled/default":
+        notify  => Service["nginx"],
+        require => Package["nginx"],
         ensure  => absent
     }
 
-    file    {"/etc/nginx/sites-available/bittoll.conf":
+    file {"/etc/nginx/sites-available/bittoll.conf":
+        notify  => Service["nginx"],
+        require => Package["nginx"],
         ensure  => present,
+        mode    => 0400,
         source  => "$config/nginx/bittoll.conf",
     }
 
     file {"/etc/nginx/sites-enabled/bittoll.conf":
+        notify  => Service["nginx"],
+        require => Package["nginx"],
         ensure  => link,
         target  => "/etc/nginx/sites-available/bittoll.conf",
     }
 
     file {"/etc/nginx/nginx.conf":
+        notify  => Service["nginx"],
+        require => Package["nginx"],
         ensure  => file,
+        mode    => 0400,
         source  => "$config/nginx.conf",
     }
 

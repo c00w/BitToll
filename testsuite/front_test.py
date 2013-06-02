@@ -1,10 +1,6 @@
 #!/usr/bin/env python2
 from testlib import *
 
-ip_address = "vm"
-port = "3000"
-url = ''.join(['http://', ip_address, ':', port])
-
 def test_page_error():
     r = apicall("nonexistant", "hi")
     assert "error" in r

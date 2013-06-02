@@ -5,7 +5,7 @@ import hashlib
 import fabric
 
 ip_address = "vm"
-port = "3000"
+port = "80"
 url = ''.join(['http://', ip_address, ':', port])
 
 from fabric.api import task, run, env

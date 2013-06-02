@@ -12,6 +12,7 @@ import "test_vm.pp"
 import "production.pp"
 import "firehol.pp"
 import "config.pp"
+import "nginx.pp"
 
 class {"ntp":}
 class {"apt":}
@@ -48,6 +49,7 @@ node "test.m.bittoll.com" {
     class {"bitcoind":  test => true, stage=>install}
     class {"p2pool":    test => true, stage=>install}
     class {"bittoll":   test => true, stage=>install}
+    class {"nginx":     test => true, stage=>install}
 
     class {"test_vm":                 stage=>install}
 

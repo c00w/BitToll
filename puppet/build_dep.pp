@@ -35,14 +35,18 @@ class build_depends( $deploy_user = 'deploy') {
             "libzmq-dev",
             "zlib1g-dev",
             "build-essential",
-            "llvm"]:
+            "llvm",
+            "git"]:
         ensure => latest,
     }
 
     vcsrepo {"/home/$deploy_user/BitToll":
         source  => "git://github.com/c00w/BitToll.git",
         revision=> "production",
-        require => User["$deploy_user"],
+        require => [
+            User["$deploy_user"],
+            Package["git"],
+        ],
         ensure  => "present",
         provider=> git,
         user    => "$deploy_user",
@@ -51,7 +55,10 @@ class build_depends( $deploy_user = 'deploy') {
     vcsrepo {"/home/$deploy_user/cabal":
         source  => "git://github.com/haskell/cabal.git",
         revision=> "cabal-1.16",
-        require => User["$deploy_user"],
+        require => [
+            User["$deploy_user"],
+            Package["git"],
+        ],
         ensure  => "present",
         provider=> git,
         user    => "$deploy_user",

@@ -5,7 +5,6 @@ class production {
     require build_depends
 
     $packages = [
-        "git",
         "vim",
         "htop",
         "iotop",

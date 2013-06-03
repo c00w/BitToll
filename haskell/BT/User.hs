@@ -1,6 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
 module BT.User where
-import Database.Redis (runRedis, setnx, del, expire, )
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Char8 as BC
 import Control.Monad.IO.Class (liftIO)
@@ -8,7 +7,6 @@ import Control.Monad (liftM, when, unless)
 import Network.Bitcoin (BTC)
 import qualified BT.Redis as BR
 import BT.Types
-import BT.Util
 import BT.ZMQ
 import BT.Log
 
@@ -36,20 +34,17 @@ updateStoredBalance bitcoin_addr userid conn = do
 
 lockUser :: PersistentConns -> B.ByteString -> IO ()
 lockUser conn user = do
-    ok <- liftIO $ runRedis (redis conn) $
-        setnx ( BC.append "user_lock_" user ) "h"
-    if getRightRedis ok then do
-            _ <- liftIO $ runRedis (redis conn) $
-                expire ( BC.append "user_lock_" user ) 1
-            logMsg $ "lock add " ++ show user
+    ok <- BR.rsetnx conn "ul:" user "h"
+    if ok then do
+        _ <- BR.expire conn "ul:" user 30
+        logMsg $ "lock add " ++ show user
        else lockUser conn user
 
 unlockUser :: PersistentConns -> B.ByteString -> IO ()
 unlockUser conn user = do
     logMsg $ "lock del " ++ show user
-    ok <- liftIO $ runRedis (redis conn) $
-        del [ BC.append "user_lock_" user ]
-    unless (getRightRedis ok == 1) (logMsg "Odd unlock failed")
+    ok <- BR.rdel conn "ul:" user
+    unless (ok) (logMsg "Odd unlock failed")
     return ()
 
 getUserBalance :: PersistentConns -> B.ByteString -> IO BTC

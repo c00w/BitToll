@@ -20,6 +20,13 @@ set conn itemType item key value = do
         DR.hset (BC.append itemType item) key value
     return $ getRightRedis ok
 
+rdel :: PersistentConns -> B.ByteString -> B.ByteString -> IO Bool 
+rdel conn itemType item = do
+    ok <- liftIO $ DR.runRedis (redis conn) $
+        DR.del [BC.append itemType item]
+    return $ (getRightRedis ok == 1)
+
+
 increment :: PersistentConns -> B.ByteString -> B.ByteString -> B.ByteString -> Integer -> IO Integer
 increment conn itemType item key value = do
     ok <- liftIO $ DR.runRedis (redis conn) $
@@ -56,6 +63,13 @@ setnx conn itemType item key value = do
     ok <- liftIO $ DR.runRedis (redis conn) $
         DR.hsetnx (BC.append itemType item) key value
     return $ getRightRedis ok
+
+rsetnx :: PersistentConns -> B.ByteString -> B.ByteString -> B.ByteString -> IO Bool
+rsetnx conn itemType item value = do
+    ok <- liftIO $ DR.runRedis (redis conn) $
+        DR.setnx (BC.append itemType item) value
+    return $ getRightRedis ok
+
 
 zrem :: PersistentConns -> B.ByteString -> B.ByteString -> [B.ByteString] -> IO Integer
 zrem conn object key members = do

@@ -113,7 +113,7 @@ class bitcoind ($test = false) {
             ensure => file,
             source  => "/configs/bitcoin.conf",
             notify  => Service["bitcoind"],
-            mode    => 0600,
+            mode    => 0644,
             owner   => "bitcoind",
             group   => "bitcoind",
         }

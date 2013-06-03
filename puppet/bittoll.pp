@@ -100,20 +100,12 @@ class bittoll ($test = false) {
         enable => true,
     }
 
-    exec {"/sbin/setcap 'cap_net_bind_service=+ep' /usr/bin/APIServer":
-        refreshonly => true,
-        subscribe   => File["api-binary"],
-        require => File["api-binary"],
-        alias   => "api_bind",
-    }
-
     service {"apiserver":
         require => [
             User["apiserver"],
             Package["zeromq"],
             File["apiserver.conf"],
             File["api-binary"],
-            Exec["api_bind"],
         ],
     }
 

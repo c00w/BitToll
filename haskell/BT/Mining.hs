@@ -32,7 +32,10 @@ extractMerkleRecieved :: String -> B.ByteString
 extractMerkleRecieved hash = BC.take 64 . BC.drop 72 . BC.pack $ hash
 
 setMerkleDiff :: PersistentConns -> B.ByteString -> B.ByteString -> IO Bool
-setMerkleDiff conn merkle = set conn "m:" merkle "diff"
+setMerkleDiff conn merkle value = do
+    resp <- set conn "m:" merkle "diff" value
+    _ <- expire conn "m:" merkle 600
+    return resp
 
 getMerkleDiff :: PersistentConns -> B.ByteString -> IO (Maybe B.ByteString)
 getMerkleDiff conn merkle = get conn "m:" merkle "diff"

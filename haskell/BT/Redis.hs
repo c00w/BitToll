@@ -26,6 +26,13 @@ increment conn itemType item key value = do
         DR.hincrby (BC.append itemType item) key value
     return $ getRightRedis ok
 
+expire :: PersistentConns -> B.ByteString -> B.ByteString -> Integer -> IO Bool
+expire conn itemType item time = do
+    ok <- liftIO $ DR.runRedis (redis conn) $
+        DR.expire (BC.append itemType item) time
+    return $ getRightRedis ok
+
+
 getbtc :: PersistentConns -> B.ByteString -> B.ByteString -> B.ByteString -> IO BTC
 getbtc conn itemType item key = do
     r <- get conn itemType item key

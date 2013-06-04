@@ -8,7 +8,7 @@ def test_page_error():
     r = apicall("nonexistant", "hi")
     assert "error" in r
     assert r["error"] != ""
-    assert int(r["error_code"]) == 0
+    assert int(r["error_code"]) == 1
 
 def test_login(login):
     info = login

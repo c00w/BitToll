@@ -6,7 +6,8 @@ import fabric
 
 ip_address = "vm"
 port = "80"
-url = ''.join(['http://', ip_address, ':', port])
+mode = 'http'
+url = ''.join([mode, '://', ip_address, ':', port])
 
 from fabric.api import task, run, env
 from fabric.tasks import execute
@@ -18,13 +19,18 @@ def set_port(new_port):
     global port, url
 
     port = new_port
-    url = ''.join(['http://', ip_address, ':', port])
+    url = ''.join([mode, '://', ip_address, ':', port])
 
 def set_server(new_server):
     global ip_address, url
 
     ip_address = new_server
-    url = ''.join(['http://', ip_address, ':', port])
+    url = ''.join([mode, '://', ip_address, ':', port])
+
+def set_mode(new_mode):
+    global mode, url
+    mode = new_mode
+    url = ''.join([mode, '://', ip_address, ':', port])
 
 @task
 def _send_bc(address):
@@ -126,7 +132,7 @@ def request(userid, secret, amount):
     return apicall('request', body)
 
 def apicall(name, body, auth=None):
-    r = requests.post(url +'/' + name, data=json.dumps(body), auth=auth)
+    r = requests.post(url +'/' + name, data=json.dumps(body), auth=auth, verify=False)
     assert r.status_code == 200
     info = json.loads(r.text)
     return info

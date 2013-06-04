@@ -13,7 +13,7 @@ import BT.Log
 jstostring :: (Request -> PersistentConns -> IO [(String, String)]) -> Request -> PersistentConns -> IO BL.ByteString
 jstostring obj r p= do
     resp <- obj r p
-    return . encode . Data.Map.fromList $ resp
+    return . encode . Data.Map.fromList $ resp ++ [("error_code", "0")]
 
 router :: Map B.ByteString (Request -> PersistentConns -> IO BL.ByteString)
 router = Data.Map.fromList [
@@ -28,7 +28,7 @@ router = Data.Map.fromList [
 
 route :: B.ByteString -> Request -> PersistentConns -> IO BL.ByteString
 route path info conns = case Data.Map.lookup path router of
-                Nothing -> return "{\"error\":\"No Such Method\"}"
+                Nothing -> return "{\"error\":\"No Such Method\",\"error_code\":\"1\"}"
                 Just a -> do
                     logMsg $ "Handling" ++ show path
                     resp <- a info conns

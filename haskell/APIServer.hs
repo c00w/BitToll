@@ -1,6 +1,6 @@
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE OverloadedStrings      #-}
+{-# LANGUAGE FlexibleContexts       #-}
+{-# LANGUAGE DeriveDataTypeable     #-}
 
 import Network.Wai
 import Network.Wai.Handler.Warp (runSettings, defaultSettings, settingsHost, settingsPort)
@@ -21,10 +21,10 @@ exceptionHandler :: MyException -> IO (Maybe LB.ByteString)
 exceptionHandler e = do
     print e
     case e of
-        RedisException _ -> return $ Just "{\"error\":\"Server Error\"}"
-        BackendException _ -> return $ Just "{\"error\":\"Server Error\"}"
-        UserException a -> return $ Just $ LBC.pack $ "{\"error\":\"" ++ a ++ "\"}"
-        _ -> return $ Just "{\"error\":\"Server Error\"}"
+        RedisException _ -> return $ Just "{\"error\":\"Server Error\",\"error_code\":\"2\"}"
+        BackendException _ -> return $ Just "{\"error\":\"Server Error\",\"error_code\":\"2\"}"
+        UserException a -> return $ Just $ LBC.pack $ "{\"error\":\"" ++ a ++ "\",\"error_code\":\"1\"}"
+        _ -> return $ Just "{\"error\":\"Server Error\",\"error_code\":\"2\"}"
 
 application :: PersistentConns -> Application
 application conns info = do
@@ -36,7 +36,7 @@ application conns info = do
             responseLBS status200 [("Content-Type", "application/json")] response
         Nothing -> do
             liftIO $ logMsg "Api call timed out"
-            return $ responseLBS status200 [] "{\"error\":\"Server Error\"}"
+            return $ responseLBS status200 [] "{\"error\":\"Server Error\",\"error_code\":\"2\"}"
 
 main :: IO ()
 main = do

@@ -17,6 +17,7 @@ executable APIServer
                     conduit,
                     configurator,
                     containers,
+                    control-monad-exception,
                     cryptohash,
                     hedis,
                     hex,

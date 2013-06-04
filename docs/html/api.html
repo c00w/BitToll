@@ -87,7 +87,14 @@
             </p>
 
             <h3> Bittoll Servers </h3>
+            <p>
             Currently there is one bittoll server up <code>us.bittoll.com</code>. In the future others nodes will be brought up. When we refer to an endpoint such as <code>/register</code>, the http post should actually be made to <code>http://us.bittoll.com/register</code>
+            </p>
+
+            <h3> Errors </h3>
+            <p>
+            When an error occurs, either because of the user or server failure, a JSON dictionary is returned with an <code>error</code> field that contains a string representing the error. This is useful for debugging purposes. In the future error codes will also be returned which indicate whether the error was a user error, a temporary server error, or a permanent server error.
+            </p>
             </section>
 
             <section id="register">

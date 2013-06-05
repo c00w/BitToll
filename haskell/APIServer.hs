@@ -14,7 +14,6 @@ import BT.Routing
 import BT.Global
 import BT.Types
 import BT.Log
-import Control.Exception (catch)
 import System.Timeout (timeout)
 import Prelude hiding (lookup)
 import Data.Conduit.Network (HostPreference(Host))

@@ -6,14 +6,13 @@ import qualified Database.Redis as RD
 import qualified System.ZMQ3 as ZMQ
 import Data.Pool (Pool)
 import Data.Typeable
-import Control.Exception
 import Data.Aeson
 import Control.Applicative
 import Control.Monad (mzero)
 import Data.IORef (IORef)
 import Network.Bitcoin (BTC)
 import Data.Configurator.Types (Config)
-import Control.Monad.Exception (EMT, Caught)
+import Control.Monad.Exception (EMT, Caught, Exception)
 import Control.Monad.Exception.Base (NoExceptions)
 
 type BTIO a = EMT (Caught MyException NoExceptions) IO a

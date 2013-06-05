@@ -83,7 +83,7 @@ setSharePercentPaid conn shareid payout = set conn "s:" shareid "percentpaid" (B
 
 getSharePercentPaid :: PersistentConns -> B.ByteString -> BTIO BTC
 getSharePercentPaid conn shareid = do
-    resp <- liftM (getMaybe (RedisException "No share set")) $ get conn "s:" shareid "percentpaid"
+    resp <- getMaybe (RedisException "No share set") =<< get conn "s:" shareid "percentpaid"
     return $ (read . BC.unpack) resp
 
 getUserShares :: PersistentConns -> B.ByteString -> Double -> Double -> BTIO [B.ByteString]

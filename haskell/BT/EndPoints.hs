@@ -13,7 +13,7 @@ import Network.Wai (Request, requestHeaders)
 import Network.HTTP.Types.Header (hAuthorization)
 import Data.ByteString.Base64 (decodeLenient)
 import Control.Monad (when, liftM)
-import Control.Exception (throw)
+import Control.Monad.Exception (throw)
 import BT.Types
 import BT.Util
 import BT.JSON
@@ -32,7 +32,7 @@ usernameALShort :: PersistentConns -> Request -> BTIO (Data.Map.Map String Strin
 usernameALShort conn info = do
     al <- getRequestMap info
     verifyMap conn al
-    let username = BC.pack . getMaybe (UserException "Missing username") $ Data.Map.lookup "username" al
+    username <- liftM BC.pack . getMaybe (UserException "Missing username") $ Data.Map.lookup "username" al
     return (al, username)
 
 register :: Request -> PersistentConns-> BTIO [(String, String)]
@@ -57,10 +57,8 @@ getBalance info conn = do
 
 createPayment :: Request -> PersistentConns -> BTIO [(String, String)]
 createPayment info conn = do
-    al <- getRequestMap info
-    verifyMap conn al
-    let username = BC.pack$ getMaybe (UserException "Missing username") $ Data.Map.lookup "username" al
-    let amount = getMaybe (UserException "Missing amount") $ Data.Map.lookup "amount" al
+    (al, username) <- usernameALShort conn info
+    amount <- getMaybe (UserException "Missing amount") $ Data.Map.lookup "amount" al
     paymentid <- random256String
     resp <- setPaymentAmount conn (BC.pack paymentid) (read amount :: BTC)
     if resp then do
@@ -71,10 +69,10 @@ createPayment info conn = do
 makePayment :: Request -> PersistentConns -> BTIO [(String, String)]
 makePayment info conn = do
     (al, username) <- usernameALShort conn info
-    let payment = BC.pack $ getMaybe (UserException "Missing payment") $ Data.Map.lookup "payment" al
+    payment <- liftM BC.pack . getMaybe (UserException "Missing payment") $ Data.Map.lookup "payment" al
 
     user_wrap <- getPaymentUser conn payment
-    let user = getMaybe (RedisException "Failure getting payment user 225") user_wrap
+    user <- getMaybe (RedisException "Failure getting payment user 225") user_wrap
 
     logMsg "Before lock"
     lockUser conn username
@@ -99,7 +97,7 @@ makePayment info conn = do
 
     unlockUser conn username
 
-    secret <- liftM ( getMaybe (RedisException "unknown user for secret")) $ getUserSecret conn user
+    secret <- getMaybe (RedisException "unknown user for secret") =<< getUserSecret conn user
 
     let code = BC.map toLower.hex.hash $ BC.append payment secret
 
@@ -122,21 +120,22 @@ deposit info conn = do
     unlockUser conn username
     return resp
 
-requestUsername :: Request -> B.ByteString
-requestUsername req = head . BC.split ':' . decodeLenient . last. BC.split ' ' $ authstring
-    where authstring = getMaybe (UserException "Missing username header") . lookup hAuthorization . requestHeaders $ req
+requestUsername :: Request -> BTIO B.ByteString
+requestUsername req = do
+    authstring <- getMaybe (UserException "Missing username header") . lookup hAuthorization . requestHeaders $ req
+    return . head . BC.split ':' . decodeLenient . last. BC.split ' ' $ authstring
 
 mine :: Request -> PersistentConns -> BTIO BL.ByteString
 mine info conn = do
     body <- getRequestBody info
-    let request = getMaybe (UserException "Bad Format"). decode $ body :: MiningData
-    let username = requestUsername info
+    request <- getMaybe (UserException "Bad Format"). decode $ body :: BTIO MiningData
+    username <- requestUsername info
     case length . getwork $ request of
         0 -> do
             logMsg "getwork length = 0"
             item <- sendmine conn "getwork"
             logMsg "done talking backend"
-            let hashData = getMaybe (BackendException "Cannot convert result to hash") . decode . BL.fromStrict $ item :: HashData
+            hashData <- getMaybe (BackendException "Cannot convert result to hash") . decode . BL.fromStrict $ item :: BTIO HashData
             storeMerkleDiff conn hashData
             return $ jsonRPC (rpcid request) hashData
         1 -> do
@@ -149,7 +148,7 @@ mine info conn = do
             item <- sendmine conn (BC.pack ("recvwork"++ sub_hash))
             when (item == "true") $ do
                 sdiff <- getMerkleDiff conn merkle_root
-                let diff = getMaybe (RedisException "Error retrieving merklediff") sdiff
+                diff <- getMaybe (RedisException "Error retrieving merklediff") sdiff
                 payout <- getPayout conn diff
                 lockUser conn username
                 _ <- incrementUserBalance conn username payout
@@ -170,8 +169,8 @@ mine info conn = do
 sendBTC :: Request -> PersistentConns -> BTIO [(String, String)]
 sendBTC info conn = do
     (al, username) <- usernameALShort conn info
-    let rawamount = BC.pack $ getMaybe (UserException "Missing amount") $ Data.Map.lookup "amount" al
-    let address = BC.pack $ getMaybe (UserException "Missing address") $ Data.Map.lookup "address" al
+    rawamount <- liftM BC.pack . getMaybe (UserException "Missing amount") $ Data.Map.lookup "amount" al
+    address <- liftM BC.pack . getMaybe (UserException "Missing address") $ Data.Map.lookup "address" al
 
     logMsg "Locking"
     lockUser conn username

@@ -6,9 +6,9 @@ import Control.Monad.Loc
 import BT.Types
 import BT.Util
 import BT.User
-import Control.Exception (throw)
+import Control.Monad.Exception (throw)
 import Crypto.Hash.MD5
-import Control.Monad (unless)
+import Control.Monad (unless, liftM)
 import Data.Aeson (decode)
 import Data.List (sortBy)
 import Data.Hex (hex)
@@ -21,17 +21,17 @@ getRequestMap :: Request -> BTIO (Map String String)
 getRequestMap req = do
     body <- getRequestBody req
     let obj = decode body :: Maybe (Map String String)
-    return $ getMaybe (UserException "Invalid Json Object") obj
+    getMaybe (UserException "Invalid Json Object") obj
 
 verifyMap :: PersistentConns -> Map String String -> BTIO ()
 verifyMap conn mapd = do
     let al = toList mapd
     let signWrap = lookup "sign" al
-    let sign = getMaybe (UserException "no sign") signWrap
+    sign <- getMaybe (UserException "no sign") signWrap
     let al_minus_sign = filter (\s -> fst s /= "sign") al
-    let username = BC.pack $ getMaybe (UserException "Missing username field") $ lookup "username" al
+    username <- liftM BC.pack . getMaybe (UserException "Missing username field") . lookup "username" $ al
     secretWrap <- getUserSecret conn username
-    let secret = BC.unpack $ getMaybe (UserException "Invalid User") secretWrap
+    secret <- liftM BC.unpack . getMaybe (UserException "Invalid User") $ secretWrap
     unless (validateSign al_minus_sign sign secret) (throw $ UserException "Invalid Sign")
 
 keyComp :: (String, String) -> (String, String) -> Ordering

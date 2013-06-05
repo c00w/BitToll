@@ -9,7 +9,6 @@ import System.Random (randomIO)
 import Numeric (showHex)
 import Data.Word (Word64)
 import BT.Types
-import Control.Exception(throw)
 import qualified Data.ByteString.Lazy as BL
 import qualified Data.Aeson as A
 import Data.Conduit
@@ -20,7 +19,7 @@ import Network.Wai (Request, requestBody)
 import Data.Monoid (mconcat)
 import Data.String (IsString)
 import Data.Maybe (fromMaybe)
-import Control.Monad.Exception (EMT, showExceptionWithTrace)
+import Control.Monad.Exception (throw, EMT, showExceptionWithTrace)
 import Control.Monad.Exception.Base (NoExceptions)
 import qualified BT.Log
 
@@ -51,20 +50,20 @@ random256String = do
     d <- randomString
     return $ a ++ b ++ c ++ d
 
-getMaybe :: MyException -> Maybe a -> a
+getMaybe :: MyException -> Maybe a -> BTIO a
 getMaybe b may = case may of
-    Just a -> a
+    Just a -> return a
     _ -> throw b
 
 zeroMaybe :: IsString a => Maybe a -> a
 zeroMaybe = fromMaybe "0"
 
-getRight :: (a -> MyException) -> Either a b -> b
+getRight :: (a -> MyException) -> Either a b -> BTIO b
 getRight exc i = case i of
-    Right a -> a
+    Right a -> return a
     Left b -> throw (exc b)
 
-getRightRedis :: Show a => Either a b -> b
+getRightRedis :: Show a => Either a b -> BTIO b
 getRightRedis = getRight (RedisException . show)
 
 getRequestBody :: Request -> BTIO BL.ByteString

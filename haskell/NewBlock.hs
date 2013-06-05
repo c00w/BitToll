@@ -15,7 +15,7 @@ import qualified Data.ByteString.Char8 as BC
 
 removeUserQueue :: PersistentConns -> B.ByteString -> BTIO ()
 removeUserQueue conn share = do
-    username <- liftM (getMaybe (RedisException "no share Username")) $ getShareUsername conn share
+    username <- getMaybe (RedisException "no share Username") =<< getShareUsername conn share
     _ <- remShareUserQueue conn username share
     return ()
 
@@ -31,7 +31,7 @@ payKeyOwed conn increment key = do
     percent <- getSharePercentPaid conn key
     _ <- setSharePercentPaid conn key (percent + increment)
     let amount_increment = (-1) * amount * increment
-    username <- liftM (getMaybe (RedisException "no share Username")) $ getShareUsername conn key
+    username <- getMaybe (RedisException "no share Username") =<< getShareUsername conn key
     logMsg $ concat ["Paying unconfirmed user:", show username, " amount:", show amount_increment, " percent:", show increment]
     _ <- incrementUnconfirmedBalance conn username amount_increment
     return ()

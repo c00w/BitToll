@@ -1,6 +1,11 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE BangPatterns #-}
+{-# OPTIONS_GHC -F -pgmF MonadLoc   #-}
+
 module BT.EndPoints(register, deposit, getBalance, makePayment, createPayment, mine, sendBTC) where
+
+import Control.Monad.Loc
+
 import qualified Data.ByteString.Char8 as BC
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL
@@ -16,9 +21,6 @@ import BT.User
 import BT.Mining
 import BT.ZMQ
 import BT.Payment
-import BT.Log
-import Control.Monad.IO.Class (liftIO)
-import System.Timeout (timeout)
 import Data.Aeson (decode)
 import Network.Bitcoin (HashData, BTC)
 import Crypto.Hash.MD5 (hash)
@@ -26,14 +28,14 @@ import Data.Hex (hex)
 import Data.Char (toLower)
 import qualified Data.Map
 
-usernameALShort :: PersistentConns -> Request -> IO (Data.Map.Map String String, B.ByteString)
+usernameALShort :: PersistentConns -> Request -> BTIO (Data.Map.Map String String, B.ByteString)
 usernameALShort conn info = do
     al <- getRequestMap info
     verifyMap conn al
     let username = BC.pack . getMaybe (UserException "Missing username") $ Data.Map.lookup "username" al
     return (al, username)
 
-register :: Request -> PersistentConns-> IO [(String, String)]
+register :: Request -> PersistentConns-> BTIO [(String, String)]
 register info conn = do
     user <- random256String
     salt <- random256String
@@ -42,7 +44,7 @@ register info conn = do
     if ok then return [("username"::String, user), ("secret", salt)]
       else register info conn
 
-getBalance :: Request -> PersistentConns-> IO [(String, String)] 
+getBalance :: Request -> PersistentConns-> BTIO [(String, String)] 
 getBalance info conn = do
     (_, username) <- usernameALShort conn info
     bitcoinid_wrap <- getUserAddress conn username
@@ -53,7 +55,7 @@ getBalance info conn = do
     resp <- getUserBalance conn username
     return [("balance", show resp)]
 
-createPayment :: Request -> PersistentConns -> IO [(String, String)]
+createPayment :: Request -> PersistentConns -> BTIO [(String, String)]
 createPayment info conn = do
     al <- getRequestMap info
     verifyMap conn al
@@ -66,7 +68,7 @@ createPayment info conn = do
             return [("payment", paymentid)]
       else createPayment info conn
 
-makePayment :: Request -> PersistentConns -> IO [(String, String)]
+makePayment :: Request -> PersistentConns -> BTIO [(String, String)]
 makePayment info conn = do
     (al, username) <- usernameALShort conn info
     let payment = BC.pack $ getMaybe (UserException "Missing payment") $ Data.Map.lookup "payment" al
@@ -103,7 +105,7 @@ makePayment info conn = do
 
     return [("code", BC.unpack code)]
 
-deposit :: Request -> PersistentConns-> IO [(String, String)]
+deposit :: Request -> PersistentConns-> BTIO [(String, String)]
 deposit info conn = do
     (_, username) <- usernameALShort conn info
 
@@ -124,7 +126,7 @@ requestUsername :: Request -> B.ByteString
 requestUsername req = head . BC.split ':' . decodeLenient . last. BC.split ' ' $ authstring
     where authstring = getMaybe (UserException "Missing username header") . lookup hAuthorization . requestHeaders $ req
 
-mine :: Request -> PersistentConns -> IO BL.ByteString
+mine :: Request -> PersistentConns -> BTIO BL.ByteString
 mine info conn = do
     body <- getRequestBody info
     let request = getMaybe (UserException "Bad Format"). decode $ body :: MiningData
@@ -132,8 +134,7 @@ mine info conn = do
     case length . getwork $ request of
         0 -> do
             logMsg "getwork length = 0"
-            resp <- timeout 1000000 $ sendmine conn "getwork"
-            let item = getMaybe (BackendException "Cannot talk to p2pool server") resp
+            item <- sendmine conn "getwork"
             logMsg "done talking backend"
             let hashData = getMaybe (BackendException "Cannot convert result to hash") . decode . BL.fromStrict $ item :: HashData
             storeMerkleDiff conn hashData
@@ -145,8 +146,7 @@ mine info conn = do
             logMsg $ "recieved hash" ++ show sub_hash
 
             let merkle_root = extractMerkleRecieved sub_hash
-            resp <- liftIO $ timeout 1000000 $ sendmine conn (BC.pack ("recvwork"++ sub_hash))
-            let item = getMaybe (BackendException "Cannot talk to p2pool server") resp
+            item <- sendmine conn (BC.pack ("recvwork"++ sub_hash))
             when (item == "true") $ do
                 sdiff <- getMerkleDiff conn merkle_root
                 let diff = getMaybe (RedisException "Error retrieving merklediff") sdiff
@@ -167,7 +167,7 @@ mine info conn = do
             return "ERRORRRRRRR"
 
 
-sendBTC :: Request -> PersistentConns -> IO [(String, String)]
+sendBTC :: Request -> PersistentConns -> BTIO [(String, String)]
 sendBTC info conn = do
     (al, username) <- usernameALShort conn info
     let rawamount = BC.pack $ getMaybe (UserException "Missing amount") $ Data.Map.lookup "amount" al

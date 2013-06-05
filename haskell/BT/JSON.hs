@@ -1,4 +1,8 @@
+{-# OPTIONS_GHC -F -pgmF MonadLoc   #-}
 module BT.JSON (getRequestMap, verifyMap) where 
+
+import Control.Monad.Loc
+
 import BT.Types
 import BT.Util
 import BT.User
@@ -13,13 +17,13 @@ import Data.Map (Map, toList)
 import Network.Wai (Request)
 import qualified Data.ByteString.Char8 as BC
 
-getRequestMap :: Request -> IO (Map String String)
+getRequestMap :: Request -> BTIO (Map String String)
 getRequestMap req = do
     body <- getRequestBody req
     let obj = decode body :: Maybe (Map String String)
     return $ getMaybe (UserException "Invalid Json Object") obj
 
-verifyMap :: PersistentConns -> Map String String -> IO ()
+verifyMap :: PersistentConns -> Map String String -> BTIO ()
 verifyMap conn mapd = do
     let al = toList mapd
     let signWrap = lookup "sign" al

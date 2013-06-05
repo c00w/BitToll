@@ -13,6 +13,10 @@ import Control.Monad (mzero)
 import Data.IORef (IORef)
 import Network.Bitcoin (BTC)
 import Data.Configurator.Types (Config)
+import Control.Monad.Exception (EMT, Caught)
+import Control.Monad.Exception.Base (NoExceptions)
+
+type BTIO a = EMT (Caught MyException NoExceptions) IO a
 
 data PersistentConns = PersistentConns {
     redis       :: RD.Connection,

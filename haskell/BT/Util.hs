@@ -1,5 +1,10 @@
 {-# LANGUAGE OverloadedStrings #-}
-module BT.Util where 
+{-# OPTIONS_GHC -F -pgmF MonadLoc   #-}
+
+module BT.Util where
+
+import Control.Monad.Loc
+
 import System.Random (randomIO)
 import Numeric (showHex)
 import Data.Word (Word64)
@@ -10,20 +15,35 @@ import qualified Data.Aeson as A
 import Data.Conduit
 import Data.Conduit.List (consume)
 import Control.Applicative
+import Control.Monad.IO.Class (liftIO)
 import Network.Wai (Request, requestBody)
 import Data.Monoid (mconcat)
 import Data.String (IsString)
 import Data.Maybe (fromMaybe)
+import Control.Monad.Exception (EMT, showExceptionWithTrace)
+import Control.Monad.Exception.Base (NoExceptions)
+import qualified BT.Log
 
-randomNum :: IO Word64
-randomNum = randomIO
+elogCatch :: [String] -> MyException -> EMT NoExceptions IO (Maybe a)
+elogCatch loc e = do
+    liftIO . BT.Log.elogMsg $ showExceptionWithTrace loc e
+    return Nothing
 
-randomString :: IO String
+logCatch :: [String] -> MyException -> EMT NoExceptions IO ()
+logCatch loc e = liftIO . BT.Log.logMsg $ showExceptionWithTrace loc e
+
+logMsg :: String -> BTIO ()
+logMsg = liftIO . BT.Log.logMsg
+
+randomNum :: BTIO Word64
+randomNum = liftIO randomIO
+
+randomString :: BTIO String
 randomString = do
     a <- randomNum
     return $ showHex a ""
 
-random256String :: IO String
+random256String :: BTIO String
 random256String = do
     a <- randomString
     b <- randomString
@@ -47,8 +67,8 @@ getRight exc i = case i of
 getRightRedis :: Show a => Either a b -> b
 getRightRedis = getRight (RedisException . show)
 
-getRequestBody :: Request -> IO BL.ByteString
-getRequestBody req = BL.fromStrict <$> mconcat <$> runResourceT (requestBody req $$ consume)
+getRequestBody :: Request -> BTIO BL.ByteString
+getRequestBody req = liftIO $ BL.fromStrict <$> mconcat <$> runResourceT (requestBody req $$ consume)
 
 jsonRPC :: A.ToJSON a => A.Value -> a -> BL.ByteString 
 jsonRPC rid mess = A.encode . A.object $ [

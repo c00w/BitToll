@@ -93,7 +93,7 @@
 
             <h3> Errors </h3>
             <p>
-            When an error occurs, either because of the user or server failure, a JSON dictionary is returned with an <code>error</code> field that contains a string representing the error. This is useful for debugging purposes. In the future error codes will also be returned which indicate whether the error was a user error, a temporary server error, or a permanent server error.
+            When an error occurs, either because of the user or server failure, a JSON dictionary is returned with an <code>error</code> field and a <code>error_code</code> field. The <code>error</code> field contains a string representing the error. The <code>error_code</code> field contains a string which has three possible values. <code>"0"</code> means that no error occured, <code>"1"</code> means that there was an error caused by the user such as a missing field, and <code>"2"</code> means that the server had an error such as being unable to connect to a backend service.
             </p>
             </section>
 

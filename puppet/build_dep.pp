@@ -115,6 +115,16 @@ class build_depends( $deploy_user = 'deploy') {
         user        => "$deploy_user",
     }
 
+exec {"cabal update && cabal install monadloc-pp":
+        require     => Exec["cabal_install"],
+        path        => "/bin:/usr/bin:/usr/local/bin:/home/$deploy_user/.cabal/bin/",
+        user        => "$deploy_user",
+        environment => "HOME=/home/$deploy_user",
+        creates     => "/home/$deploy_user/.cabal/bin/MonadLoc",
+        alias       => "cabal_monadloc",
+        provider    => "shell",
+    }
+
     exec {"cabal update && cabal install cabal-dev":
         require     => Exec["cabal_install"],
         path        => "/bin:/usr/bin:/usr/local/bin:/home/$deploy_user/.cabal/bin/",

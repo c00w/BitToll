@@ -31,7 +31,7 @@ exceptionHandler loc e = do
 application :: PersistentConns -> Application
 application conns info = do
     let path = rawPathInfo info
-    response <- liftIO runEMT $ catchWithSrcLoc ( BT.Routing.route path info conns ) exceptionHandler
+    response <- liftIO . runEMT $ catchWithSrcLoc ( BT.Routing.route path info conns ) exceptionHandler
     liftIO . logMsg $ show response
     return $ responseLBS status200 [("Content-Type", "application/json")] response
 

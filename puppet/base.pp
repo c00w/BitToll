@@ -61,11 +61,11 @@ node "testlive.m.bittoll.com" {
 node "test.m.bittoll.com" {
 
     class {"config":    }
-    class {"redis_server": stage=>install}
-    class {"bitcoind":  stage=>install}
-    class {"p2pool":    stage=>install}
-    class {"bittoll":   stage=>install}
-    class {"nginx":     stage=>install}
+    class {"redis_server":              stage=>install}
+    class {"bitcoind":      test=>true, stage=>install}
+    class {"p2pool":        test=>true, stage=>install}
+    class {"bittoll":       test=>true, stage=>install}
+    class {"nginx":         test=>true, stage=>install}
 
     class {"test_vm":   stage=>install}
 

@@ -30,7 +30,6 @@ main :: IO ()
 main = do
     conn <- makeCons
     addr <- runEMT $ catchWithSrcLoc (getAddr conn) elogCatch
-    putStrLn . show $ addr
     case addr of
         Just a -> BC.putStrLn a
         _ -> main

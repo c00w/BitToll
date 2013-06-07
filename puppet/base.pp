@@ -60,7 +60,7 @@ node "testlive.m.bittoll.com" {
 
 node "test.m.bittoll.com" {
 
-    class {"config":    }
+    class {"config":        test=>true}
     class {"redis_server":              stage=>install}
     class {"bitcoind":      test=>true, stage=>install}
     class {"p2pool":        test=>true, stage=>install}

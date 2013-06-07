@@ -14,7 +14,6 @@ import BT.Routing
 import BT.Global
 import BT.Types
 import BT.Log
-import System.Timeout (timeout)
 import Prelude hiding (lookup)
 import Data.Conduit.Network (HostPreference(Host))
 import Control.Monad.Exception (EMT, catchWithSrcLoc, runEMT, showExceptionWithTrace)
@@ -32,14 +31,9 @@ exceptionHandler loc e = do
 application :: PersistentConns -> Application
 application conns info = do
     let path = rawPathInfo info
-    responsew <- liftIO . timeout 30000000 . runEMT $ catchWithSrcLoc ( BT.Routing.route path info conns ) exceptionHandler
-    liftIO $ logMsg $ show responsew
-    case responsew of
-        Just response -> return $
-            responseLBS status200 [("Content-Type", "application/json")] response
-        Nothing -> do
-            liftIO $ logMsg "Api call timed out"
-            return $ responseLBS status200 [] "{\"error\":\"Server Error\",\"error_code\":\"2\"}"
+    response <- liftIO runEMT $ catchWithSrcLoc ( BT.Routing.route path info conns ) exceptionHandler
+    liftIO . logMsg $ show response
+    return $ responseLBS status200 [("Content-Type", "application/json")] response
 
 main :: IO ()
 main = do

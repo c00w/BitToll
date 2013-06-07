@@ -8,7 +8,6 @@ import BT.Types
 import BT.Mining
 import BT.ZMQ
 import BT.Util
-import System.Timeout (timeout)
 import Control.Monad.Exception (runEMT, catchWithSrcLoc)
 
 import qualified Data.ByteString as B
@@ -30,7 +29,8 @@ getAddr conn = do
 main :: IO ()
 main = do
     conn <- makeCons
-    addr <- timeout 10000 $ runEMT $ catchWithSrcLoc (getAddr conn) elogCatch
+    addr <- runEMT $ catchWithSrcLoc (getAddr conn) elogCatch
+    putStrLn . show $ addr
     case addr of
-        Just (Just a) -> BC.putStrLn a
+        Just a -> BC.putStrLn a
         _ -> main

@@ -1,13 +1,16 @@
 import "bitcoind.pp"
+import "bittoll.pp"
 
 class p2pool ($test = false) {
 
     require bitcoind
+    require poolwrapper
 
     $p2pool_packages= [
         "python-zope.interface",
         "python-twisted",
         "python-twisted-web",
+        "git",
     ]
 
     package { $p2pool_packages:
@@ -37,11 +40,6 @@ class p2pool ($test = false) {
         alias    => "p2pool",
     }
 
-    File {
-        ensure  => present,
-        mode    => 0777
-    }
-
     $source = $test ? {
         true    => "/configs/test/p2pool.conf",
         false   => "/configs/p2pool.conf",
@@ -53,12 +51,7 @@ class p2pool ($test = false) {
             source  => $source,
             alias   => "p2pool.conf",
             notify  => Service["p2pool"];
-        "/usr/bin/PoolWrapper":
-            source  => "/binaries/PoolWrapper",
-            alias   => "poolwrapper-binary",
-            notify  => Service["p2pool"],
-            owner   => "p2pool";
-    }
+   }
 
     service {"p2pool":
         require => [

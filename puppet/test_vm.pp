@@ -1,7 +1,6 @@
 
 class test_vm {
     $test_packages = [
-        "git",
         "vim",
         "htop",
     ]

@@ -18,9 +18,11 @@ class {"ntp":}
 class {"apt":}
 class {"apt::unattended-upgrade::automatic":}
 
+stage {"build":}
+stage {"install":}
+Stage["build"] -> Stage["install"]
+
 node "atlantis.m.bittoll.com" {
-    stage {"build":}
-    stage {"install":}
 
     class {"build_depends": stage=>build}
     class {"build":         stage=>build}
@@ -37,8 +39,21 @@ node "atlantis.m.bittoll.com" {
     class {"nginx":         stage=>install}
 
     Class["bittoll"] -> Class["nginx"]
+    Stage["build"] -> Class["config"]
+    Class["config"] -> Stage["install"]
+}
 
-    Stage["build"] -> Stage["install"]
+node "testlive.m.bittoll.com" {
+
+    class {"config":}
+
+    class {"redis_server":  stage=>install}
+    class {"bitcoind":      stage=>install}
+    class {"p2pool":        stage=>install}
+    class {"bittoll":       stage=>install}
+    class {"nginx":         stage=>install}
+
+    Class["bittoll"] -> Class["nginx"]
     Stage["build"] -> Class["config"]
     Class["config"] -> Stage["install"]
 }
@@ -47,16 +62,15 @@ node "test.m.bittoll.com" {
     stage {"build":}
     stage {"install":}
 
-    class {"config":    test => true}
-    class {"redis_server":            stage=>install}
-    class {"bitcoind":  test => true, stage=>install}
-    class {"p2pool":    test => true, stage=>install}
-    class {"bittoll":   test => true, stage=>install}
-    class {"nginx":     test => true, stage=>install}
+    class {"config":    }
+    class {"redis_server": stage=>install}
+    class {"bitcoind":  stage=>install}
+    class {"p2pool":    stage=>install}
+    class {"bittoll":   stage=>install}
+    class {"nginx":     stage=>install}
 
-    class {"test_vm":                 stage=>install}
+    class {"test_vm":   stage=>install}
 
-    Stage["build"] -> Stage["install"]
     Stage["build"] -> Class["config"]
     Class["config"] -> Stage["install"]
 }

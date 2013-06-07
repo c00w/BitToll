@@ -59,8 +59,6 @@ node "testlive.m.bittoll.com" {
 }
 
 node "test.m.bittoll.com" {
-    stage {"build":}
-    stage {"install":}
 
     class {"config":    }
     class {"redis_server": stage=>install}

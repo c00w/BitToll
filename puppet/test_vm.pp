@@ -3,6 +3,7 @@ class test_vm {
     $test_packages = [
         "vim",
         "htop",
+        "git",
     ]
 
     package { $test_packages:

@@ -4,6 +4,8 @@ set -e
 
 ssh -t deploy@$1 "
 cd /home/deploy/BitToll
-git pull origin production
+git checkout master
+git pull origin
+git checkout production
 sudo /home/deploy/BitToll/production/run_puppet.sh
 "

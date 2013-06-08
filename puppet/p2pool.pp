@@ -10,7 +10,6 @@ class p2pool ($test = false) {
         "python-zope.interface",
         "python-twisted",
         "python-twisted-web",
-        "git",
     ]
 
     package { $p2pool_packages:

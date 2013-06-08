@@ -37,6 +37,7 @@ increment :: PersistentConns -> B.ByteString -> B.ByteString -> B.ByteString -> 
 increment conn itemType item key value = do
     ok <- liftIO $ DR.runRedis (redis conn) $
         DR.hincrby (BC.append itemType item) key value
+    liftIO . putStrLn $ "increment item,itemype: " ++ show itemType ++ show item ++ "key: " ++ show key ++ " value:" ++ show value
     getRightRedis ok
 
 expire :: PersistentConns -> B.ByteString -> B.ByteString -> Integer -> BTIO Bool

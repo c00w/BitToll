@@ -42,7 +42,6 @@ class build_depends( $deploy_user = 'deploy') {
 
     vcsrepo {"/home/$deploy_user/BitToll":
         source  => "git://github.com/c00w/BitToll.git",
-        revision=> "production",
         require => [
             User["$deploy_user"],
             Package["git"],

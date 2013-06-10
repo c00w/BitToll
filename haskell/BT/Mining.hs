@@ -54,6 +54,7 @@ getPayout conn hexdiff = do
     payout <- liftIO . readIORef . curPayout $ conn
     miningDiff <- liftIO . readIORef . curTarget $ conn
     let diff = hexDiffToInt hexdiff :: BTC
+    logMsg $ "calculate diff curPayout: " ++ show payout ++ " curTarget: " ++ show miningDiff ++ " miningDiff: " ++ show diff
     return $ (miningDiff * payout) / diff
 
 setShareUsername :: PersistentConns -> B.ByteString -> B.ByteString -> BTIO Bool

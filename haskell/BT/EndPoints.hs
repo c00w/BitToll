@@ -147,8 +147,11 @@ mine info conn = do
             let merkle_root = extractMerkleRecieved sub_hash
             item <- sendmine conn (BC.pack ("recvwork"++ sub_hash))
             when (item == "true") $ do
+                logMsg "submiting since value = rue"
                 sdiff <- getMerkleDiff conn merkle_root
+                logMsg $ "Sdiff: " ++ show sdiff
                 diff <- getMaybe (RedisException "Error retrieving merklediff") sdiff
+                logMsg $ "diff: " ++ show diff
                 payout <- getPayout conn diff
                 lockUser conn username
                 _ <- incrementUserBalance conn username payout
@@ -185,7 +188,7 @@ sendBTC info conn = do
     let !amount = read. BC.unpack $ rawamount :: BTC
 
     logMsg "Handle cases"
-    resp <- if amount > balance-unconfirmed then 
+    resp <- if amount > balance-unconfirmed then
         (do
             logMsg "Can do it"
             logMsg "Set Balance"
@@ -193,7 +196,7 @@ sendBTC info conn = do
             logMsg "send_money"
             let arg = BC.intercalate "|" [address, (BC.pack . show) amount]
 
-            resp <- send conn (BC.append "sendto" arg) 
+            resp <- send conn (BC.append "sendto" arg)
 
             logMsg "sent"
             return [("id", BC.unpack resp)])

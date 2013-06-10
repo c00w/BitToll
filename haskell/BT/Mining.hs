@@ -47,7 +47,7 @@ getMerkleDiff conn merkle = get conn "m:" merkle "diff"
 
 hexDiffToInt :: B.ByteString -> BTC
 hexDiffToInt hd = fromIntegral int
-    where int = (fst . head . readHex . BC.unpack . B.reverse) hd :: Int
+    where int = (fst . head . readHex . BC.unpack . B.reverse) hd :: Integer
 
 getPayout :: PersistentConns -> B.ByteString -> BTIO BTC
 getPayout conn hexdiff = do

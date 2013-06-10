@@ -2,6 +2,7 @@
 
 set -e
 
+git push origin $(git tag -l v\* | tail -1)
 ssh -t deploy@$1 "
 cd /home/deploy/BitToll
 git checkout master

@@ -23,7 +23,6 @@ class llvm (
 
     exec {"tar -xvf /home/$deploy/$source_name":
         cwd     => "/opt/",
-        user    => "root",
         creates => "/opt/$extract_name",
         require => Exec["llvm_source"],
         alias   => "llvm_ex"
@@ -32,12 +31,10 @@ class llvm (
     exec {"mv /opt/$extract_name /opt/llvm":
         creates => "/opt/llvm",
         require => Exec["llvm_ex"],
-        user    => "user",
         alias   => "llvm_fold",
     }
 
     exec {"chmod -R 0511 /opt/llvm && chown -R root /opt/llvm":
-        user    => "root",
         require => Exec["llvm_fold"],
         subscribe   => Exec["llvm_fold"],
         refreshonly => true,

@@ -16,7 +16,6 @@ class llvm (
         user    => $deploy,
         cwd     => "/home/$deploy",
         path    => "/bin:/usr/bin",
-        refreshonly => true,
         creates => "/home/$deploy/$source_name",
         alias   => "llvm_source",
         timeout => 0,
@@ -27,7 +26,6 @@ class llvm (
         user    => "root",
         creates => "/opt/$extract_name",
         require => Exec["llvm_source"],
-        refreshonly => true,
         alias   => "llvm_ex"
     }
 
@@ -41,6 +39,7 @@ class llvm (
     exec {"chmod -R 0511 /opt/llvm && chown -R root /opt/llvm":
         user    => "root",
         require => Exec["llvm_fold"],
+        subscribe   => Exec["llvm_fold"],
         refreshonly => true,
     }
 

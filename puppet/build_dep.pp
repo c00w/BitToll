@@ -58,7 +58,6 @@ class llvm (
 
 class build_depends( $deploy_user = 'deploy') {
     require chris_ppa
-    require llvm
 
     group {"admin":
         ensure  => present,

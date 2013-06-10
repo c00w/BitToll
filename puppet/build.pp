@@ -2,6 +2,7 @@ import "build_dep.pp"
 
 class build ($user = 'deploy') {
     require build_depends
+    require llvm
 
     exec {"cabal-dev install":
         # The right thing to do, but our bash scripts do a pull

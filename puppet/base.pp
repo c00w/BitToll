@@ -13,6 +13,9 @@ import "production.pp"
 import "firehol.pp"
 import "config.pp"
 import "nginx.pp"
+import "statsd.pp"
+import "graphite.pp"
+import "uwsgi.pp"
 
 class {"ntp":}
 class {"apt":}
@@ -60,14 +63,17 @@ node "testlive.m.bittoll.com" {
 
 node "test.m.bittoll.com" {
 
+    class {"statsd":        stage=>build}
+    class {"graphite":      stage=>build}
+    class {"uwsgi":      stage=>build}
+
     class {"config":        test=>true}
     class {"redis_server":              stage=>install}
     class {"bitcoind":      test=>true, stage=>install}
     class {"p2pool":        test=>true, stage=>install}
     class {"bittoll":       test=>true, stage=>install}
     class {"nginx":         test=>true, stage=>install}
-
-    class {"test_vm":   stage=>install}
+    class {"test_vm":       stage=>install}
 
     Stage["build"] -> Class["config"]
     Class["config"] -> Stage["install"]

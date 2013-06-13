@@ -30,7 +30,7 @@ class production {
         ensure  => present,
         owner   => root,
         group   => root,
-        source  => '/configs/sshd_config',
+        source  => '/configs/ssh/sshd_config',
         mode    => 0600,
         notify  => Service['ssh']
     }

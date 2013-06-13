@@ -25,6 +25,7 @@ executable APIServer
                     monadloc,
                     network-bitcoin,
                     network-conduit,
+                    network-metrics,
                     resource-pool,
                     random,
                     transformers,

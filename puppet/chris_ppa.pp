@@ -3,12 +3,12 @@ class chris_ppa {
     apt::ppa {"chris-lea":
         ensure  => present,
         key     => "C7917B12",
-        ppa     => ["redis-server", "zeromq"]
+        ppa     => ["redis-server", "zeromq", "node.js"]
     }
 
-    exec {"apt-get update && touch /var/tmp/chris_ppa_update":
+    exec {"/usr/bin/apt-get update":
         require => Apt::Ppa["chris-lea"],
-        path    => "/usr/bin",
-        creates => "/var/tmp/chris_ppa_update",
+        subscribe => Apt::Ppa["chris-lea"],
+        refreshonly => true,
     }
 }

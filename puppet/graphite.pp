@@ -12,6 +12,8 @@ class graphite {
             ensure  => latest;
         "python-dev":
             ensure  => latest;
+        "python-cairo":
+            ensure  => latest;
         "whisper":
             provider    => pip,
             ensure      => latest;
@@ -34,6 +36,7 @@ class graphite {
     Package["python-pip"] -> Package["carbon"]
     Package["python-django"] -> Package["graphite-web"]
     Package["django-tagging"] -> Package["graphite-web"]
+    Package["python-cairo"] -> Package["graphite-web"]
 
     file {"/opt/graphite/conf/carbon.conf":
         require => Package["carbon"],
@@ -41,6 +44,19 @@ class graphite {
         mode    => 0444,
         source  => "/configs/carbon/carbon.conf",
         owner   => "graphite",
+    }
+
+    file {"/etc/init/carbon.conf":
+        require => File["/opt/graphite/conf/carbon.conf"],
+        ensure  => present,
+        mode    => 0444,
+        source  => "/configs/carbon/init/carbon.conf",
+    }
+
+    service {"carbon":
+        require => File["/etc/init/carbon.conf"],
+        ensure  => running,
+        enable  => true,
     }
 
     file {"/opt/graphite/conf/storage-schemas.conf":
@@ -80,6 +96,7 @@ class graphite {
     exec {"/usr/bin/python manage.py syncdb --noinput":
         cwd     => "/opt/graphite/webapp/graphite",
         user    => "graphite",
+        creates => "/opt/graphite/storage/graphite.db",
         require => [
             File["/opt/graphite/webapp/graphite/local_settings.py"],
             Exec["graphite_own"],

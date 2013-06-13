@@ -33,6 +33,7 @@ application conns info = do
     let path = rawPathInfo info
     response <- liftIO . runEMT $ catchWithSrcLoc ( BT.Routing.route path info conns ) exceptionHandler
     liftIO . logMsg $ show response
+    liftIO $ logCount "apiserver" "requests" 1
     return $ responseLBS status200 [("Content-Type", "application/json")] response
 
 main :: IO ()

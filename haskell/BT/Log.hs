@@ -3,18 +3,26 @@
 module BT.Log where
 
 import Control.Concurrent (myThreadId)
+import Data.Time.Clock (diffUTCTime, getCurrentTime, UTCTime)
 import System.IO (hPutStrLn, stderr)
 import Network.Metric.Sink.Statsd (open, AnySink, push)
-import Network.Metric (Metric(Counter))
+import Network.Metric (Metric(Counter, Timer))
 import qualified Data.ByteString as B
 
 loggingSink :: IO AnySink
-loggingSink = open "localhost" "localhost" 8125
+loggingSink = open "bittoll" "localhost" 8125
 
 logCount :: B.ByteString -> B.ByteString -> Integer -> IO ()
 logCount namespace bucket count = do
     ssink <- loggingSink
     push ssink $ Counter namespace bucket count
+
+logTimer :: B.ByteString -> B.ByteString -> UTCTime -> IO ()
+logTimer namespace bucket start = do
+    end <- getCurrentTime
+    ssink <- loggingSink
+    let time = fromRational . toRational $ diffUTCTime end start
+    push ssink $ Timer namespace bucket (time * 1000)
 
 elogMsg :: String -> IO ()
 elogMsg s = do

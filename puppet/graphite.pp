@@ -54,7 +54,11 @@ class graphite {
     }
 
     service {"carbon":
-        require => File["/etc/init/carbon.conf"],
+        require => [
+            File["/etc/init/carbon.conf"],
+            File["/opt/graphite/conf/storage-schemas.conf"],
+            File["/opt/graphite/conf/storage-aggregation.conf"],
+        ],
         ensure  => running,
         enable  => true,
     }
@@ -66,6 +70,15 @@ class graphite {
         source  => "/configs/carbon/storage-schemas.conf",
         owner   => "graphite",
     }
+
+    file {"/opt/graphite/conf/storage-aggregation.conf":
+        require => Package["carbon"],
+        ensure  => present,
+        mode    => 0444,
+        source  => "/configs/carbon/storage-aggregation.conf",
+        owner   => "graphite",
+    }
+
 
     file {"/opt/graphite/conf/graphite.wsgi":
         require => Package["graphite-web"],

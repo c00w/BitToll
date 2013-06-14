@@ -36,7 +36,7 @@ application conns info = do
         start <- liftIO $ getCurrentTime
         resp <- BT.Routing.route path info conns 
         liftIO $ logCount "apiserver" "requests" 1
-        --- liftIO $ logTimer "apiserver" "request_time" start
+        liftIO $ logTimer "apiserver" "request_time" start
         return resp
         ) exceptionHandler
     liftIO . logMsg $ show response

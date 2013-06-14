@@ -7,6 +7,7 @@ ssh -t deploy@$1 "
 cd /home/deploy/BitToll
 git checkout master
 git pull origin
+git fetch --tags
 git checkout $(git tag -l v\* | sort -V | tail -1)
 sudo /home/deploy/BitToll/production/run_puppet.sh
 "

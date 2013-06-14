@@ -1,4 +1,7 @@
+import "git.pp"
+
 class chris_ppa {
+    require git
 
     apt::ppa {"chris-lea":
         ensure  => present,

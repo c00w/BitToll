@@ -1,8 +1,10 @@
 import "bitcoind.pp"
 import "bittoll.pp"
+import "git.pp"
 
 class p2pool ($test = false) {
 
+    require git
     require bitcoind
     require poolwrapper
 

@@ -1,9 +1,10 @@
+import "git.pp"
 
 class test_vm {
+    require git
     $test_packages = [
         "vim",
         "htop",
-        "git",
     ]
 
     package { $test_packages:

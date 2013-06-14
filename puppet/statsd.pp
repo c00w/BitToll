@@ -1,8 +1,10 @@
 import "chris_ppa.pp"
+import "git.pp"
 
 class nodejs {
 
     require chris_ppa
+    require git
 
     package{"nodejs":
         ensure  => latest
@@ -10,6 +12,7 @@ class nodejs {
 }
 
 class statsd {
+    require git
     require nodejs
 
     user{"statsd":

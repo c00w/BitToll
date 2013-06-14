@@ -1,4 +1,5 @@
 import "chris_ppa.pp"
+import "git.pp"
 
 class llvm (
     $deploy_user = 'deploy',
@@ -7,6 +8,8 @@ class llvm (
     $source_name = "clang+llvm-3.2-x86_64-linux-ubuntu-12.04.tar.gz",
     $extract_name = "clang+llvm-3.2-x86_64-linux-ubuntu-12.04",
     ) {
+
+    require git
 
     package {"llvm":
         ensure  => absent
@@ -87,8 +90,7 @@ class build_depends( $deploy_user = 'deploy') {
             "libzmq-dev",
             "zlib1g-dev",
             "build-essential",
-            "happy",
-            "git"]:
+            "happy"]:
         ensure => latest,
     }
 
@@ -96,7 +98,6 @@ class build_depends( $deploy_user = 'deploy') {
         source  => "git://github.com/c00w/BitToll.git",
         require => [
             User["$deploy_user"],
-            Package["git"],
         ],
         ensure  => "present",
         provider=> git,
@@ -108,7 +109,6 @@ class build_depends( $deploy_user = 'deploy') {
         revision=> "cabal-1.16",
         require => [
             User["$deploy_user"],
-            Package["git"],
         ],
         ensure  => "present",
         provider=> git,

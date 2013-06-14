@@ -33,6 +33,11 @@ node "atlantis.m.bittoll.com" {
     class {"production":    stage=>build}
     class {"firehol":       stage=>build}
 
+    class {"statsd":        stage=>build}
+    class {"graphite":      stage=>build}
+    class {"uwsgi":         stage=>build}
+
+
     class {"config":}
 
     class {"redis_server":  stage=>install}

@@ -10,7 +10,7 @@ import Network.Metric (Metric(Counter, Timer))
 import qualified Data.ByteString as B
 
 loggingSink :: IO AnySink
-loggingSink = open "bittoll" "localhost" 8125
+loggingSink = open "bittoll" "127.0.0.1" 8125
 
 logCount :: B.ByteString -> B.ByteString -> Integer -> IO ()
 logCount namespace bucket count = do

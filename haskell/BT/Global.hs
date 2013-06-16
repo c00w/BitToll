@@ -10,7 +10,7 @@ import BT.Util
 import Data.IORef (newIORef)
 import Control.Concurrent (forkIO)
 import Data.Configurator.Types (Configured)
-import Control.Monad.Exception (catchWithSrcLoc, runEMT)
+import Control.Exception (catch)
 
 makeZMQSocket :: ZMQ.Context -> String -> IO (ZMQ.Socket ZMQ.Req)
 makeZMQSocket ctx addr = do
@@ -39,5 +39,5 @@ makeCons = do
         curTarget=target,
         config=configuration
         }
-    _ <- forkIO $ runEMT $ catchWithSrcLoc (poll p) logCatch
+    _ <- forkIO $ catch (poll p) logCatch
     return p

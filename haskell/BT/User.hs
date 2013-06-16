@@ -1,9 +1,9 @@
 {-# LANGUAGE OverloadedStrings #-}
-{-# OPTIONS_GHC -F -pgmF MonadLoc   #-}
+
 
 module BT.User where
 
-import Control.Monad.Loc
+
 
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Char8 as BC
@@ -14,12 +14,12 @@ import BT.Types
 import BT.ZMQ
 import BT.Util (logMsg)
 
-updateStoredBalance :: B.ByteString -> B.ByteString -> PersistentConns -> BTIO ()
+updateStoredBalance :: B.ByteString -> B.ByteString -> PersistentConns -> IO ()
 updateStoredBalance bitcoin_addr userid conn = do
     lockUser conn userid
 
     logMsg "Updating balance"
-    actual_recv <- liftM (read . BC.unpack) $ send conn $ B.append "recieved" bitcoin_addr :: BTIO BTC
+    actual_recv <- liftM (read . BC.unpack) $ send conn $ B.append "recieved" bitcoin_addr :: IO BTC
 
     stored_recv <- getUserAddressRecieved conn userid
 
@@ -36,7 +36,7 @@ updateStoredBalance bitcoin_addr userid conn = do
 
     return ()
 
-lockUser :: PersistentConns -> B.ByteString -> BTIO ()
+lockUser :: PersistentConns -> B.ByteString -> IO ()
 lockUser conn user = do
     ok <- BR.rsetnx conn "ul:" user "h"
     if ok then do
@@ -44,43 +44,43 @@ lockUser conn user = do
         logMsg $ "lock add " ++ show user
        else lockUser conn user
 
-unlockUser :: PersistentConns -> B.ByteString -> BTIO ()
+unlockUser :: PersistentConns -> B.ByteString -> IO ()
 unlockUser conn user = do
     logMsg $ "lock del " ++ show user
     ok <- BR.rdel conn "ul:" user
     unless ok (logMsg "Odd unlock failed")
     return ()
 
-getUserBalance :: PersistentConns -> B.ByteString -> BTIO BTC
+getUserBalance :: PersistentConns -> B.ByteString -> IO BTC
 getUserBalance conn user = BR.getbtc conn "u:" user "balance"
 
-getUnconfirmedBalance :: PersistentConns -> B.ByteString -> BTIO BTC
+getUnconfirmedBalance :: PersistentConns -> B.ByteString -> IO BTC
 getUnconfirmedBalance conn user = BR.getbtc conn "u:" user "balance_unconfirmed"
 
-getPaidBalance :: PersistentConns -> B.ByteString -> BTIO BTC
+getPaidBalance :: PersistentConns -> B.ByteString -> IO BTC
 getPaidBalance conn user = BR.getbtc conn "u:" user "balance_paid"
 
-getUserAddress :: PersistentConns -> B.ByteString -> BTIO (Maybe B.ByteString)
+getUserAddress :: PersistentConns -> B.ByteString -> IO (Maybe B.ByteString)
 getUserAddress conn user = BR.get conn "u:" user "address"
 
-getUserAddressRecieved :: PersistentConns -> B.ByteString -> BTIO BTC
+getUserAddressRecieved :: PersistentConns -> B.ByteString -> IO BTC
 getUserAddressRecieved conn user = BR.getbtc conn "u:" user "address_recieved"
 
-getUserSecret :: PersistentConns -> B.ByteString -> BTIO (Maybe B.ByteString)
+getUserSecret :: PersistentConns -> B.ByteString -> IO (Maybe B.ByteString)
 getUserSecret conn user = BR.get conn "u:" user "secret"
 
-incrementUserBalance :: PersistentConns -> B.ByteString -> BTC -> BTIO BTC
+incrementUserBalance :: PersistentConns -> B.ByteString -> BTC -> IO BTC
 incrementUserBalance conn user = BR.incrementbtc conn "u:" user "balance"
 
-incrementUnconfirmedBalance :: PersistentConns -> B.ByteString -> BTC -> BTIO BTC
+incrementUnconfirmedBalance :: PersistentConns -> B.ByteString -> BTC -> IO BTC
 incrementUnconfirmedBalance conn user = BR.incrementbtc conn "u:" user "balance_unconfirmed"
 
 
-setUserAddress :: PersistentConns -> B.ByteString -> B.ByteString-> BTIO Bool
+setUserAddress :: PersistentConns -> B.ByteString -> B.ByteString-> IO Bool
 setUserAddress conn user = BR.set conn "u:" user "address"
 
-incrementUserAddressRecieved :: PersistentConns -> B.ByteString -> BTC -> BTIO BTC
+incrementUserAddressRecieved :: PersistentConns -> B.ByteString -> BTC -> IO BTC
 incrementUserAddressRecieved conn user = BR.incrementbtc conn "u:" user  "address_recieved"
 
-setUserSecret :: PersistentConns -> B.ByteString -> B.ByteString -> BTIO Bool
+setUserSecret :: PersistentConns -> B.ByteString -> B.ByteString -> IO Bool
 setUserSecret conn user = BR.setnx conn "u:" user "secret"

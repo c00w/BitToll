@@ -1,12 +1,12 @@
-{-# OPTIONS_GHC -F -pgmF MonadLoc   #-}
+
 module BT.JSON (getRequestMap, verifyMap) where 
 
-import Control.Monad.Loc
+
 
 import BT.Types
 import BT.Util
 import BT.User
-import Control.Monad.Exception (throw)
+import Control.Exception (throw)
 import Crypto.Hash.MD5
 import Control.Monad (unless, liftM)
 import Data.Aeson (decode)
@@ -17,13 +17,13 @@ import Data.Map (Map, toList)
 import Network.Wai (Request)
 import qualified Data.ByteString.Char8 as BC
 
-getRequestMap :: Request -> BTIO (Map String String)
+getRequestMap :: Request -> IO (Map String String)
 getRequestMap req = do
     body <- getRequestBody req
     let obj = decode body :: Maybe (Map String String)
     getMaybe (UserException "Invalid Json Object") obj
 
-verifyMap :: PersistentConns -> Map String String -> BTIO ()
+verifyMap :: PersistentConns -> Map String String -> IO ()
 verifyMap conn mapd = do
     let al = toList mapd
     let signWrap = lookup "sign" al

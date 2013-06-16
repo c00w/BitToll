@@ -6,26 +6,26 @@ import BT.Mining
 import BT.Util
 import BT.User
 import Control.Monad (when, liftM)
-import Control.Monad.Exception (runEMT, catchWithSrcLoc)
+import Control.Exception (catch)
 import Network.Bitcoin (BTC)
 import Numeric
 
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Char8 as BC
 
-removeUserQueue :: PersistentConns -> B.ByteString -> BTIO ()
+removeUserQueue :: PersistentConns -> B.ByteString -> IO ()
 removeUserQueue conn share = do
     username <- getMaybe (RedisException "no share Username") =<< getShareUsername conn share
     _ <- remShareUserQueue conn username share
     return ()
 
-getKeyOwed :: PersistentConns -> BTC -> B.ByteString -> BTIO BTC
+getKeyOwed :: PersistentConns -> BTC -> B.ByteString -> IO BTC
 getKeyOwed conn end key = do
     amount <- getSharePayout conn key
     percent <- getSharePercentPaid conn key
     return $ (end - percent) * amount
 
-payKeyOwed :: PersistentConns -> BTC -> B.ByteString -> BTIO ()
+payKeyOwed :: PersistentConns -> BTC -> B.ByteString -> IO ()
 payKeyOwed conn increment key = do
     amount <- getSharePayout conn key
     percent <- getSharePercentPaid conn key
@@ -36,10 +36,10 @@ payKeyOwed conn increment key = do
     _ <- incrementUnconfirmedBalance conn username amount_increment
     return ()
 
-handleMine :: PersistentConns -> B.ByteString -> BTIO ()
+handleMine :: PersistentConns -> B.ByteString -> IO ()
 handleMine conn mine_addr = do
 
-    actual_recv <- liftM (read . BC.unpack) $ send conn $ B.append "recieved" mine_addr :: BTIO BTC
+    actual_recv <- liftM (read . BC.unpack) $ send conn $ B.append "recieved" mine_addr :: IO BTC
 
     stored_recv <- getMineRecieved conn
 
@@ -76,7 +76,7 @@ handleMine conn mine_addr = do
         return ()
     return ()
 
-payout :: PersistentConns -> BTC -> BTC -> BTIO ()
+payout :: PersistentConns -> BTC -> BTC -> IO ()
 payout _ _   0 = return ()
 payout _ 1.0 _ = return ()
 payout conn startlevel payout_amount = when (payout_amount > 0) $ do
@@ -105,7 +105,7 @@ payout conn startlevel payout_amount = when (payout_amount > 0) $ do
 main :: IO ()
 main = do
     conn <- makeCons
-    runEMT $ catchWithSrcLoc (do
+    catch (do
         addr <- getMiningAddress conn
         case addr of
             Just a -> handleMine conn a

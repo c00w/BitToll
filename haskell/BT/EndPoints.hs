@@ -1,10 +1,10 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE BangPatterns #-}
-{-# OPTIONS_GHC -F -pgmF MonadLoc   #-}
+
 
 module BT.EndPoints(register, deposit, getBalance, makePayment, createPayment, mine, sendBTC) where
 
-import Control.Monad.Loc
+
 
 import qualified Data.ByteString.Char8 as BC
 import qualified Data.ByteString as B
@@ -13,7 +13,7 @@ import Network.Wai (Request, requestHeaders)
 import Network.HTTP.Types.Header (hAuthorization)
 import Data.ByteString.Base64 (decodeLenient)
 import Control.Monad (when, liftM)
-import Control.Monad.Exception (throw)
+import Control.Exception (throw)
 import BT.Types
 import BT.Util
 import BT.JSON
@@ -28,14 +28,14 @@ import Data.Hex (hex)
 import Data.Char (toLower)
 import qualified Data.Map
 
-usernameALShort :: PersistentConns -> Request -> BTIO (Data.Map.Map String String, B.ByteString)
+usernameALShort :: PersistentConns -> Request -> IO (Data.Map.Map String String, B.ByteString)
 usernameALShort conn info = do
     al <- getRequestMap info
     verifyMap conn al
     username <- liftM BC.pack . getMaybe (UserException "Missing username") $ Data.Map.lookup "username" al
     return (al, username)
 
-register :: Request -> PersistentConns-> BTIO [(String, String)]
+register :: Request -> PersistentConns-> IO [(String, String)]
 register info conn = do
     user <- random256String
     salt <- random256String
@@ -44,7 +44,7 @@ register info conn = do
     if ok then return [("username"::String, user), ("secret", salt)]
       else register info conn
 
-getBalance :: Request -> PersistentConns-> BTIO [(String, String)] 
+getBalance :: Request -> PersistentConns-> IO [(String, String)] 
 getBalance info conn = do
     (_, username) <- usernameALShort conn info
     bitcoinid_wrap <- getUserAddress conn username
@@ -55,7 +55,7 @@ getBalance info conn = do
     resp <- getUserBalance conn username
     return [("balance", show resp)]
 
-createPayment :: Request -> PersistentConns -> BTIO [(String, String)]
+createPayment :: Request -> PersistentConns -> IO [(String, String)]
 createPayment info conn = do
     (al, username) <- usernameALShort conn info
     amount <- getMaybe (UserException "Missing amount") $ Data.Map.lookup "amount" al
@@ -66,7 +66,7 @@ createPayment info conn = do
             return [("payment", paymentid)]
       else createPayment info conn
 
-makePayment :: Request -> PersistentConns -> BTIO [(String, String)]
+makePayment :: Request -> PersistentConns -> IO [(String, String)]
 makePayment info conn = do
     (al, username) <- usernameALShort conn info
     payment <- liftM BC.pack . getMaybe (UserException "Missing payment") $ Data.Map.lookup "payment" al
@@ -103,7 +103,7 @@ makePayment info conn = do
 
     return [("code", BC.unpack code)]
 
-deposit :: Request -> PersistentConns-> BTIO [(String, String)]
+deposit :: Request -> PersistentConns-> IO [(String, String)]
 deposit info conn = do
     (_, username) <- usernameALShort conn info
 
@@ -120,22 +120,22 @@ deposit info conn = do
     unlockUser conn username
     return resp
 
-requestUsername :: Request -> BTIO B.ByteString
+requestUsername :: Request -> IO B.ByteString
 requestUsername req = do
     authstring <- getMaybe (UserException "Missing username header") . lookup hAuthorization . requestHeaders $ req
     return . head . BC.split ':' . decodeLenient . last. BC.split ' ' $ authstring
 
-mine :: Request -> PersistentConns -> BTIO BL.ByteString
+mine :: Request -> PersistentConns -> IO BL.ByteString
 mine info conn = do
     body <- getRequestBody info
-    request <- getMaybe (UserException "Bad Format"). decode $ body :: BTIO MiningData
+    request <- getMaybe (UserException "Bad Format"). decode $ body :: IO MiningData
     username <- requestUsername info
     case length . getwork $ request of
         0 -> do
             logMsg "getwork length = 0"
             item <- sendmine conn "getwork"
             logMsg "done talking backend"
-            hashData <- getMaybe (BackendException "Cannot convert result to hash") . decode . BL.fromStrict $ item :: BTIO HashData
+            hashData <- getMaybe (BackendException "Cannot convert result to hash") . decode . BL.fromStrict $ item :: IO HashData
             storeMerkleDiff conn hashData
             return $ jsonRPC (rpcid request) hashData
         1 -> do
@@ -169,7 +169,7 @@ mine info conn = do
             return "ERRORRRRRRR"
 
 
-sendBTC :: Request -> PersistentConns -> BTIO [(String, String)]
+sendBTC :: Request -> PersistentConns -> IO [(String, String)]
 sendBTC info conn = do
     (al, username) <- usernameALShort conn info
     rawamount <- liftM BC.pack . getMaybe (UserException "Missing amount") $ Data.Map.lookup "amount" al

@@ -13,8 +13,7 @@ loggingSink :: IO AnySink
 loggingSink = open "bittoll" "127.0.0.1" 8125
 
 rlogCount :: AnySink -> B.ByteString -> B.ByteString -> Integer -> IO ()
-rlogCount ssink namespace bucket count = do
-    push ssink $ Counter namespace bucket count
+rlogCount ssink namespace bucket count = push ssink $ Counter namespace bucket count
 
 rlogTimer :: AnySink -> B.ByteString -> B.ByteString -> UTCTime -> IO ()
 rlogTimer ssink namespace bucket start = do

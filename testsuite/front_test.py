@@ -23,6 +23,10 @@ def test_balance(login):
     assert 'balance' in info
     assert int(info["error_code"]) == 0
 
+def test_user_exception(login):
+    info = balance(login['username'], login['secret']+"1")
+    assert int(info["error_code"]) == 1
+
 def test_request(login):
     info = request(login['username'], login['secret'], amount=1)
     assert 'payment' in info

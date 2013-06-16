@@ -21,20 +21,29 @@ import Data.String (IsString)
 import Data.Maybe (fromMaybe)
 import Control.Exception (throw)
 import qualified BT.Log
+import Data.Time.Clock(UTCTime)
+import qualified Data.ByteString as B
 
 elogCatch :: MyException -> IO (Maybe a)
 elogCatch e = do
     BT.Log.elogMsg . show $ e
     return Nothing
 
+logCount :: PersistentConns -> B.ByteString -> B.ByteString -> Integer -> IO ()
+logCount conns = BT.Log.rlogCount (logsink conns)
+
+logTimer :: PersistentConns -> B.ByteString -> B.ByteString -> UTCTime -> IO ()
+logTimer conns = BT.Log.rlogTimer (logsink conns)
+
+
 logCatch :: MyException -> IO ()
 logCatch = BT.Log.logMsg . show
 
 logMsg :: String -> IO ()
-logMsg = liftIO . BT.Log.logMsg
+logMsg = BT.Log.logMsg
 
 randomNum :: IO Word64
-randomNum = liftIO randomIO
+randomNum = randomIO
 
 randomString :: IO String
 randomString = do

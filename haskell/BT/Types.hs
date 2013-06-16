@@ -13,14 +13,16 @@ import Data.IORef (IORef)
 import Network.Bitcoin (BTC)
 import Data.Configurator.Types (Config)
 import Control.Exception (Exception)
+import Network.Metric.Sink.Statsd (AnySink)
 
 data PersistentConns = PersistentConns {
     redis       :: RD.Connection,
     pool        :: Pool (ZMQ.Socket ZMQ.Req),
-    minePool   :: Pool (ZMQ.Socket ZMQ.Req),
+    minePool    :: Pool (ZMQ.Socket ZMQ.Req),
     curPayout   :: IORef BTC,
     curTarget   :: IORef BTC,
-    config      :: Config
+    config      :: Config,
+    logsink     :: AnySink
 }
 
 data MyException = RedisException String | BackendException String | UserException String | SomeException

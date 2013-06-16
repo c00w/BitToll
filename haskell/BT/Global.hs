@@ -7,6 +7,7 @@ import BT.Types
 import BT.Polling
 import BT.Config
 import BT.Util
+import BT.Log
 import Data.IORef (newIORef)
 import Control.Concurrent (forkIO)
 import Data.Configurator.Types (Configured)
@@ -30,6 +31,7 @@ makeCons = do
     conn <- RD.connect defaultConnectInfo{connectPort = UnixSocket "/tmp/redis.sock", connectMaxConnections=500}
     payout <- newIORef 0
     target <- newIORef 0
+    sink <- loggingSink
     configuration <- makeConfig
     let p = PersistentConns{
         redis=conn,
@@ -37,7 +39,8 @@ makeCons = do
         minePool=mineZMQPool,
         curPayout=payout,
         curTarget=target,
-        config=configuration
+        config=configuration,
+        logsink=sink
         }
     _ <- forkIO $ catch (poll p) logCatch
     return p

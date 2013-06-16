@@ -12,15 +12,13 @@ import qualified Data.ByteString as B
 loggingSink :: IO AnySink
 loggingSink = open "bittoll" "127.0.0.1" 8125
 
-logCount :: B.ByteString -> B.ByteString -> Integer -> IO ()
-logCount namespace bucket count = do
-    ssink <- loggingSink
+rlogCount :: AnySink -> B.ByteString -> B.ByteString -> Integer -> IO ()
+rlogCount ssink namespace bucket count = do
     push ssink $ Counter namespace bucket count
 
-logTimer :: B.ByteString -> B.ByteString -> UTCTime -> IO ()
-logTimer namespace bucket start = do
+rlogTimer :: AnySink -> B.ByteString -> B.ByteString -> UTCTime -> IO ()
+rlogTimer ssink namespace bucket start = do
     end <- getCurrentTime
-    ssink <- loggingSink
     let time = fromRational . toRational $ diffUTCTime end start
     push ssink $ Timer namespace bucket (time * 1000)
 

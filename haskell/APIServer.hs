@@ -12,7 +12,7 @@ import Data.Time.Clock(getCurrentTime)
 import BT.Routing
 import BT.Global
 import BT.Types
-import BT.Log
+import BT.Util
 import Prelude hiding (lookup)
 import Data.Conduit.Network (HostPreference(Host))
 import Control.Exception (catch)
@@ -32,8 +32,8 @@ application conns info = do
     response <- liftIO $ catch ( do
         start <- getCurrentTime
         resp <- BT.Routing.route path info conns
-        logCount "apiserver" "requests" 1
-        logTimer "apiserver" "request_time" start
+        logCount conns "apiserver" "requests" 1
+        logTimer conns "apiserver" "request_time" start
         return resp
         ) exceptionHandler
     liftIO . logMsg . show $ response

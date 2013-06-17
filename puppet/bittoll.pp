@@ -62,7 +62,6 @@ class poolwrapper {
         require => Package["libzmq1"],
         source  => "/binaries/PoolWrapper",
         alias   => "poolwrapper-binary",
-        notify  => Service["p2pool"],
         owner   => "root",
         ensure  => present,
         mode    => 0555,

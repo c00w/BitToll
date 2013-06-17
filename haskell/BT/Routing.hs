@@ -11,7 +11,7 @@ import qualified Data.ByteString.Lazy as BL
 import Network.Wai (Request)
 import Data.Aeson.Encode (encode)
 import BT.Types
-import BT.Util (logMsg)
+import BT.Util (logMsg, logCount)
 
 jstostring :: (Request -> PersistentConns -> IO [(String, String)]) -> Request -> PersistentConns -> IO BL.ByteString
 jstostring obj r p= do
@@ -31,9 +31,12 @@ router = Data.Map.fromList [
 
 route :: B.ByteString -> Request -> PersistentConns -> IO BL.ByteString
 route path info conns = case Data.Map.lookup path router of
-                Nothing -> return "{\"error\":\"No Such Method\",\"error_code\":\"1\"}"
+                Nothing -> do
+                    logCount conns "apiserver" "request.error.endpoint" 1
+                    return "{\"error\":\"No Such Method\",\"error_code\":\"1\"}"
                 Just a -> do
                     logMsg $ "Handling" ++ show path
+                    logCount conns "apiserver" (B.append "request.endpoint." path) 1
                     resp <- a info conns
                     logMsg $ "Handled" ++ show resp
                     return resp

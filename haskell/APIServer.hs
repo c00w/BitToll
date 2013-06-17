@@ -17,25 +17,34 @@ import Prelude hiding (lookup)
 import Data.Conduit.Network (HostPreference(Host))
 import Control.Exception (catch)
 
-exceptionHandler :: MyException -> IO LB.ByteString
-exceptionHandler e = do
+exceptionHandler :: PersistentConns -> MyException -> IO LB.ByteString
+exceptionHandler conns e = do
     logMsg (show e)
+    logCount conns "apiserver" "request.errors" 1
     case e of
-        RedisException _ -> return "{\"error\":\"Server Error\",\"error_code\":\"2\"}"
-        BackendException _ -> return "{\"error\":\"Server Error\",\"error_code\":\"2\"}"
-        UserException a -> return . LBC.pack $ "{\"error\":\"" ++ a ++ "\",\"error_code\":\"1\"}"
-        _ -> return "{\"error\":\"Server Error\",\"error_code\":\"2\"}"
+        RedisException _ -> do
+            logCount conns "apiserver" "request.error.redis" 1
+            return "{\"error\":\"Server Error\",\"error_code\":\"2\"}"
+        BackendException _ -> do
+            logCount conns "apiserver" "request.error.backend" 1
+            return "{\"error\":\"Server Error\",\"error_code\":\"2\"}"
+        UserException a -> do
+            logCount conns "apiserver" "request.error.user" 1
+            return . LBC.pack $ "{\"error\":\"" ++ a ++ "\",\"error_code\":\"1\"}"
+        _ -> do
+            logCount conns "apiserver" "request.error.unknown" 1
+            return "{\"error\":\"Server Error\",\"error_code\":\"2\"}"
 
 application :: PersistentConns -> Application
 application conns info = do
     let path = rawPathInfo info
     response <- liftIO $ catch ( do
         start <- getCurrentTime
-        resp <- BT.Routing.route path info conns
         logCount conns "apiserver" "requests" 1
+        resp <- BT.Routing.route path info conns
         logTimer conns "apiserver" "request_time" start
         return resp
-        ) exceptionHandler
+        ) (exceptionHandler conns)
     liftIO . logMsg . show $ response
     return $ responseLBS status200 [("Content-Type", "application/json")] response
 

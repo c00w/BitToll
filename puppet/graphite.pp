@@ -65,6 +65,7 @@ class graphite ($test = false) {
             File["/opt/graphite/conf/carbon.conf"],
             File["/opt/graphite/conf/storage-schemas.conf"],
             File["/opt/graphite/conf/storage-aggregation.conf"],
+            Exec["graphite_own"],
         ],
         ensure  => running,
         enable  => true,

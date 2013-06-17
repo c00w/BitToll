@@ -1,10 +1,20 @@
 import "statsd.pp"
 
-class graphite {
+class graphite ($test = false) {
     require statsd
 
     user {"graphite":
         ensure  => present
+    }
+
+    if ($test) {
+        Package {
+            ensure  => present
+        }
+    } else {
+        Package {
+            ensure  => latest
+        }
     }
 
     package {
@@ -15,19 +25,15 @@ class graphite {
         "python-cairo":
             ensure  => latest;
         "whisper":
-            provider    => pip,
-            ensure      => latest;
+            provider    => pip;
         "carbon":
-            provider    => pip,
-            ensure      => latest;
+            provider    => pip;
         "graphite-web":
-            provider    => pip,
-            ensure      => latest;
+            provider    => pip;
         "python-django":
             ensure      => latest;
         "django-tagging":
-            provider    => pip,
-            ensure      => latest;
+            provider    => pip;
     }
 
     Package["python-dev"] -> Package["carbon"]

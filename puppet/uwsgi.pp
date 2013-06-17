@@ -1,14 +1,27 @@
 import "graphite.pp"
 
-class uwsgi {
+class uwsgi ($test = false) {
     require graphite
 
+    if ($test) {
+        Package {
+            ensure  => present
+        }
+    } else {
+        Package {
+            ensure  => latest
+        }
+    }
+
     package {
-        "uwsgi":
-            ensure  => latest,
+        "uWSGI":
             provider => pip;
         "uwsgi-plugin-python":
-            ensure  => latest;
+            ensure  => absent;
+    }
+
+    exec {"/usr/bin/pip install uwsgi":
+        creates => "/usr/local/bin/uwsgi"
     }
 
     file {"/etc/init/uwsgi.conf":
@@ -18,7 +31,7 @@ class uwsgi {
 
     service {"uwsgi":
         require => [
-            Package["uwsgi"],
+            Package["uWSGI"],
             Package["uwsgi-plugin-python"],
             File["/etc/init/uwsgi.conf"],
         ],

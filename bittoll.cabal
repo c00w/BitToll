@@ -34,7 +34,7 @@ executable APIServer
                     zeromq3-haskell
     main-is:        APIServer.hs
     hs-source-dirs: haskell
-    ghc-options:     -Wall -O2
+    ghc-options:     -Wall -O2 -threaded
     default-language: Haskell2010
 
 executable BCServer
@@ -57,7 +57,7 @@ executable BCServer
                     zeromq3-haskell
     main-is:        BCServer.hs
     hs-source-dirs: haskell
-    ghc-options:     -Wall -O2
+    ghc-options:     -Wall -O2 -threaded
     default-language: Haskell2010
 
 executable PoolServer
@@ -75,7 +75,7 @@ executable PoolServer
                     zeromq3-haskell
     main-is:        PoolServer.hs
     hs-source-dirs: haskell
-    ghc-options:     -Wall -O2
+    ghc-options:     -Wall -O2 -threaded
     default-language: Haskell2010
 
 executable PoolWrapper
@@ -96,7 +96,7 @@ executable PoolWrapper
                     zeromq3-haskell
     main-is:        PoolWrapper.hs
     hs-source-dirs: haskell
-    ghc-options:     -Wall -O2
+    ghc-options:     -Wall -O2 -threaded
     default-language: Haskell2010
 
 executable NewBlock
@@ -117,7 +117,7 @@ executable NewBlock
                     zeromq3-haskell
     main-is:        NewBlock.hs
     hs-source-dirs: haskell
-    ghc-options:     -Wall -O2
+    ghc-options:     -Wall -O2 -threaded
     default-language: Haskell2010
 
 executable MineUserTest
@@ -138,7 +138,7 @@ executable MineUserTest
                     zeromq3-haskell
     main-is:        MineUserTest.hs
     hs-source-dirs: haskell
-    ghc-options:     -Wall -O2
+    ghc-options:     -Wall -O2 -threaded
     default-language: Haskell2010
 
 executable ReadConfig
@@ -147,6 +147,6 @@ executable ReadConfig
                     text
     main-is:        ReadConfig.hs
     hs-source-dirs: haskell
-    ghc-options:     -Wall -O2
+    ghc-options:     -Wall -O2 -threaded
     default-language: Haskell2010
 

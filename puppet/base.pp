@@ -68,9 +68,9 @@ node "testlive.m.bittoll.com" {
 
 node "test.m.bittoll.com" {
 
-    class {"statsd":        stage=>build}
-    class {"graphite":      stage=>build}
-    class {"uwsgi":      stage=>build}
+    #class {"statsd":        stage=>build}
+    #class {"graphite":      test=>true, stage=>build}
+    #class {"uwsgi":         test=>true, stage=>build}
 
     class {"config":        test=>true}
     class {"redis_server":              stage=>install}

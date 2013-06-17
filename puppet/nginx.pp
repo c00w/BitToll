@@ -7,6 +7,12 @@ class nginx ($test = false) {
         ppa     => "stable",
     }
 
+    exec {"/usr/bin/apt-get update && echo":
+        require     => Apt::Ppa["nginx-openresty"],
+        subscribe   => Apt::Ppa["nginx-openresty"],
+        refreshonly => true,
+    }
+
     package {"nginx-openresty":
         ensure  => latest,
         require  => Apt::Ppa["nginx-openresty"],

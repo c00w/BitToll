@@ -25,6 +25,8 @@ router = Data.Map.fromList [
         ("/withdraw",   jstostring BT.EndPoints.sendBTC),
         ("/deposit",    jstostring BT.EndPoints.deposit),
         ("/request",    jstostring BT.EndPoints.createPayment),
+        ("/setalias",   jstostring BT.EndPoints.setAlias),
+        ("/alias",      jstostring BT.EndPoints.getAlias),
         ("/mine",       BT.EndPoints.mine),
         ("/",           BT.EndPoints.mine),
         ("/pay",        jstostring BT.EndPoints.makePayment)]

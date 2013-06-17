@@ -131,6 +131,21 @@ def request(userid, secret, amount):
     body['sign'] = _secret(body, secret)
     return apicall('request', body)
 
+def setalias(userid, secret, aliasName, aliasPass):
+    body = {}
+    body['username'] = userid
+    body['time'] = str(time.time())
+    body['aliasName'] = str(aliasName)
+    body['aliasPassword'] = str(aliasPass)
+    body['sign'] = _secret(body, secret)
+    return apicall('setalias', body)
+
+def alias(aliasName, aliasPass):
+    body = {}
+    body['aliasName'] = str(aliasName)
+    body['aliasPassword'] = str(aliasPass)
+    return apicall('alias', body)
+
 def apicall(name, body, auth=None):
     r = requests.post(url +'/' + name, data=json.dumps(body), auth=auth, verify=False)
     assert r.status_code == 200

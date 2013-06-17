@@ -69,12 +69,29 @@ getUserAddressRecieved conn user = BR.getbtc conn "u:" user "address_recieved"
 getUserSecret :: PersistentConns -> B.ByteString -> IO (Maybe B.ByteString)
 getUserSecret conn user = BR.get conn "u:" user "secret"
 
+getAliasID :: PersistentConns -> B.ByteString -> IO (Maybe B.ByteString)
+getAliasID conn alias = BR.get conn "ua:" alias "id"
+
+getAliasSalt :: PersistentConns -> B.ByteString -> IO (Maybe B.ByteString)
+getAliasSalt conn alias = BR.get conn "ua:" alias "salt"
+
+getAliasPassword :: PersistentConns -> B.ByteString -> IO (Maybe B.ByteString)
+getAliasPassword conn alias = BR.get conn "ua:" alias "pass"
+
 incrementUserBalance :: PersistentConns -> B.ByteString -> BTC -> IO BTC
 incrementUserBalance conn user = BR.incrementbtc conn "u:" user "balance"
 
 incrementUnconfirmedBalance :: PersistentConns -> B.ByteString -> BTC -> IO BTC
 incrementUnconfirmedBalance conn user = BR.incrementbtc conn "u:" user "balance_unconfirmed"
 
+setAliasID :: PersistentConns -> B.ByteString -> B.ByteString -> IO Bool
+setAliasID conn alias = BR.set conn "ua:" alias "id"
+
+setAliasSalt :: PersistentConns -> B.ByteString -> B.ByteString -> IO Bool
+setAliasSalt conn alias = BR.set conn "ua:" alias "salt"
+
+setAliasPassword :: PersistentConns -> B.ByteString -> B.ByteString -> IO Bool
+setAliasPassword conn alias = BR.set conn "ua:" alias "pass"
 
 setUserAddress :: PersistentConns -> B.ByteString -> B.ByteString-> IO Bool
 setUserAddress conn user = BR.set conn "u:" user "address"

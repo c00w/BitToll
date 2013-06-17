@@ -2,7 +2,7 @@
 {-# LANGUAGE BangPatterns #-}
 
 
-module BT.EndPoints(register, deposit, getBalance, makePayment, createPayment, mine, sendBTC) where
+module BT.EndPoints(register, deposit, getBalance, makePayment, createPayment, mine, sendBTC, setAlias, getAlias) where
 
 
 
@@ -12,7 +12,7 @@ import qualified Data.ByteString.Lazy as BL
 import Network.Wai (Request, requestHeaders)
 import Network.HTTP.Types.Header (hAuthorization)
 import Data.ByteString.Base64 (decodeLenient)
-import Control.Monad (when, liftM)
+import Control.Monad (when, liftM, unless)
 import Control.Exception (throw)
 import BT.Types
 import BT.Util
@@ -207,3 +207,41 @@ sendBTC info conn = do
     unlockUser conn username
     logMsg "Unlocked"
     return resp
+
+setAlias :: Request -> PersistentConns-> IO [(String, String)]
+setAlias info conn = do
+    (al, username) <- usernameALShort conn info
+    aliasName <- liftM BC.pack . getMaybe (UserException "Missing aliasName") $ Data.Map.lookup "aliasName" al
+    aliasPass <- liftM BC.pack . getMaybe (UserException "Missing aliasPassword") $ Data.Map.lookup "aliasPassword" al
+
+    salt <- liftM (BC.pack) random256String
+
+    let saltpass = hashPass salt aliasPass
+
+    id <- getAliasID conn aliasName
+
+    unless (id == Nothing) $ throw (UserException "Alias In use")
+
+    setAliasID conn aliasName username
+    setAliasPassword conn aliasName saltpass
+    setAliasSalt conn aliasName salt
+    return []
+
+getAlias :: Request -> PersistentConns-> IO [(String, String)]
+getAlias info conn = do
+    al <- getRequestMap info
+    aliasName <- liftM BC.pack . getMaybe (UserException "Missing aliasName") $ Data.Map.lookup "aliasName" al
+    aliasPass <- liftM BC.pack . getMaybe (UserException "Missing aliasPassword") $ Data.Map.lookup "aliasPassword" al
+
+    salt <- getMaybe (UserException "Bad Alias") =<< getAliasSalt conn aliasName
+
+    let saltpass = hashPass salt aliasPass
+
+    password <- getMaybe (RedisException "Missing Alias Password") =<< getAliasPassword conn aliasName
+
+    unless (saltpass == password) $ throw (UserException "Bad Alias")
+
+    username <- getMaybe (RedisException "unknown user for alias") =<< getAliasID conn aliasName
+    secret <- getMaybe (RedisException "unknown secret for user") =<< getUserSecret conn username
+    return [("username", BC.unpack username), ("secret", BC.unpack secret)]
+

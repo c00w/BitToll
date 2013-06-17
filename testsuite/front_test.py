@@ -32,6 +32,15 @@ def test_request(login):
     assert 'payment' in info
     assert int(info["error_code"]) == 0
 
+def test_alias(login):
+    info = setalias(login['username'], login['secret'], login['username'], login['username'])
+    assert int(info["error_code"]) == 0
+
+    info = alias(login['username'], login['username'])
+    assert int(info["error_code"]) == 0
+    assert info['username'] == login['username']
+    assert info['secret'] == login['secret']
+
 def test_mine(login):
     info = mine(login['username'], login['secret'])
     assert 'result' in info

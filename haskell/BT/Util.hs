@@ -14,6 +14,7 @@ import qualified Data.Aeson as A
 import Data.Conduit
 import Data.Conduit.List (consume)
 import Control.Applicative
+import Crypto.Hash.SHA512
 import Control.Monad.IO.Class (liftIO)
 import Network.Wai (Request, requestBody)
 import Data.Monoid (mconcat)
@@ -23,6 +24,9 @@ import Control.Exception (throw)
 import qualified BT.Log
 import Data.Time.Clock(UTCTime)
 import qualified Data.ByteString as B
+
+hashPass :: B.ByteString -> B.ByteString -> B.ByteString
+hashPass salt pass = hash.B.append (hash.B.append pass $ salt ) $ salt
 
 elogCatch :: MyException -> IO (Maybe a)
 elogCatch e = do

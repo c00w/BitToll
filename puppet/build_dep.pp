@@ -4,9 +4,10 @@ import "git.pp"
 class llvm (
     $deploy_user = 'deploy',
     $dir = '/opt/llvm',
-    $source = "http://llvm.org/releases/3.2/clang+llvm-3.2-x86_64-linux-ubuntu-12.04.tar.gz",
-    $source_name = "clang+llvm-3.2-x86_64-linux-ubuntu-12.04.tar.gz",
-    $extract_name = "clang+llvm-3.2-x86_64-linux-ubuntu-12.04",
+    $source = "http://llvm.org/releases/3.3/clang+llvm-3.3-amd64-Ubuntu-12.04.2.tar.gz",
+    $source_name = "clang+llvm-3.3-amd64-Ubuntu-12.04.2.tar.gz",
+    $extract_name = "clang+llvm-3.3-amd64-Ubuntu-12.04.2",
+    $llvm_folder = "/opt/llvm3.3",
     ) {
 
     require git
@@ -31,13 +32,13 @@ class llvm (
         alias   => "llvm_ex"
     }
 
-    exec {"mv /opt/$extract_name /opt/llvm":
-        creates => "/opt/llvm",
+    exec {"mv /opt/$extract_name $llvm_folder":
+        creates => "$llvm_folder",
         require => Exec["llvm_ex"],
         alias   => "llvm_fold",
     }
 
-    exec {"chmod -R 0511 /opt/llvm && chown -R root /opt/llvm":
+    exec {"chmod -R 0511 $llvm_folder && chown -R root $llvm_folder":
         require => Exec["llvm_fold"],
         subscribe   => Exec["llvm_fold"],
         refreshonly => true,
@@ -45,12 +46,12 @@ class llvm (
 
     file {"/usr/bin/opt":
         ensure  => link,
-        target  => "/opt/llvm/bin/opt",
+        target  => "$llvm_folder/bin/opt",
     }
 
     file {"/usr/bin/llc":
         ensure  => link,
-        target  => "/opt/llvm/bin/llc",
+        target  => "$llvm_folder/bin/llc",
     }
 
 }

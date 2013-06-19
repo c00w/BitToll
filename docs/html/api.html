@@ -47,6 +47,8 @@
               <li><a href="#request"><i class="icon-chevron-right"></i>/request</a></li>
               <li><a href="#pay"><i class="icon-chevron-right"></i>/pay</a></li>
               <li><a href="#mine"><i class="icon-chevron-right"></i>/mine</a></li>
+              <li><a href="#setalias"><i class="icon-chevron-right"></i>/setalias</a></li>
+              <li><a href="#alias"><i class="icon-chevron-right"></i>/alias</a></li>
             </ul>
         </div>
 
@@ -240,6 +242,40 @@
             This endpoint acts as a jsonrpc mining endpoint following the bitcoin mining protocol. It does require that the http basic authentication username match a bittoll username. Additionally the root endpoint <code>/</code> is an alias for this endpoint since some miners do not support mining on a non root http address.
             </p>
             </section>
+
+            <section id="setalias">
+            <div class="page-header">
+                <h1> /setalias </h1>
+            </div>
+
+            <h3> Purpose </h3>
+            <p>
+            This endpoint allows you to set a user alias which translates a username and secret to a bittoll account username and secret. This is to allow federation of bittoll usages across multiple services while sharing the balance. A bittoll account can have multiple aliases.
+            </p>
+
+            <h3> Format </h3>
+            <p>
+            This endpoints requires the three fields specified in the general section. It also requires a <code>aliasName</code> field which is the alias name, generally the username or email address, and a <code>aliasPassword</code> field, generally the password for the account. The return will be an dictionary with a zero error_code field as described in the error section.
+            </p>
+            </section>
+
+            <section id="alias">
+            <div class="page-header">
+                <h1> /alias </h1>
+            </div>
+
+            <h3> Purpose </h3>
+            <p>
+            This endpoint allows you to retrieve a bittoll username and secret, given an alias's username and secret. Multiple aliases may point to the same bittoll account.
+            </p>
+
+            <h3> Format </h3>
+            <p>
+            This endpoint requires two fields, and <code>aliasName</code> field which represents the alias username, and a <code>aliasPassword</code> field which represents the alias password. The return will be a JSON object with a <code>username</code> and a <code>secret</code> field containing the bittoll account credentials.
+            </p>
+            </section>
+
+
         </div>
     </div>
 </div>

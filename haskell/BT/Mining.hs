@@ -52,9 +52,9 @@ hexDiffToInt hd = fromIntegral int
 getPayout :: PersistentConns -> B.ByteString -> IO BTC
 getPayout conn hexdiff = do
     payout <- liftIO . readIORef . curPayout $ conn
-    logMsg "got curPayout"
+    logMsg $ "got curPayout" ++ show payout
     miningDiff <- liftIO . readIORef . curTarget $ conn
-    logMsg "got curTarget"
+    logMsg $ "got curTarget" ++ show miningDiff
     let diff = hexDiffToInt hexdiff :: BTC
     logMsg $ "calculate diff curPayout: " ++ show payout ++ " curTarget: " ++ show miningDiff ++ " miningDiff: " ++ show diff
     return $ (miningDiff * payout) / diff

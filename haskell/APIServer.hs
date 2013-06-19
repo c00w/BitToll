@@ -15,23 +15,25 @@ import BT.Types
 import BT.Util
 import Prelude hiding (lookup)
 import Data.Conduit.Network (HostPreference(Host))
-import Control.Exception (catch)
+import Control.Exception (fromException, catch, SomeException)
 
-exceptionHandler :: PersistentConns -> MyException -> IO LB.ByteString
+exceptionHandler :: PersistentConns -> SomeException -> IO LB.ByteString
 exceptionHandler conns e = do
     logMsg (show e)
-    logCount conns "apiserver" "request.errors" 1
-    case e of
-        RedisException _ -> do
+    case fromException e of
+        Just (RedisException _) -> do
+            logCount conns "apiserver" "request.errors" 1
             logCount conns "apiserver" "request.error.redis" 1
             return "{\"error\":\"Server Error\",\"error_code\":\"2\"}"
-        BackendException _ -> do
+        Just (BackendException _) -> do
+            logCount conns "apiserver" "request.errors" 1
             logCount conns "apiserver" "request.error.backend" 1
             return "{\"error\":\"Server Error\",\"error_code\":\"2\"}"
-        UserException a -> do
+        Just (UserException a) -> do
             logCount conns "apiserver" "request.error.user" 1
             return . LBC.pack $ "{\"error\":\"" ++ a ++ "\",\"error_code\":\"1\"}"
         _ -> do
+            logCount conns "apiserver" "request.errors" 1
             logCount conns "apiserver" "request.error.unknown" 1
             return "{\"error\":\"Server Error\",\"error_code\":\"2\"}"
 

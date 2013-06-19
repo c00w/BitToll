@@ -1,4 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE BangPatterns      #-}
 
 module BT.Polling where
 
@@ -15,15 +16,23 @@ import Data.ByteString.Char8 as BC
 import Control.Concurrent (threadDelay)
 import Control.Monad.IO.Class (liftIO)
 
+import BT.Mining
+
 pollOnce :: Pool (ZMQ.Socket ZMQ.Req) -> IORef BTC -> B.ByteString -> IO ()
 pollOnce conn store name = do
     valueraw <- sendraw conn name
-    let value = read . BC.unpack $ valueraw :: BTC
+    let !value = read . BC.unpack $ valueraw :: BTC
+    liftIO $ writeIORef store value
+
+pollOnceHex :: Pool (ZMQ.Socket ZMQ.Req) -> IORef BTC -> B.ByteString -> IO ()
+pollOnceHex conn store name = do
+    valueraw <- sendraw conn name
+    let !value = hexDiffToInt $ valueraw :: BTC
     liftIO $ writeIORef store value
 
 poll :: PersistentConns -> IO ()
 poll conns = do
     liftIO $ threadDelay 60000000 -- 60 seconds
     pollOnce (pool conns) (curPayout conns) "payout"
-    pollOnce (pool conns) (curTarget conns) "target"
+    pollOnceHex (pool conns) (curTarget conns) "target"
     poll conns

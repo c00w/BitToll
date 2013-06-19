@@ -25,7 +25,7 @@ data PersistentConns = PersistentConns {
     logsink     :: AnySink
 }
 
-data MyException = RedisException String | BackendException String | UserException String | SomeException
+data MyException = RedisException String | BackendException String | UserException String
     deriving (Show, Typeable)
 
 instance Exception MyException

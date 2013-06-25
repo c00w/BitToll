@@ -1,6 +1,7 @@
 {-# LANGUAGE OverloadedStrings      #-}
 {-# LANGUAGE FlexibleContexts       #-}
 {-# LANGUAGE DeriveDataTypeable     #-}
+{-# LANGUAGE BangPatterns           #-}
 
 import Network.Wai
 import Network.Wai.Handler.Warp (runSettings, defaultSettings, settingsHost, settingsPort)
@@ -40,7 +41,7 @@ exceptionHandler conns e = do
 application :: PersistentConns -> Application
 application conns info = do
     let path = rawPathInfo info
-    response <- liftIO $ catch ( do
+    !response <- liftIO $ catch ( do
         start <- getCurrentTime
         logCount conns "apiserver" "requests" 1
         resp <- BT.Routing.route path info conns

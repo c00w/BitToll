@@ -28,7 +28,7 @@ makeCons = do
     ZMQ.setIoThreads 4 ctx
     zMQPool <- Data.Pool.createPool (makeZMQSocket ctx "tcp://127.0.0.1:3333") ZMQ.close 1 5 50
     mineZMQPool <- Data.Pool.createPool (makeZMQSocket ctx "tcp://127.0.0.1:4444") ZMQ.close 1 5 50
-    conn <- RD.connect defaultConnectInfo{connectPort = UnixSocket "/tmp/redis.sock", connectMaxConnections=500}
+    conn <- RD.connect defaultConnectInfo{connectPort = UnixSocket "/tmp/redis.sock", connectMaxConnections=125}
     payout <- newIORef 0
     target <- newIORef 0
     sink <- loggingSink

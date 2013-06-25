@@ -47,6 +47,8 @@ application conns info = do
         logTimer conns "apiserver" "request_time" start
         return resp
         ) (exceptionHandler conns)
+    body <- liftIO $ getRequestBody info
+    liftIO . logMsg . show $ body
     liftIO . logMsg . show $ response
     return $ responseLBS status200 [("Content-Type", "application/json")] response
 

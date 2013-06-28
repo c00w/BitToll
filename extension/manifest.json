@@ -17,5 +17,6 @@
     },
     "background": {
         "scripts": ["background.js"]
-    }
+    },
+    "options_page": "option.html"
 }

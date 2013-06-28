@@ -1,0 +1,21 @@
+{
+    "manifest_version": 2,
+
+    "name": "Bittoll",
+    "description": "Content Worth Paying For",
+    "version": "1.0",
+
+    "permissions": [
+        "https://us.bittoll.com/",
+        "storage",
+        "notifications"
+    ],
+    "page_action": {
+        "default_icon": "icon19.png",
+        "default_popup": "popup.html",
+        "default_title": "testing bittoll bitches"
+    },
+    "background": {
+        "scripts": ["background.js"]
+    }
+}

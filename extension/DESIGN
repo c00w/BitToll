@@ -1,0 +1,8 @@
+This describes the design of the plugin
+
+Data Storage
+We have a background page to store data such as the bittoll account username and password.
+
+We use localstorage for everything else since it is not confidential
+
+We use a content script to detect bittoll meta tags and fill them in with the transaction results

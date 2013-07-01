@@ -19,3 +19,15 @@ var opt = {
 
 chrome.tabs.onCreated.addListener(show);
 chrome.tabs.onSelectionChanged.addListener(showid);
+
+
+//listens for messages from the content script (sent when bittoll field encountered)
+chrome.runtime.onMessage.addListener(
+  function(request, sender, sendResponse) {
+    console.log("n;lah");
+	console.log(sender.tab ?
+                "from a content script:" + sender.tab.url :
+                "from the extension");
+	console.log("blah");
+	console.log(request.greeting);
+  });

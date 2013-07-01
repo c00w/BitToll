@@ -21,8 +21,7 @@
 	"content_scripts": [
 	{
 		"matches": ["http://*/*", "file:///C:/*"],
-		"js": ["jquery-2.0.2.min.js", "contentscript.js"]
-		
+		"js": ["js/jquery-2.0.2.min.js", "js/contentscript.js"]
 	}
 	],
 

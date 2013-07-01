@@ -1,0 +1,8 @@
+The extension shall be split into the following parts:
+	-a content script that will check webpages for an item in the head 
+		saying that they want bittoll payments, 
+		and insert info back into the head once the payment is made
+	-various popup windows that will ask the user to verfy actions, handle logins, etc.
+	-a persistent background page that will handle the actual payments and shit
+	
+	

@@ -1,9 +1,6 @@
 'use strict';
 
 /* Controllers */
-
-
-
 function LoginCtrl($scope, $http) {
     $scope.hi = "hello world"
     $scope.tryLogin = function (username, password) {
@@ -26,7 +23,8 @@ function LoginCtrl($scope, $http) {
         }).
         error(function(data, status, headers, config) {
             console.log("error")
-            console.log("data")
+            console.log(data)
+            console.log(status)
         })
 
         console.log(username)

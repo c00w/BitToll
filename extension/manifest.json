@@ -16,7 +16,7 @@
         "default_title": "testing bittoll bitches"
     },
     "background": {
-        "scripts": ["background.js"]
+        "scripts": ["js/background.js"]
     },
     "options_page": "option.html"
 }

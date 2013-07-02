@@ -1,7 +1,12 @@
 'use strict';
 
 /* Controllers */
-function LoginCtrl($scope, $http) {
+
+function DashBoardCtrl($scope, $http) {
+    $scope.msg = "dashboard"
+}
+
+function LoginCtrl($scope, $http, $location) {
     $scope.msg = ""
     $scope.tryLogin = function (username, password) {
         $scope.msg = "Working"
@@ -22,6 +27,7 @@ function LoginCtrl($scope, $http) {
             delete(data["error_code"])
             $scope.msg = "Success"
             $scope.login = data
+            $location.path("/dashboard") 
         }).
         error(function(data, status, headers, config) {
             console.log("error")
@@ -63,6 +69,7 @@ function LoginCtrl($scope, $http) {
                 }
                 $scope.login = login
                 $scope.msg = "Success"
+                $location.path("/dashboard")
             }).
             error(function(data, status, headers, config) {
                 $scope.login = undefined

@@ -1,5 +1,7 @@
 <form class="simple-form">
-{{hi}}
+<div ng-show="msg">
+    {{msg}}
+</div>
 <input type="text"   ng-model="username"></input>
 <input type="password" ng-model="password"></input>
 <input type="submit" value="Login" ng-click="tryLogin(username,password)"></input>

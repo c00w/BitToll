@@ -2,8 +2,9 @@
 
 /* Controllers */
 function LoginCtrl($scope, $http) {
-    $scope.hi = "hello world"
+    $scope.msg = ""
     $scope.tryLogin = function (username, password) {
+        $scope.msg = "Working"
         $http.post(
             "https://us.bittoll.com/alias",
             {
@@ -15,33 +16,34 @@ function LoginCtrl($scope, $http) {
             if (data["error_code"] !== "0") {
                 console.log("error")
                 console.log(data)
+                $scope.msg = "Error Logging In"
                 return
             }
             delete(data["error_code"])
-            console.log("success login")
+            $scope.msg = "Success"
             $scope.login = data
         }).
         error(function(data, status, headers, config) {
             console.log("error")
             console.log(data)
             console.log(status)
+            $scope.msg = "Error communicating with server"
         })
-
-        console.log(username)
-        console.log(password)
     }
     $scope.register = function (username, password) {
+        $scope.msg = "Working"
+
         $http.post("https://us.bittoll.com/register","{}").
         success(function(data, status, headers, config) {
             if (data["error_code"] !== "0") {
                 console.log("error")
                 console.log(data)
+                $scope.msg = "Error Registering"
                 return
             }
             var login = data
             delete(login["error_code"])
-            console.log("succ")
-            console.log(login)
+            $scope.msg = "Working..."
 
             $http.post(
                 "https://us.bittoll.com/setalias",
@@ -56,24 +58,24 @@ function LoginCtrl($scope, $http) {
                 if (data["error_code"] !== "0") {
                     $scope.login = undefined
                     console.log("succ err")
+                    $scope.msg = "Error registering"
                     return
                 }
-                console.log(data)
                 $scope.login = login
-                console.log("succ al")
+                $scope.msg = "Success"
             }).
             error(function(data, status, headers, config) {
                 $scope.login = undefined
+                $scope.msg = "Error Communicating with server"
+                console.log(data)
                 console.log("succ err")
             })
         }).
         error(function(data, status, headers, config) {
             console.log("error")
             console.log(data)
+            $scope.msg = "Error Communicating with server"
         })
-        console.log("register")
-        console.log(username)
-        console.log(password)
     }
 }
 

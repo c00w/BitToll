@@ -2,6 +2,10 @@
 
 /* Controllers */
 
+function PaymentCtl($scope, $routeParams) {
+    $scope.paymentid = $routeParams.paymentid
+}
+
 function DashBoardCtrl($scope, $http) {
     $scope.msg = "dashboard"
 }

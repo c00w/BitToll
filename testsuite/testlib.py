@@ -131,6 +131,15 @@ def request(userid, secret, amount):
     body['sign'] = _secret(body, secret)
     return apicall('request', body)
 
+def requestinfo(userid, secret, paymentid):
+    body = {}
+    body['username'] = userid
+    body['time'] = str(time.time())
+    body['paymentid'] = str(paymentid)
+    body['sign'] = _secret(body, secret)
+    return apicall('requestinfo', body)
+
+
 def setalias(userid, secret, aliasName, aliasPass):
     body = {}
     body['username'] = userid

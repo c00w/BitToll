@@ -1,5 +1,13 @@
 #!/usr/bin/env python2
 from testlib import *
+import pytest
+
+localonly = pytest.mark.skipif("config.option.server")
+
+@pytest.fixture
+def glob(pytestconfig):
+    if (pytestconfig.option.server):
+        set_server(pytestconfig.option.server)
 
 def test_page_error():
     r = apicall("nonexistant", "hi")
@@ -12,7 +20,8 @@ def test_login(login):
     assert 'username' in info
     assert 'secret' in info
 
-def pytest_funcarg__login(request):
+@pytest.fixture
+def login(request, glob):
     info = register()
     assert 'username' in info
     assert 'secret' in info
@@ -29,8 +38,13 @@ def test_user_exception(login):
 
 def test_request(login):
     info = request(login['username'], login['secret'], amount=1)
-    assert 'payment' in info
+    assert 'paymentid' in info
     assert int(info["error_code"]) == 0
+
+    info = requestinfo(login['username'], login['secret'], info["paymentid"])
+    assert float(info["amount"]) == 1
+    assert int(info["error_code"]) == 0
+
 
 def test_alias(login):
     info = setalias(login['username'], login['secret'], login['username'], login['username'])
@@ -48,7 +62,8 @@ def test_mine(login):
     assert 'error' in info
     assert info['error'] is None
 
-def pytest_funcarg__paidlogin(request):
+@pytest.fixture
+def paidlogin(request, glob):
     login = register()
     info = deposit(login['username'], login['secret'])
     assert 'address' in info
@@ -63,17 +78,18 @@ def pytest_funcarg__paidlogin(request):
     assert float(info['balance']) > 0
     return login
 
-
+@localonly
 def test_deposit(paidlogin):
     info = balance(paidlogin['username'], paidlogin['secret'])
     assert info['balance'] != "0"
     assert int(info["error_code"]) == 0
 
+@localonly
 def test_payment(paidlogin):
     info = request(paidlogin['username'], paidlogin['secret'], 1)
     assert int(info["error_code"]) == 0
-    assert 'payment' in info
-    paymentid = info['payment']
+    assert 'paymentid' in info
+    paymentid = info['paymentid']
 
     info = balance(paidlogin['username'], paidlogin['secret'])
     orig_b = info['balance']
@@ -87,6 +103,7 @@ def test_payment(paidlogin):
     assert int(info["error_code"]) == 0
     assert orig_b == info['balance']
 
+@localonly
 def test_withdraw(login, paidlogin):
     info = deposit(login['username'], login['secret'])
     assert 'address' in info
@@ -111,6 +128,7 @@ def test_withdraw(login, paidlogin):
     assert "balance" in info
     assert float(info["balance"]) == orig_balance_paid - 0.5
 
+@localonly
 def test_self_withdraw(paidlogin):
     info = deposit(paidlogin['username'], paidlogin['secret'])
     assert 'address' in info
@@ -127,6 +145,7 @@ def test_self_withdraw(paidlogin):
     assert "balance" in info
     assert float(info["balance"]) == orig_balance_paid
 
+@localonly
 def test_mine_handling(login):
 
     mine_user(login['username'])

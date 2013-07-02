@@ -14,7 +14,7 @@ vagrant:
 	vagrant up
 
 test_us:
-	py.test testsuite/node_test.py -s
+	py.test testsuite/front_test.py -s --server us.bittoll.com
 
 deploy_us:
 	production/update.sh atlantis.m.bittoll.com

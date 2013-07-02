@@ -2,7 +2,7 @@
 {-# LANGUAGE BangPatterns #-}
 
 
-module BT.EndPoints(register, deposit, getBalance, makePayment, createPayment, mine, sendBTC, setAlias, getAlias) where
+module BT.EndPoints(register, deposit, getBalance, makePayment, createPayment, mine, sendBTC, setAlias, getAlias, getPayment) where
 
 
 
@@ -63,8 +63,15 @@ createPayment info conn = do
     resp <- setPaymentAmount conn (BC.pack paymentid) (read amount :: BTC)
     if resp then do
             _ <- setPaymentUser conn (BC.pack paymentid) username
-            return [("payment", paymentid)]
+            return [("paymentid", paymentid)]
       else createPayment info conn
+
+getPayment :: Request -> PersistentConns -> IO [(String, String)]
+getPayment info conn = do
+    (al, username) <- usernameALShort conn info
+    paymentid <- getMaybe (UserException "Missing paymentid") $ Data.Map.lookup "paymentid" al
+    amount <- getPaymentAmount conn (BC.pack paymentid)
+    return [("amount", show amount)]
 
 makePayment :: Request -> PersistentConns -> IO [(String, String)]
 makePayment info conn = do

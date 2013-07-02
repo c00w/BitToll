@@ -45,6 +45,7 @@
               <li><a href="#deposit"><i class="icon-chevron-right"></i>/deposit</a></li>
               <li><a href="#withdraw"><i class="icon-chevron-right"></i>/withdraw</a></li>
               <li><a href="#request"><i class="icon-chevron-right"></i>/request</a></li>
+              <li><a href="#requestinfo"><i class="icon-chevron-right"></i>/requestinfo</a></li>
               <li><a href="#pay"><i class="icon-chevron-right"></i>/pay</a></li>
               <li><a href="#mine"><i class="icon-chevron-right"></i>/mine</a></li>
               <li><a href="#setalias"><i class="icon-chevron-right"></i>/setalias</a></li>
@@ -202,9 +203,30 @@
             </p>
 
             <p>
-            The response is a json object with a payment field containing the paymentid. This id can be given to someone else which they can pay via the <code>/pay</code> endpoint.
+            The response is a json object with a <code>paymentid</code> field containing the paymentid. This id can be given to someone else which they can pay via the <code>/pay</code> endpoint.
             </p>
             </section>
+
+            <section id="requestinfo">
+            <div class="page-header">
+                <h1> /requestinfo </h1>
+            </div>
+
+            <h3> Purpose </h3>
+            <p>
+            This endpoint returns information about a request.
+            </p>
+
+            <h3> Format </h3>
+            <p>
+            This endpoint requires a json encoded object to be posted to it with the sign, username, and time field as described under the general section. It also requires a <code>paymentid</code> field with the code from <code>/request</code>
+            </p>
+
+            <p>
+            The response is a json object with a <code>amount</code> field containing the amount of the request.
+            </p>
+            </section>
+
 
             <section id="pay">
             <div class="page-header">

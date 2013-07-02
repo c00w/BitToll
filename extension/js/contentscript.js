@@ -18,19 +18,28 @@ $( document ).ready(function() {
 		
 		//now i get the value of the content tag thing that follows it
 		var $stuff = $( "[name=bittoll-id]" ).attr("content");
-		console.log("content of that tag:")
+		console.log("content of that tag:");
 		console.log($stuff);
 		//this also works!
 		
-		//now, I am going to try to check if they have a "returnid" field.
-		//if so, will try to inject a value into it
 		
+		//check for third field, then insert
+		if(	$( "[name=bittoll-return]" ).length ) {
+					console.log("trying to change");
+
+			$( "[name=bittoll-return]" ).attr("content", "working");
+		}
 		
-		console.log( typeof(("found bittoll tag! id: " + $stuff) ));
 		
 		
 		//try to pass a message back to the background page
 		passMessageToBGPage( ("found bittoll tag! id: " + $stuff) );
+		
+		
+		//wait for return confirmation/failure
+		
+		//insert confirmation/failure into 
+		
 	}	
 	else {
 		console.log("no bittoll id");
@@ -40,6 +49,9 @@ $( document ).ready(function() {
 function passMessageToBGPage( bittollTagContent ) {   
 	chrome.runtime.sendMessage({greeting: bittollTagContent});
 }
+
+
+//next up: make message passing two-way, code for insertion into page
 
 
 

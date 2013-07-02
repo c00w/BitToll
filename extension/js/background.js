@@ -30,4 +30,14 @@ chrome.runtime.onMessage.addListener(
                 "from the extension");
 	console.log("blah");
 	console.log(request.greeting);
+	
+	//run bittoll transaction
+	
+	
+	//send confirmation back to content script
+	
   });
+  
+  
+  
+  

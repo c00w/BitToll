@@ -7,8 +7,11 @@ var timeout_length = 1000;
  
 
 $( document ).ready(function() {
- 
-		// Your code here.
+	checkDOMChange();
+});
+
+var checkForTags = function() {
+
 	if(	$( "[name=bittoll-payment-id]" ).length ) {
 		console.log("found a bittoll-id tag!");
 		//is able to successfully find a meta tag named bittoll!
@@ -26,44 +29,44 @@ $( document ).ready(function() {
 		$( "[name=bittoll-payment-id]" ).attr("content", ($stuff + ";processing") );
 		
 		
-		
 		//try to pass a message back to the background page
-		var return_val = MessageBGPage( ("payment request! id: " + $stuff) );
+		MessageBGPage( ("payment request! id: " + $stuff), $stuff);
 			//automaticalls waits for return confirmation/failure
-		console.log("sent");
 		
+		return true;
 	}	
 	else {
 		console.log("no bittoll id");
+		return false;
 	}
-});
 
-function MessageBGPage( bittollTagContent ) {   
-	chrome.runtime.sendMessage({greeting: bittollTagContent}, function(response){
-		console.log("waiting1");
-		waitForMessage();
-		console.log("waiting2");
+
+}
+
+
+var MessageBGPage = function( bittollTagContent, prevStuff) {
+	console.log("havent sent yet " + prevStuff);
+	chrome.runtime.sendMessage({type: "payment_request", value: bittollTagContent}, function(response){
+	  if(response.type == "payment_reply"){
+		console.log("value returned: " + response.value);
+		$( "[name=bittoll-payment-id]" ).attr("content", (prevStuff + response.value));
+		return response.value;
+	  }
 	});
 }
 
 
-//wait for response
-chrome.runtime.onMessage.addListener(
-  function(request, sender, sendResponse) {
-	console.log("response: " + request.greeting);
-	
-	//insert reponse back into the page
-	if(	$( "[name=bittoll-payment-id]" ).length ) {
-	  var $stuff = $( "[name=bittoll-payment-id]" ).attr("content");
-	  $stuff = $stuff.slice( 0, $stuff.indexOf(";") );
-	  $( "[name=bittoll-payment-id]" ).attr("content", ($stuff + request.greeting) );
-	  console.log("response injected");
+
+function checkDOMChange()
+{
+	console.log("1");
+	if (checkForTags() == false){
+
+		// check for any new element being inserted here,
+		// or a particular node being modified
+
+		// call the function again after 100 milliseconds
+		setTimeout( checkDOMChange, 2000 );
 	}
-  });
-	  
-	  
-//next up: make message passing two-way, code for insertion into page
-
-
-
+}
 

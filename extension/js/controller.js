@@ -50,6 +50,8 @@ function LoginCtrl($scope, $http, $location) {
             delete(data["error_code"])
             $scope.msg = "Success"
             $scope.login = data
+			chrome.runtime.sendMessage({type: "login_save", value: data}, );
+
             $location.path("/dashboard") 
         }).
         error(function(data, status, headers, config) {

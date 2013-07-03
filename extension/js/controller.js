@@ -2,7 +2,7 @@
 
 /* Controllers */
 
-function PaymentCtl($scope, $routeParams, $http) {
+function PaymentCtrl($scope, $routeParams, $http) {
     $scope.paymentid = $routeParams.paymentid
     var login = {}
     $scope.accept = function () {

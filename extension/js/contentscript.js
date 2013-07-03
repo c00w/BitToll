@@ -1,70 +1,63 @@
 
 console.log("reading page");
 
-//search webpage:
-var timeout_length = 1000;
-//setTimeout("javascript function",milliseconds);
- 
+$(document).ready(function() {
 
-$( document ).ready(function() {
-	checkDOMChange();
-});
+    var current = $("[name=bittoll-payment-id]");
+    console.log(current)
 
-var checkForTags = function() {
+    var obs = new MutationObserver(processMutation);
+    var config = {};
+    //Look at all subchildren
+    config.subtree = true;
+    // Only monitor for children changes
+    config.childList = true;
+    obs.observe(document, config);
 
-	if(	$( "[name=bittoll-payment-id]" ).length ) {
+    checkForTags(current);
+})
+
+function processMutation (record) {
+    console.log(record)
+    for (var i = 0; i < record.length; i ++){
+        var current = record[i].addedNodes
+        checkForTags(current)
+    }
+}
+
+var checkForTags = function(current) {
+
+    for (var i = 0; i < current.length; i++) {
+        var element = $(current[i]);
+
+        if (element.attr("name") !== "bittoll-payment-id") {
+            continue;
+        }
 		console.log("found a bittoll-id tag!");
 		//is able to successfully find a meta tag named bittoll!
-		
-		
 		//now i get the value of the content tag thing that follows it
-		var $stuff = $( "[name=bittoll-payment-id]" ).attr("content");
+		var stuff = element.attr("content");
 		console.log("content of that tag:");
-		console.log($stuff);
+		console.log(stuff);
 		//this also works!
-		
-		
+
 		//tell website it is processing
 		console.log("trying to change");
-		$( "[name=bittoll-payment-id]" ).attr("content", ($stuff + ";processing") );
-		
-		
+		element.attr("content", (stuff + ";processing") );
+
 		//try to pass a message back to the background page
-		MessageBGPage( ("payment request! id: " + $stuff), $stuff);
-			//automaticalls waits for return confirmation/failure
-		
-		return true;
-	}	
-	else {
-		console.log("no bittoll id");
-		return false;
+		MessageBGPage( ("payment request! id: " + stuff), stuff);
+	    //automaticalls waits for return confirmation/failure
 	}
-
-
 }
 
 
 var MessageBGPage = function( bittollTagContent, prevStuff) {
-	chrome.runtime.sendMessage({type: "payment_request", value: bittollTagContent}, function(response){
-	  if(response.type == "payment_reply"){
-		console.log("value returned: " + response.value);
-		$( "[name=bittoll-payment-id]" ).attr("content", (prevStuff + response.value));
-		return response.value;
-	  }
+    chrome.runtime.sendMessage({type: "payment_request", value: bittollTagContent}, function(response){
+        if(response.type == "payment_reply"){
+            console.log("value returned: " + response.value);
+            $( "[name=bittoll-payment-id]" ).attr("content", (prevStuff + response.value));
+            return response.value;
+        }
 	});
 }
-
-
-
-function checkDOMChange()
-{
-	if (checkForTags() == false){
-
-		// check for any new element being inserted here,
-		// or a particular node being modified
-
-		// call the function again after 100 milliseconds
-		setTimeout( checkDOMChange, 2000 );
-	}
-}
-

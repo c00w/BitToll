@@ -2,8 +2,27 @@
 
 /* Controllers */
 
-function PaymentCtl($scope, $routeParams) {
+function PaymentCtl($scope, $routeParams, $http) {
     $scope.paymentid = $routeParams.paymentid
+    var login = {}
+    $scope.accept = function () {
+        console.log("Accepted")
+    }
+    $scope.reject = function () {
+        console.log("Rejected")
+    }
+
+    $http.post(
+        "https://us.bittoll.com/requestinfo",
+        makeDict(login,
+            {
+                "paymentid": $scope.paymentid
+            }
+        )
+    ).
+    success(function (data, status, headers, config) {
+        $scope.amount = data["amount"]
+    })
 }
 
 function DashBoardCtrl($scope, $http) {

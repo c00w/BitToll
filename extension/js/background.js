@@ -1,4 +1,4 @@
-
+var loginInfo = null;
 function show(tab) {
     chrome.pageAction.show(tab.id);
     console.log(tab.id);
@@ -25,20 +25,8 @@ function passMessageToContentScript( payment_return){
  
   //listens for messages from the content script 
 	//(sent when bittoll field encountered)
-chrome.runtime.onMessage.addListener(
-  function(request, sender, sendResponse) {
-	console.log(sender.tab ?
-                "from a content script:" + sender.tab.url :
-                "from the extension");
-	console.log("blah");
-	console.log(request.greeting);
-	
-	//remove message prefix. 
-	//could add future functionality by allowing different prefixes
-	var new_payment_id = request.greeting.replace("payment request! id: ", "");
-	
-	//find requested amount(new_paymentid)
-		//waiting on bittoll stuff
+var handle_payment = function (request, sender, sendResponse) {
+	var new_payment_id = request.payment_request
 		
 	//ask user if it is okay
 		//can this be done better?
@@ -58,15 +46,33 @@ chrome.runtime.onMessage.addListener(
 		
 		}
 		
+		sendResponse({type: "payment_reply", value: new_payment_result});
 		console.log(new_payment_result);
-		chrome.tabs.getSelected(null, function(tab) {
-
-		  chrome.tabs.sendMessage(tab.id, {greeting: new_payment_result}, function(response) {
-			console.log(response.farewell);
-		  });
-		});
 	//send confirmation back to content script
-				
+
+
+}
+chrome.runtime.onMessage.addListener(
+  function(request, sender, sendResponse) {
+	console.log(sender.tab ?
+                "from a content script:" + sender.tab.url :
+                "from the extension");
+	console.log("blah");
+	console.log(request.value);
+	
+	//remove message prefix. 
+	//could add future functionality by allowing different prefixes
+	if (request.type == "payment_request" ){
+		handle_payment(request, sender, sendResponse);
+	
+	} 
+	else if(request.type == "login_save") { 
+		loginInfo = request.value;
+
+	}
+	else{
+	
+	}
   });
 
   
@@ -79,4 +85,12 @@ chrome.runtime.onMessage.addListener(
     if (request.greeting == "hello")
       sendResponse({farewell: "goodbye"});
   });
+  
+  		chrome.tabs.getSelected(null, function(tab) {
+
+		  chrome.tabs.sendMessage(tab.id, {greeting: new_payment_result}, function(response) {
+			console.log(response.farewell);
+		  });
+		});
+
 */

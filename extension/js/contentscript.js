@@ -45,7 +45,6 @@ var checkForTags = function() {
 
 
 var MessageBGPage = function( bittollTagContent, prevStuff) {
-	console.log("havent sent yet " + prevStuff);
 	chrome.runtime.sendMessage({type: "payment_request", value: bittollTagContent}, function(response){
 	  if(response.type == "payment_reply"){
 		console.log("value returned: " + response.value);
@@ -59,7 +58,6 @@ var MessageBGPage = function( bittollTagContent, prevStuff) {
 
 function checkDOMChange()
 {
-	console.log("1");
 	if (checkForTags() == false){
 
 		// check for any new element being inserted here,

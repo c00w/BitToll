@@ -71,7 +71,11 @@ getPayment info conn = do
     (al, username) <- usernameALShort conn info
     paymentid <- getMaybe (UserException "Missing paymentid") $ Data.Map.lookup "paymentid" al
     amount <- getPaymentAmount conn (BC.pack paymentid)
-    return [("amount", show amount)]
+    balance <- getUserBalance conn username
+    let ok = case balance >= amount of
+            True    -> "1"
+            False   -> "0"
+    return [("amount", show amount), ("balance", ok)]
 
 makePayment :: Request -> PersistentConns -> IO [(String, String)]
 makePayment info conn = do

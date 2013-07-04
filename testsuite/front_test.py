@@ -43,6 +43,7 @@ def test_request(login):
 
     info = requestinfo(login['username'], login['secret'], info["paymentid"])
     assert float(info["amount"]) == 1
+    assert float(info["balance"]) == 0
     assert int(info["error_code"]) == 0
 
 

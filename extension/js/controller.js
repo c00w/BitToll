@@ -29,8 +29,13 @@ function DashBoardCtrl($scope, $http) {
     $scope.msg = "dashboard"
 }
 
-function LoginCtrl($scope, $http, $location) {
+function LoginCtrl($scope, $http, $location, $routeParams) {
     $scope.msg = ""
+    if $routeParams.next {
+        $scope.next = "/payment/" + $routeParams.next
+    } else {
+        $scope.next = "/dashboard"
+    }
     $scope.tryLogin = function (username, password) {
         $scope.msg = "Working"
         $http.post(
@@ -52,7 +57,7 @@ function LoginCtrl($scope, $http, $location) {
             $scope.login = data
 			chrome.runtime.sendMessage({type: "login_save", value: data});
 
-            $location.path("/dashboard") 
+            $location.path($scope.next)
         }).
         error(function(data, status, headers, config) {
             console.log("error")
@@ -94,7 +99,7 @@ function LoginCtrl($scope, $http, $location) {
                 }
                 $scope.login = login
                 $scope.msg = "Success"
-                $location.path("/dashboard")
+                $location.path($scope.next)
             }).
             error(function(data, status, headers, config) {
                 $scope.login = undefined

@@ -59,7 +59,7 @@ chrome.runtime.onMessage.addListener(function(request,
 		loginInfo = request.value;
 	}
     else if (request.type == "login_request") {
-        sendResponse(loginInfo)
+        sendResponse({"value":loginInfo})
     }
     else if (request.type == "payment_response") {
         handle_payment_response(request);

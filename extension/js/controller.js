@@ -4,7 +4,8 @@
 
 function PaymentCtrl($scope, $routeParams, $http) {
     $scope.paymentid = $routeParams.paymentid
-    var login = {}
+    $scope.msg = "Loading Payment Details"
+    var login = undefined
     $scope.accept = function () {
         console.log("Accepted")
     }
@@ -12,16 +13,22 @@ function PaymentCtrl($scope, $routeParams, $http) {
         console.log("Rejected")
     }
 
-    $http.post(
-        "https://us.bittoll.com/requestinfo",
-        makeDict(login,
-            {
-                "paymentid": $scope.paymentid
-            }
-        )
-    ).
-    success(function (data, status, headers, config) {
-        $scope.amount = data["amount"]
+    chrome.runtime.sendMessage({"type":"login_request"}, function(response) {
+        login = response.value
+        $http.post(
+            "https://us.bittoll.com/requestinfo",
+            makeDict(login,
+                {
+                    "paymentid": $scope.paymentid
+                }
+            )
+        ).
+        success(function (data, status, headers, config) {
+            $scope.msg = "Would you like to pay " + data["amount"]
+        }).
+        error(function (data, status, headers, config) {
+            $scope.msg = "failure loading payment"
+        })
     })
 }
 

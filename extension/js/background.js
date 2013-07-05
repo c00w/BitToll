@@ -1,4 +1,5 @@
 var loginInfo = null;
+var paymentCallbacks = {};
 
 function passMessageToContentScript( payment_return){
 }
@@ -17,11 +18,25 @@ var handle_payment = function (request, sender, sendResponse) {
     }
 
     console.log("Opening: " + paymenturl)
-    window.open(paymenturl)
+    chrome.tabs.create({"url":paymenturl})
 
+    paymentcallbacks[new_payment_id] = function(response) {
+
+    var new_payment_result = response.value
 	//send confirmation back to content script
     sendResponse({type: "payment_reply", value: new_payment_result});
     console.log(new_payment_result);
+    }
+}
+
+function handle_payment_response(request) {
+    var paymentid = request.id
+    var response = request.value
+    var callback = paymentcallacks[paymentid];
+    if (callback === undefined) {
+        console.log("no callback for" + paymentid)
+    }
+    callback(response)
 }
 
 chrome.runtime.onMessage.addListener(function(request,
@@ -37,16 +52,22 @@ chrome.runtime.onMessage.addListener(function(request,
 	//could add future functionality by allowing different prefixes
 	if (request.type == "payment_request" ){
 		handle_payment(request, sender, sendResponse);
-
+        //Keep the response open since we want to use it beyond the scope of this event handler
+        return true;
 	}
 	else if(request.type == "login_save") {
 		loginInfo = request.value;
-
 	}
-	else{
-
+    else if (request.type == "login_request") {
+        sendResponse(loginInfo)
+    }
+    else if (request.type == "payment_response") {
+        handle_payment_response(request);
+    } else {
+        console.log("unknown message")
+        console.log(request)
 	}
-  });
+});
 
 /*
 chrome.runtime.onMessage.addListener(

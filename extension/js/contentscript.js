@@ -56,7 +56,12 @@ var MessageBGPage = function( bittollTagContent, prevStuff) {
     chrome.runtime.sendMessage({type: "payment_request", value: bittollTagContent}, function(response){
         if(response.type == "payment_reply"){
             console.log("value returned: " + response.value);
-            $( "[name=bittoll-payment-id]" ).attr("content", (prevStuff + response.value));
+            if response.value {
+                $( "[name=bittoll-payment-id]" ).attr("content", (prevStuff + ";accepted"));
+            }
+            else {
+                $( "[name=bittoll-payment-id]" ).attr("content", (prevStuff + ";rejected"));
+            }
             return response.value;
         }
 	});

@@ -22,17 +22,16 @@ var handle_payment = function (request, sender, sendResponse) {
 
     paymentCallbacks[new_payment_id] = function(response) {
 
-    var new_payment_result = response.value
 	//send confirmation back to content script
-    sendResponse({type: "payment_reply", value: new_payment_result});
-    console.log(new_payment_result);
+    sendResponse({type: "payment_reply", value: response});
+    console.log(response);
     }
 }
 
 function handle_payment_response(request) {
     var paymentid = request.id
     var response = request.value
-    var callback = paymentcallacks[paymentid];
+    var callback = paymentCallbacks[paymentid];
     if (callback === undefined) {
         console.log("no callback for" + paymentid)
         return

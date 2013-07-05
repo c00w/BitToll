@@ -37,6 +37,7 @@ function handle_payment_response(request) {
         return
     }
     callback(response)
+    delete(paymentCallbacks[paymentid]);
 }
 
 chrome.runtime.onMessage.addListener(function(request,

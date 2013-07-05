@@ -57,6 +57,7 @@ function LoginCtrl($scope, $http, $location, $routeParams) {
             $scope.login = data
 			chrome.runtime.sendMessage({type: "login_save", value: data});
 
+            $location.search("next", undefined)
             $location.path($scope.next)
         }).
         error(function(data, status, headers, config) {
@@ -99,6 +100,7 @@ function LoginCtrl($scope, $http, $location, $routeParams) {
                 }
                 $scope.login = login
                 $scope.msg = "Success"
+                $location.search("next", undefined)
                 $location.path($scope.next)
             }).
             error(function(data, status, headers, config) {

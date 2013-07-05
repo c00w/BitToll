@@ -7,7 +7,7 @@ function passMessageToContentScript( payment_return){
 //(sent when bittoll field encountered)
 var handle_payment = function (request, sender, sendResponse) {
 
-	var new_payment_id = request.payment_request
+	var new_payment_id = request.value
 
     //If we are not logged in, deal with that first
     if (loginInfo !== null) {

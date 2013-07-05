@@ -46,7 +46,7 @@ var checkForTags = function(current) {
 		element.attr("content", (stuff + ";processing") );
 
 		//try to pass a message back to the background page
-		MessageBGPage( ("payment request! id: " + stuff), stuff);
+		MessageBGPage( stuff, stuff);
 	    //automaticalls waits for return confirmation/failure
 	}
 }

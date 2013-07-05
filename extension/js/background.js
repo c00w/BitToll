@@ -3,37 +3,30 @@ var loginInfo = null;
 function passMessageToContentScript( payment_return){
 }
 
-  //listens for messages from the content script
-	//(sent when bittoll field encountered)
+//listens for messages from the content script
+//(sent when bittoll field encountered)
 var handle_payment = function (request, sender, sendResponse) {
+
 	var new_payment_id = request.payment_request
 
-	//ask user if it is okay
-		//can this be done better?
-		var foo = confirm("The page at " + sender.tab.url +
-			"is requesting a bittoll payment of $.blah" +
-			"\n\n" + "accept this charge?");
+    //If we are not logged in, deal with that first
+    if (loginInfo !== null) {
+        var paymenturl = chrome.extension.getURL("/html/option.html#/payment/" + new_payment_id)
+    } else {
+        var paymenturl = chrome.extension.getURL("/html/option.html#/login?next=/payment/" + new_payment_id)
+    }
 
-		var new_payment_result;
-		if(foo){
-			//run bittoll transaction(new_payment_id)
-			//new_payment_result = bittoll__something_or_other(blah);
-			new_payment_result = ";confirmed;lkjl";
+    console.log("Opening: " + paymenturl)
+    window.open(paymenturl)
 
-		}
-		else{
-			new_payment_result = ";denied;";
-
-		}
-
-		sendResponse({type: "payment_reply", value: new_payment_result});
-		console.log(new_payment_result);
 	//send confirmation back to content script
-
-
+    sendResponse({type: "payment_reply", value: new_payment_result});
+    console.log(new_payment_result);
 }
-chrome.runtime.onMessage.addListener(
-  function(request, sender, sendResponse) {
+
+chrome.runtime.onMessage.addListener(function(request,
+                                              sender,
+                                              sendResponse) {
 	console.log(sender.tab ?
                 "from a content script:" + sender.tab.url :
                 "from the extension");

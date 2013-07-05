@@ -31,7 +31,7 @@ function DashBoardCtrl($scope, $http) {
 
 function LoginCtrl($scope, $http, $location, $routeParams) {
     $scope.msg = ""
-    if $routeParams.next {
+    if ($routeParams.next) {
         $scope.next = $routeParams.next
     } else {
         $scope.next = "/dashboard"

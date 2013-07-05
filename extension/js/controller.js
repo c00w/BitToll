@@ -8,9 +8,11 @@ function PaymentCtrl($scope, $routeParams, $http) {
     var login = undefined
     $scope.accept = function () {
         console.log("Accepted")
+        chrome.runtime.sendMessage({"type":"payment_response", "value":true, "id":$scope.paymentid})
     }
     $scope.reject = function () {
         console.log("Rejected")
+        chrome.runtime.sendMessage({"type":"payment_response", "value":false, "id":$scope.paymentid})
     }
 
     chrome.runtime.sendMessage({"type":"login_request"}, function(response) {

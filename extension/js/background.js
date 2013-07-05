@@ -20,7 +20,7 @@ var handle_payment = function (request, sender, sendResponse) {
     console.log("Opening: " + paymenturl)
     chrome.tabs.create({"url":paymenturl})
 
-    paymentcallbacks[new_payment_id] = function(response) {
+    paymentCallbacks[new_payment_id] = function(response) {
 
     var new_payment_result = response.value
 	//send confirmation back to content script
@@ -35,6 +35,7 @@ function handle_payment_response(request) {
     var callback = paymentcallacks[paymentid];
     if (callback === undefined) {
         console.log("no callback for" + paymentid)
+        return
     }
     callback(response)
 }
@@ -45,8 +46,7 @@ chrome.runtime.onMessage.addListener(function(request,
 	console.log(sender.tab ?
                 "from a content script:" + sender.tab.url :
                 "from the extension");
-	console.log("blah");
-	console.log(request.value);
+	console.log(request);
 
 	//remove message prefix.
 	//could add future functionality by allowing different prefixes

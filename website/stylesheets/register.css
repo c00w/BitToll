@@ -1,0 +1,52 @@
+/* line 3, ../sass/register.scss */
+.pageheader {
+  height: 7em;
+}
+
+/* line 7, ../sass/register.scss */
+.requiredforms {
+  margin-top: 4em;
+}
+
+/* line 11, ../sass/register.scss */
+input {
+  border-radius: 0.2em;
+  font-size: 1em !important;
+}
+/* line 14, ../sass/register.scss */
+input:focus {
+  box-shadow: none !important;
+}
+/* line 17, ../sass/register.scss */
+input[type="button"] {
+  background-color: #58c07d;
+  outline: 0;
+  border: 0;
+  color: white;
+  padding: 1em;
+  width: 100%;
+  box-shadow: 0 5px 0 #3fa664;
+}
+/* line 25, ../sass/register.scss */
+input[type="button"]:hover {
+  margin-top: 5px;
+  box-shadow: none;
+  margin-bottom: -5px;
+}
+/* line 30, ../sass/register.scss */
+input[type="button"]:focus {
+  margin-top: 5px;
+  box-shadow: none;
+  margin-bottom: -5px;
+  background-color: #7dce9a;
+}
+
+/* line 40, ../sass/register.scss */
+#pass {
+  margin-right: -4em;
+}
+
+/* line 43, ../sass/register.scss */
+#verifypass {
+  padding-left: 0;
+}

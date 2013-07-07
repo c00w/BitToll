@@ -1,0 +1,111 @@
+@font-face {
+	font-family: 'bittoll';
+	src:url('../fonts/bittoll.eot');
+	src:url('../fonts/bittoll.eot?#iefix') format('embedded-opentype'),
+		url('../fonts/bittoll.woff') format('woff'),
+		url('../fonts/bittoll.ttf') format('truetype'),
+		url('../fonts/bittoll.svg#bittoll') format('svg');
+	font-weight: normal;
+	font-style: normal;
+}
+
+/* Use the following CSS code if you want to use data attributes for inserting your icons */
+[data-icon]:before {
+	font-family: 'bittoll';
+	content: attr(data-icon);
+	speak: none;
+	font-weight: normal;
+	font-variant: normal;
+	text-transform: none;
+	line-height: 1;
+	-webkit-font-smoothing: antialiased;
+}
+
+/* Use the following CSS code if you want to have a class per icon */
+/*
+Instead of a list of all class selectors,
+you can use the generic selector below, but it's slower:
+[class*="bit"] {
+*/
+.bitcard, .bitshield, .bittimer, .bitthumbs-up, .bitlocked, .bitcloud, .bitlightning, .bitcoin, .bitbittoll, .bitfeather, .bitarrow-down, .bitwand, .bitearth, .bitsupport, .bitsafe, .bitdollar, .bitmute, .bitforbid, .bitkey, .bitarrow-left, .bitarrow-up, .bitarrow-right, .biteye-close, .bitconsole {
+	font-family: 'bittoll';
+	speak: none;
+	font-style: normal;
+	font-weight: normal;
+	font-variant: normal;
+	text-transform: none;
+	line-height: 1;
+	-webkit-font-smoothing: antialiased;
+}
+.bitcard:before {
+	content: "\e000";
+}
+.bitshield:before {
+	content: "\e001";
+}
+.bittimer:before {
+	content: "\e002";
+}
+.bitthumbs-up:before {
+	content: "\e003";
+}
+.bitlocked:before {
+	content: "\e004";
+}
+.bitcloud:before {
+	content: "\e005";
+}
+.bitlightning:before {
+	content: "\e006";
+}
+.bitcoin:before {
+	content: "\e008";
+}
+.bitbittoll:before {
+	content: "\e009";
+}
+.bitfeather:before {
+	content: "\e007";
+}
+.bitarrow-down:before {
+	content: "\e00a";
+}
+.bitwand:before {
+	content: "\e00b";
+}
+.bitearth:before {
+	content: "\e00c";
+}
+.bitsupport:before {
+	content: "\e00d";
+}
+.bitsafe:before {
+	content: "\e00f";
+}
+.bitdollar:before {
+	content: "\e010";
+}
+.bitmute:before {
+	content: "\e011";
+}
+.bitforbid:before {
+	content: "\e012";
+}
+.bitkey:before {
+	content: "\e013";
+}
+.bitarrow-left:before {
+	content: "\e014";
+}
+.bitarrow-up:before {
+	content: "\e015";
+}
+.bitarrow-right:before {
+	content: "\e016";
+}
+.biteye-close:before {
+	content: "\f070";
+}
+.bitconsole:before {
+	content: "\e017";
+}

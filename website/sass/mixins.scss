@@ -1,0 +1,5 @@
+@mixin full-width($bgi: none){
+	width: 100%;
+	background-image: url("#{$bgi}");
+	background-size: cover;
+}

@@ -1,0 +1,189 @@
+
+<!DOCTYPE html>
+<!--[if IE 8]> 				 <html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+
+<head>
+	<meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width" />
+  <title>BitToll · Instantaneous Bitcoin Transactions</title>
+
+  
+  <link rel="stylesheet" href="stylesheets/app.css" />
+  <link href='http://fonts.googleapis.com/css?family=EB+Garamond|Roboto:400,300,500,700' rel='stylesheet' type='text/css'>
+
+  <script src="javascripts/vendor/custom.modernizr.js"></script>
+
+
+</head>
+<body>
+	<div class="headMount sans">
+		<header class="row">
+			<div class="large-3 column logo">
+        <i class="bitbittoll"><i class="bitcoin"></i></i>
+      </div>
+      <nav class="large-9 column">
+        <ul class="horizontal">
+          <li><a href="">faq</a></li>
+          <li><a href="">documentation</a></li>
+          <li><a href="" class="cta">log&nbsp;in</a></li>
+        </ul>
+      </nav>
+		</header>
+	</div>
+
+
+  <section class="hero fullheight">
+    <div class="row">
+      <div class="large-12 column">
+        <div class="hero-rotator">
+          <ul>
+            <!-- <li class="hero-headline developers">
+              <h1>
+                Earn revenue without advertisements.
+              </h1>
+            </li> -->
+            <li class="hero-headline users">
+              <h1>Support your favorite online commentators, curators, and creators. <span class="underline">Free for users.</span></h1>
+              <span class="button">GET THE CHROME EXTENSION</span>
+<!--               <span class="button demph">FIND OUT MORE</span>
+ -->            </li>
+          </ul>
+        </div>
+      </div>      
+    </div>
+  </section>
+
+  <section class="content">
+    <div class="row aboutbittoll">
+      <div class="large-8 large-offset-2 columns">
+        <h3 class="light">Content worth paying for.</h3>
+        <p class="light">
+          There's lots of content on the Internet. Some of it we'd even pay for, and we think you'd do the same if there was a good way. Bittoll is exactly that: A Chrome plugin that lets you pay for your favorite online content on your own terms.
+        </p>
+        <div class="icon-container">
+          <i class="bitlocked">                  
+            <span class="icon-label">ANONYMOUS&nbsp;&&nbsp;SECURE</span>
+          </i>
+          <i class="bitlightning">                  
+            <span class="icon-label">LIGHTNING&nbsp;FAST</span>
+          </i>
+          <i class="bitwand">                  
+            <span class="icon-label">WORKS&nbsp;INVISIBLY</span>
+          </i>
+        </div>
+        <div class="button liftedcta">CREATE AN ACCOUNT</div>
+        
+      </div>
+      
+    </div>
+
+    <div class="row bigbreak">&nbsp;</div>
+    <div class="row howitworks">
+      <h2>How it works</h2>
+      <div class="large-4 columns">
+        <div class="row">
+          <div class="large-2 columns">
+            <p class="stepnumber">1</p>
+          </div>
+          <div class="large-10 columns stepcontainer">
+            <h5 class="stepname">Make a free bittoll account</h5>
+            <p class="stepdescription">
+              You can create a bittoll account either right here, or on most websites that support bittoll. When you're ready to get started, load it up with some money with a credit card or bitcoins.<br>
+              <a href="#">Register here.</a>
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="large-4 columns">
+        <div class="row">
+          <div class="large-2 columns">
+            <p class="stepnumber">2</p>
+          </div>
+          <div class="large-10 columns stepcontainer">
+            <h5 class="stepname">Install our Chrome extension</h5>
+            <p class="stepdescription">
+              Our extension makes everything a lot easier on you. It will keep track of your username and password, your funds, and a few other things. One thing it <span class="bold">won't</span> keep track of is the sites you've visited or sent money to.<br>
+              <a href="#">Get the extension.</a>
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="large-4 columns">
+        <div class="row">
+          <div class="large-2 columns">
+            <p class="stepnumber">3</p>
+          </div>
+          <div class="large-10 columns stepcontainer">
+            <h5 class="stepname">Approve a site's terms</h5>
+            <p class="stepdescription">
+              Each website sets its own terms. When you visit, it will ask if you'd like to authorize microtransactions and tell you what you'd get in return! If it's worth it, simply hit <span class="highlight">approve</span>. It's really that easy.
+              <br>
+              <a href="#">See an example authorization.</a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+        <p class="devcta">Oh, were you looking for something a bit <a href="#">more technical</a>?</p>
+      
+    </div>
+
+
+  </section>
+
+
+ <footer>
+   <div class="row footernav">
+     <div class="large-12 columns">
+       <ul class="horizontal">
+         <li><a href="#">About</a></li>
+         <li><a href="#">Press</a></li>
+         <li><a href="#">Investors</a></li>
+         <li><a href="#">Contact</a></li>
+         <li><a href="#">Contribute</a></li>
+       </ul>
+     </div>
+   </div>
+   <div class="row footerinfo">
+     <div class="large-12 columns">
+        <span>Copyright &copy; 2013 bittoll</span>
+     </div>
+   </div>
+ </footer>
+
+
+
+
+
+
+
+
+  <script>
+  // document.write('<script src=' +
+  // ('__proto__' in {} ? 'javascripts/vendor/zepto' : 'javascripts/vendor/jquery') +
+  // '.js><\/script>')
+  // </script>
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+  <script src="javascripts/unslider.js" type="text/javascript">
+  </script>
+
+  <script>
+  $(function(){
+    // var slider = $(".hero-rotator").unslider({
+    //                 dots: true,
+    //                 fluid: true,
+    //                 delay: 8000
+    //               }),
+    //     data = slider.data("unslider");
+
+    var viewportHeight = $(window).height();
+    $(".fullheight").css("height", viewportHeight);
+
+
+    $(document).foundation();
+  });
+  </script>
+</body>
+</html>

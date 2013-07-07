@@ -1,0 +1,45 @@
+@import "variables";
+
+.pageheader {
+	height: 7em;
+}
+
+.requiredforms {
+	margin-top: 4em;
+}
+
+input {
+	border-radius: 0.2em;
+	font-size: 1em !important;
+	&:focus {
+		box-shadow: none !important;
+	}
+	&[type="button"]{
+		background-color: $color-green-cta;
+		outline: 0;
+		border: 0;
+		color: white;
+		padding: 1em;
+		width: 100%;
+		box-shadow: 0 5px 0 darken($color-green-cta, 10%);
+		&:hover {
+			margin-top: 5px;
+			box-shadow: none;
+			margin-bottom: -5px;
+		}
+		&:focus {
+			margin-top: 5px;
+			box-shadow: none;			
+			margin-bottom: -5px;
+			background-color: lighten($color-green-cta, 10%);
+		}
+
+	}
+}
+
+#pass {
+	margin-right: -4em;
+}
+#verifypass {
+	padding-left: 0;
+}

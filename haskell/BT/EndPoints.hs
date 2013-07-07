@@ -64,7 +64,7 @@ createPayment info conn = do
     if resp then do
             _ <- setPaymentUser conn (BC.pack paymentid) username
             return [("paymentid", paymentid)]
-      else createPayment info conn
+    else createPayment info conn
 
 getPayment :: Request -> PersistentConns -> IO [(String, String)]
 getPayment info conn = do

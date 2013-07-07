@@ -1,0 +1,49 @@
+/* line 3, ../sass/home.scss */
+canvas {
+  padding: 0;
+  pointer-events: none;
+  min-height: 31em;
+}
+/* line 7, ../sass/home.scss */
+canvas:focus {
+  border: none;
+}
+
+/* line 12, ../sass/home.scss */
+.three-prong {
+  position: relative;
+}
+
+/* line 17, ../sass/home.scss */
+.prong a {
+  font-weight: bold;
+}
+
+/* line 22, ../sass/home.scss */
+.prong-title {
+  margin-bottom: 0;
+}
+
+/* line 26, ../sass/home.scss */
+.prong-description {
+  color: #9dbfc3;
+}
+
+/* line 30, ../sass/home.scss */
+.extensioncta {
+  background-color: #e9e9e9;
+  padding-top: 1em;
+}
+
+/* line 35, ../sass/home.scss */
+.extensiondownload {
+  margin-left: 2em;
+  background-color: #58c07d;
+  text-transform: none;
+  font-weight: 300 !important;
+  border: none;
+}
+/* line 41, ../sass/home.scss */
+.extensiondownload:hover {
+  background-color: #7dce9a;
+}

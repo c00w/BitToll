@@ -1,0 +1,44 @@
+@import "variables";
+
+canvas {
+	padding:0;
+	pointer-events: none;
+	min-height: 31em;
+	&:focus {
+		border: none;
+	}
+}
+
+.three-prong {
+	position: relative;
+}
+
+.prong {
+	a {
+		font-weight: bold;
+	}
+}
+
+.prong-title {
+	margin-bottom: 0;
+}
+
+.prong-description {
+	color: rgb(157, 191, 195);
+}
+
+.extensioncta {
+	background-color: #e9e9e9;
+	padding-top: 1em;
+}
+
+.extensiondownload {
+	margin-left: 2em;
+	background-color: $color-green-cta;
+	text-transform: none;
+	font-weight: 300 !important;
+	border: none;
+	&:hover {
+		background-color: lighten($color-green-cta, 10%);
+	}
+}

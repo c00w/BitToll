@@ -29,6 +29,12 @@ class nginx ($test = false) {
         ensure  => absent,
     }
 
+    file{"/etc/nginx/sites-available/default.dpkg-dist":
+        notify  => Service["nginx"],
+        require => Package["nginx-openresty"],
+        ensure  => absent,
+    }
+
     file {"/etc/nginx/sites-enabled/default":
         notify  => Service["nginx"],
         require => Package["nginx-openresty"],

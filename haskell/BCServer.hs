@@ -9,6 +9,7 @@ import qualified System.ZMQ3 as ZMQ
 import Control.Monad
 import Network.Bitcoin as BTC
 import Data.Text.Encoding (encodeUtf8, decodeUtf8)
+import Control.Exception (catch)
 
 import BT.Config
 import BT.Log
@@ -26,7 +27,7 @@ main = do
             ZMQ.bind s bindTo
             forever $ do
                 request <- ZMQ.receive s
-                resp <- route request minconf
+                resp <- catch (route request minconf) logException
                 ZMQ.send s [] resp
 
 router :: Data.Map.Map ByteString (ByteString -> Int -> IO ByteString)

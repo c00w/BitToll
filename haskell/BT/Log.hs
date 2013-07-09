@@ -8,6 +8,7 @@ import System.IO (hPutStrLn, stderr)
 import Network.Metric.Sink.Statsd (open, AnySink, push)
 import Network.Metric (Metric(Counter, Timer))
 import qualified Data.ByteString as B
+import Control.Exception (SomeException)
 
 loggingSink :: IO AnySink
 loggingSink = open "bittoll" "127.0.0.1" 8125
@@ -20,6 +21,11 @@ rlogTimer ssink namespace bucket start = do
     end <- getCurrentTime
     let time = fromRational . toRational $ diffUTCTime end start
     push ssink $ Timer namespace bucket (time * 1000)
+
+logException :: SomeException -> IO B.ByteString
+logException e = do
+    elogMsg . show $ e
+    return "error"
 
 elogMsg :: String -> IO ()
 elogMsg s = do

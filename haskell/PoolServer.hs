@@ -24,11 +24,6 @@ makebcd = do
     let url = pack $ "http://" ++ host ++ ":" ++ show port
     return $ BTC.Auth url "x" "x"
 
-logException :: SomeException -> IO ByteString
-logException e = do
-    logMsg . show $ e
-    return "error"
-
 main :: IO ()
 main = do
     bcd <- makebcd

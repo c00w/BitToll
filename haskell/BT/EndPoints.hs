@@ -9,7 +9,7 @@ module BT.EndPoints(register, deposit, getBalance, makePayment, createPayment, m
 import qualified Data.ByteString.Char8 as BC
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL
-import Network.Wai (Request, requestHeaders)
+import Network.Wai (Request, requestHeaders, requestMethod)
 import Network.HTTP.Types.Header (hAuthorization)
 import Data.ByteString.Base64 (decodeLenient)
 import Control.Monad (when, liftM, unless)
@@ -256,3 +256,9 @@ getAlias info conn = do
     secret <- getMaybe (RedisException "unknown secret for user") =<< getUserSecret conn username
     return [("username", BC.unpack username), ("secret", BC.unpack secret)]
 
+
+requestPayment :: Request -> PersistentConns -> IO String
+requestPayment r conns = case requestMethod r of
+    "GET"  -> return . creditHTML $ conns
+    "POST" -> return ""
+    _      -> throw . UserException $ "Invalid Request Method"

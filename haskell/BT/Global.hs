@@ -33,6 +33,7 @@ makeCons = do
     target <- newIORef 0
     sink <- loggingSink
     configuration <- makeConfig
+    html <- readFile "/etc/bittoll/credit.html"
     let p = PersistentConns{
         redis=conn,
         pool=zMQPool,
@@ -40,7 +41,8 @@ makeCons = do
         curPayout=payout,
         curTarget=target,
         config=configuration,
-        logsink=sink
+        logSink=sink,
+        creditHTML=html
         }
     _ <- forkIO $ catch (poll p) logCatch
     return p

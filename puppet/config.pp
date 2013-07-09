@@ -2,21 +2,31 @@ import "chris_ppa"
 
 class config ($test = false) {
 
+    File {
+        owner   => "root",
+        group   => "root",
+    }
+
     file {"/etc/bittoll":
         ensure  => directory,
         mode    => 0444,
-        owner   => "root"
     }
 
     $source = $test ? {
-        true    => "/configs/test/bittoll.conf",
-        false   => "/configs/bittoll.conf"
+        true    => "/configs/test/bittoll/bittoll.conf",
+        false   => "/configs/bittoll/bittoll.conf"
+    }
+
+    file {"/etc/bittoll/credit.html":
+        ensure  => present,
+        mode    => 0444,
+        source  => "/configs/bittoll/credit.html",
+        require => File["/etc/bittoll"]
     }
 
     file {"/etc/bittoll/bittoll.conf":
         ensure  => present,
         mode    => 0444,
-        owner   => "root",
         source  => $source,
         require => File["/etc/bittoll"]
     }
@@ -25,6 +35,5 @@ class config ($test = false) {
         ensure  => present,
         source  => "/binaries/ReadConfig",
         mode    => 0111,
-        owner   => "root",
     }
 }

@@ -34,10 +34,10 @@ elogCatch e = do
     return Nothing
 
 logCount :: PersistentConns -> B.ByteString -> B.ByteString -> Integer -> IO ()
-logCount conns = BT.Log.rlogCount (logsink conns)
+logCount conns = BT.Log.rlogCount (logSink conns)
 
 logTimer :: PersistentConns -> B.ByteString -> B.ByteString -> UTCTime -> IO ()
-logTimer conns = BT.Log.rlogTimer (logsink conns)
+logTimer conns = BT.Log.rlogTimer (logSink conns)
 
 
 logCatch :: MyException -> IO ()

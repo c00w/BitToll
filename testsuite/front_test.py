@@ -9,7 +9,7 @@ def glob(pytestconfig):
     if (pytestconfig.option.server):
         set_server(pytestconfig.option.server)
 
-def test_page_error():
+def test_page_error(login):
     r = apicall("nonexistant", "hi")
     assert "error" in r
     assert int(r["error_code"]) == 1

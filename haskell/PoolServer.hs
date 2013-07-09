@@ -6,6 +6,7 @@ import Data.Map
 
 import qualified System.ZMQ3 as ZMQ
 import Control.Monad
+import Control.Exception (SomeException, catch)
 import Network.Bitcoin as BTC
 import Data.Text.Encoding (decodeUtf8)
 import Data.Text (pack)
@@ -23,6 +24,11 @@ makebcd = do
     let url = pack $ "http://" ++ host ++ ":" ++ show port
     return $ BTC.Auth url "x" "x"
 
+logException :: SomeException -> IO ByteString
+logException e = do
+    logMsg . show $ e
+    return "error"
+
 main :: IO ()
 main = do
     bcd <- makebcd
@@ -33,7 +39,7 @@ main = do
             ZMQ.bind s bindTo
             forever $ do
                 request <- ZMQ.receive s
-                resp <- route routes request
+                resp <- catch (route routes request) logException
                 ZMQ.send s [] resp
 
 makeRouter :: Auth -> Map ByteString (ByteString -> IO ByteString)

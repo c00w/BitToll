@@ -1,10 +1,6 @@
-
-console.log("reading page");
-
 $(document).ready(function() {
 
     var current = $("[name=bittoll-payment-id]");
-    console.log(current)
 
     var obs = new MutationObserver(processMutation);
     var config = {};
@@ -18,7 +14,6 @@ $(document).ready(function() {
 })
 
 function processMutation (record) {
-    console.log(record)
     for (var i = 0; i < record.length; i ++){
         var current = record[i].addedNodes
         checkForTags(current)

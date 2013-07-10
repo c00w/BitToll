@@ -13,7 +13,6 @@ import Data.ByteString.Base64 (decodeLenient)
 import Control.Monad (when, liftM, unless)
 import Control.Exception (throw)
 import BT.JSON
-import BT.JWT
 import BT.Mining
 import BT.Payment
 import BT.Types
@@ -255,13 +254,7 @@ getAlias info conn = do
     secret <- getMaybe (RedisException "unknown secret for user") =<< getUserSecret conn username
     return [("username", BC.unpack username), ("secret", BC.unpack secret)]
 
---- Supporting functions for google wallet
-makeJWT :: Request -> PersistentConns -> IO [(String, String)]
-makeJWT info conn = do
-    al <- getRequestMap info
-    aliasName <- liftM BC.pack . getMaybe (UserException "Missing aliasName") $ Data.Map.lookup "aliasName" al
-    jwt <- getJWT "14891485939074315970" "YnL8hIGICLhHfd-5zrhpdQ" aliasName
-    return [("jwt", BC.unpack jwt)]
+--- Supporting functions for balanced
+chargeCC :: Request -> PersistentConns -> IO [(String, String)]
+chargeCC info conn = return []
 
-paymentPost :: Request -> PersistentConns -> IO [(String, String)]
-paymentPost info conn = return []

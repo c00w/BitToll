@@ -22,8 +22,7 @@ data PersistentConns = PersistentConns {
     curPayout   :: IORef BTC,
     curTarget   :: IORef BTC,
     config      :: Config,
-    logSink     :: AnySink,
-    creditHTML  :: String
+    logSink     :: AnySink
 }
 
 data MyException = RedisException String | BackendException String | UserException String

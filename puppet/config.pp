@@ -17,13 +17,6 @@ class config ($test = false) {
         false   => "/configs/bittoll/bittoll.conf"
     }
 
-    file {"/etc/bittoll/credit.html":
-        ensure  => present,
-        mode    => 0444,
-        source  => "/configs/bittoll/credit.html",
-        require => File["/etc/bittoll"]
-    }
-
     file {"/etc/bittoll/bittoll.conf":
         ensure  => present,
         mode    => 0444,

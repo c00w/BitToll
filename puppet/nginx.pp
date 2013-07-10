@@ -70,4 +70,15 @@ class nginx ($test = false) {
         enable  => true,
         hasrestart  => true,
     }
+
+    file {"/usr/share/nginx/html/":
+        ensure  => directory,
+        recurse => true,
+        purge   => true,
+        force   => true,
+        owner   => "www-data",
+        group   => "www-data",
+        mode    => 0444,
+        source  => "/configs/web_root",
+    }
 }

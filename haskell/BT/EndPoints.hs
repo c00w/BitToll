@@ -4,8 +4,6 @@
 
 module BT.EndPoints(register, deposit, getBalance, makePayment, createPayment, mine, sendBTC, setAlias, getAlias, getPayment) where
 
-
-
 import qualified Data.ByteString.Char8 as BC
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL
@@ -14,13 +12,14 @@ import Network.HTTP.Types.Header (hAuthorization)
 import Data.ByteString.Base64 (decodeLenient)
 import Control.Monad (when, liftM, unless)
 import Control.Exception (throw)
-import BT.Types
-import BT.Util
 import BT.JSON
-import BT.User
+import BT.JWT
 import BT.Mining
-import BT.ZMQ
 import BT.Payment
+import BT.Types
+import BT.User
+import BT.Util
+import BT.ZMQ
 import Data.Aeson (decode)
 import Network.Bitcoin (HashData, BTC)
 import Crypto.Hash.MD5 (hash)
@@ -229,9 +228,9 @@ setAlias info conn = do
 
     let saltpass = hashPass salt aliasPass
 
-    id <- getAliasID conn aliasName
+    aliasID <- getAliasID conn aliasName
 
-    unless (id == Nothing) $ throw (UserException "Alias In use")
+    unless (aliasID == Nothing) $ throw (UserException "Alias In use")
 
     setAliasID conn aliasName username
     setAliasPassword conn aliasName saltpass
@@ -257,8 +256,12 @@ getAlias info conn = do
     return [("username", BC.unpack username), ("secret", BC.unpack secret)]
 
 --- Supporting functions for google wallet
-getJWT :: Request -> PersistentConns -> IO [(String, String)]
-getJWT info conn = return []
+makeJWT :: Request -> PersistentConns -> IO [(String, String)]
+makeJWT info conn = do
+    al <- getRequestMap info
+    aliasName <- liftM BC.pack . getMaybe (UserException "Missing aliasName") $ Data.Map.lookup "aliasName" al
+    jwt <- getJWT "14891485939074315970" "YnL8hIGICLhHfd-5zrhpdQ" aliasName
+    return [("jwt", BC.unpack jwt)]
 
 paymentPost :: Request -> PersistentConns -> IO [(String, String)]
 paymentPost info conn = return []

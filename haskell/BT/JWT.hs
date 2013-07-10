@@ -54,7 +54,7 @@ time :: IO Int
 time = getCurrentTime >>= return . floor. toRational .  utcTimeToPOSIXSeconds
 
 getJWT :: B.ByteString -> B.ByteString -> B.ByteString -> IO B.ByteString
-getJWT sellerSecret sellerID userAlias = do
+getJWT sellerID sellerSecret userAlias = do
     t <- time
     let s = encode sellerSecret JWT {
     iss = sellerID,

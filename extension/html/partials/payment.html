@@ -3,7 +3,10 @@
     {{msg}}
     PaymentID# {{paymentid}}
 </div>
-<input type="submit" value="Accept" ng-click="accept()"></input>
+<input type="submit" value="Accept" ng-click="accept()" ng-disabled="!can_pay"></input>
 <input type="submit" value="Reject" ng-click="reject()"></input>
+<div ng-show="!can_pay">
+    <a href="us.bittoll.com/payment">Add More Bitcoins to your Bittoll account</a>
+</div>
 </form>
 

@@ -5,6 +5,7 @@
 function PaymentCtrl($scope, $routeParams, $http) {
     $scope.paymentid = $routeParams.paymentid
     $scope.msg = "Loading Payment Details"
+    $scope.can_pay = false
     var login = undefined
     $scope.accept = function () {
         console.log("Accepted")
@@ -26,7 +27,11 @@ function PaymentCtrl($scope, $routeParams, $http) {
             )
         ).
         success(function (data, status, headers, config) {
-            $scope.msg = "Would you like to pay " + data["amount"]
+            console.log(data)
+            $scope.msg = "Would you like to pay " + data.amount
+            if (data.balance === "1") {
+                $scope.can_pay = true
+            }
         }).
         error(function (data, status, headers, config) {
             $scope.msg = "failure loading payment"

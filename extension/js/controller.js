@@ -9,8 +9,29 @@ function PaymentCtrl($scope, $routeParams, $http) {
     var login = undefined
     $scope.accept = function () {
         console.log("Accepted")
-        chrome.runtime.sendMessage({"type":"payment_response", "value":true, "id":$scope.paymentid})
+        $scope.msg = "Making Payment"
+        $http.post(
+            "https://us.bittoll.com/pay",
+            makeDict(login,
+                {
+                    "payment":$scope.paymentid
+                }
+            )).
+        success(function (data, status, headers, config) {
+            if (data.error_code !== "0") {
+                console.log(data)
+                $scope.msg = "Error making payment"
+                return
+            }
+            $scope.msg ="Payment Accepted"
+            chrome.runtime.sendMessage({"type":"payment_response", "value":true, "id":$scope.paymentid})
+        }).
+        error(function (data, status, headers, config) {
+            console.log(data)
+            $scope.msg = "Error making payment"
+        })
     }
+
     $scope.reject = function () {
         console.log("Rejected")
         chrome.runtime.sendMessage({"type":"payment_response", "value":false, "id":$scope.paymentid})
